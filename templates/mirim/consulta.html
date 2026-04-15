@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Acesso do Guarda{% endblock %}
+
+{% block body %}
+    <div class="container mt-5" style="max-width: 420px;">
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <div class="text-center mb-4">
+                    <img src="{% static 'img/brasao_guarda.png' %}" alt="Logo" class="img-fluid" style="max-height: 80px;">
+                </div>
+                <h4 class="text-center mb-4">Consultar Frequência da Guarda Mirim</h4>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label">Matrícula</label>
+                        <input type="text" name="matricula" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">CPF</label>
+                        <input type="text" name="cpf" class="form-control" required>
+                    </div>
+
+                    <button class="btn btn-primary w-100">
+                        Visualizar
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

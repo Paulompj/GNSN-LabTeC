@@ -1,0 +1,22 @@
+{% extends 'menu.html' %}
+{% load static %}
+{% block title %}Importação de Guardas{% endblock %}
+{% block body %}
+    <div class="container mt-4">
+        <h3>Importação de Guardas</h3>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="arquivo" class="form-label">Arquivo XLSX</label>
+                <input type="file" name="arquivo" id="arquivo" class="form-control" accept=".xlsx" required>
+            </div>
+
+            <button type="submit" class="btn btn-success">Importar</button>
+        </form>
+
+        <hr>
+        <p>O arquivo XLSX deve conter os campos: CAD_MATRICULA, CAD_NOME, CAD_SEXO, CAD_RG, CAD_CPF, CAD_EST_CIVIL, CAD_NASC, CAD_TEL_RES, CAD_TEL_CEL, CAD_TEL_COM, CAD_EMAIL, CAD_CEP, CAD_END, CAD_BAI, CAD_CID, CAD_UF, CAD_COMP, CAD_SIT, CAD_OBS</p>
+        <p>O campo MAT_PADRINHO pode estar dentro do CAD_OBS no formato: MAT_PADRINHO_NOME_123</p>
+    </div>
+{% endblock %}

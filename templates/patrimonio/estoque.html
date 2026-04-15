@@ -1,0 +1,84 @@
+{% extends "menu.html" %}
+{% block body %}
+
+    <div class="container py-4">
+
+        <!-- TÍTULO -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h3 class="fw-bold mb-0">Relatório de Estoque</h3>
+                <small class="text-muted">
+                    Controle geral de materiais armazenados
+                </small>
+            </div>
+        </div>
+
+        <!-- CARD -->
+        <div class="card shadow-sm border-0">
+            <div class="table-responsive">
+
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Material</th>
+                        <th>Quantidade</th>
+                        <th>Validade</th>
+                        <th>Local</th>
+                        <th>Situação</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for e in estoques %}
+
+                        {% if e.validade and e.validade < hoje %}
+                            <tr class="table-danger">
+                                {% elif e.validade and e.validade <= limite_alerta %}
+                            <tr class="table-warning">
+                                {% else %}
+                            <tr>
+                        {% endif %}
+
+                    <td class="fw-semibold">
+                        {{ e.material.nome }}
+                    </td>
+
+                    <td>{{ e.quantidade }}</td>
+
+                    <td>
+                        {{ e.validade|date:"d/m/Y"|default:"—" }}
+                    </td>
+
+                    <td>
+                        {{ e.local_provisorio|default:"—" }}
+                    </td>
+
+                    <td>
+                        {% if e.validade and e.validade < hoje %}
+                            <span class="badge bg-danger">Vencido</span>
+                        {% elif e.validade and e.validade <= limite_alerta %}
+                            <span class="badge bg-warning text-dark">
+                                        Próximo do vencimento
+                                    </span>
+                        {% else %}
+                            <span class="badge bg-success">Regular</span>
+                        {% endif %}
+                    </td>
+
+                    </tr>
+
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">
+                                Nenhum item em estoque.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

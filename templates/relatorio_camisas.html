@@ -1,0 +1,71 @@
+{% extends 'menu.html' %}
+{% load static %}
+{% block title %}Relatório de Entregas{% endblock %}
+{% block body %}
+    <div class="container mt-4">
+        <h3>Relatório de Camisas</h3>
+        <form method="get" class="row g-3 mb-4">
+            <div class="col-md-3">
+                <label for="ano" class="form-label">Ano</label>
+                <select name="ano" id="ano" class="form-select" onchange="this.form.submit()">
+                    <option value="">Todos</option>
+                    {% for a in anos_disponiveis %}
+                        <option value="{{ a }}" {% if a|stringformat:"s" == ano_selecionado %}selected{% endif %}>{{ a }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label for="data" class="form-label">Dias da Entrega (Ctrl+Clique para múltiplos)</label>
+                <select name="data" id="data" class="form-select" multiple onchange="this.form.submit()" size="5">
+                    {% for d in dias_entregas %}
+                        <option value="{{ d|date:"Y-m-d" }}" {% if d|stringformat:"s" in dias_selecionados %}selected{% endif %}>{{ d|date:"d/m/Y" }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+
+        {% if tabela_camisas %}
+            <div class="card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <h5>Tabela de Camisas (Entregues: {{ total_geral_entregues }}, A Entregar: {{ total_geral_pendente }})</h5>
+                    <span class="text-muted">
+                {% if dias_selecionados %}Data: {{ dias_selecionados|join:", " }}{% else %}Todos os dias{% endif %} |
+                        {% if ano_selecionado %}Ano: {{ ano_selecionado }}{% else %}Todos os anos{% endif %}
+            </span>
+                </div>
+                <div class="card-body pt-0">
+                    {% for tam, info in tabela_camisas.items %}
+                        <h6 class="mt-3">
+                            Tamanho: {{ tam }}
+                            (Entregues: {{ info.total_entregues }}, A Entregar: {{ info.total_pendente }})
+                        </h6>
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>Equipe</th>
+                                <th>Entregues</th>
+                                <th>A Entregar</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for equipe in info.equipes %}
+                                <tr>
+                                    <td>{{ equipe.equipe }}</td>
+                                    <td>{{ equipe.entregues }}</td>
+                                    <td>{{ equipe.a_entregar }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endfor %}
+                    <h6 class="mt-3">
+                        Total Geral - Entregues: {{ total_geral_entregues }}, A Entregar: {{ total_geral_pendente }}
+                    </h6>
+                </div>
+            </div>
+        {% else %}
+            <p class="text-center text-muted">Nenhuma camisa encontrada para os filtros selecionados.</p>
+        {% endif %}
+    </div>
+{% endblock %}

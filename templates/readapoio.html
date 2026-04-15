@@ -1,0 +1,156 @@
+{% extends 'menu.html' %}
+{% load static %}
+{% load mascara %}
+{% block title %}Guardas de Apoio{% endblock %}
+{% block body %}
+    <div class="container mt-4">
+        <h3>Lista de Guardas de Apoio</h3>
+
+        <!-- Filtros -->
+        <form method="get" class="row g-3 mb-3">
+            <div class="col-md-6">
+                <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Buscar por responsável, município ou paróquia">
+            </div>
+            <div class="col-md-2">
+                <select name="per_page" class="form-select">
+                    {% for n in per_page_options %}
+                        <option value="{{ n }}" {% if per_page == n %}selected{% endif %}>{{ n }} por página</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select">
+                    <option value="pendentes" {% if status == 'pendentes' %}selected{% endif %}>Faltam Entregar</option>
+                    <option value="entregues" {% if status == 'entregues' %}selected{% endif %}>Já Entregues</option>
+                    <option value="todos" {% if status == 'todos' %}selected{% endif %}>Todos</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary mb-3">Buscar</button>
+            </div>
+        </form>
+
+        <!-- Tabela -->
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-dark">
+                <tr>
+                    <th>Matrícula</th>
+                    <th>Responsável</th>
+                    <th>Município</th>
+                    <th>Paróquia</th>
+                    <th>Telefone</th>
+                    <th>PP</th><th>P</th><th>M</th><th>G</th><th>GG</th>
+                    <th>3G</th><th>4G</th><th>5G</th><th>6G</th>
+                    <th>Total</th>
+                    <th>Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in page_obj %}
+                    <tr class="{% if item.entregue %}table-success{% endif %}">
+                        <td>{{ item.apoio.matricula }}</td>
+                        <td>{{ item.apoio.responsavel }}</td>
+                        <td>{{ item.apoio.municipio }}</td>
+                        <td>{{ item.apoio.paroquia }}</td>
+                        <td>{{ item.apoio.telefone|telefone }}</td>
+                        <td>{{ item.tamanhos.PP|default:0 }}</td>
+                        <td>{{ item.tamanhos.P|default:0 }}</td>
+                        <td>{{ item.tamanhos.M|default:0 }}</td>
+                        <td>{{ item.tamanhos.G|default:0 }}</td>
+                        <td>{{ item.tamanhos.GG|default:0 }}</td>
+                        <td>{{ item.tamanhos.3G|default:0 }}</td>
+                        <td>{{ item.tamanhos.4G|default:0 }}</td>
+                        <td>{{ item.tamanhos.5G|default:0 }}</td>
+                        <td>{{ item.tamanhos.6G|default:0 }}</td>
+                        <td><strong>{{ item.total }}</strong></td>
+                        <td>
+                            {% if item.entregue %}
+                                <span class="text-muted">
+                    Já entregue em {{ item.data|date:"d/m/Y H:i" }}<br>
+                    <small>por {{ item.entregador.get_full_name|default:item.entregador }}</small>
+                </span>
+                            {% else %}
+                                <button class="btn btn-success btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modal{{ item.apoio.id }}">
+                                    Entregar
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    {% if not item.entregue %}
+                        <!-- Modal -->
+                        <div class="modal fade" id="modal{{ item.apoio.id }}" tabindex="-1" aria-labelledby="modalLabel{{ item.apoio.id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <form method="post" action="{% url 'app:entregarapoio' item.apoio.id %}">
+                                        {% csrf_token %}
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Confirmar Entrega</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p><strong>Responsável:</strong> {{ item.apoio.responsavel }}</p>
+                                            <p><strong>Município:</strong> {{ item.apoio.municipio }}</p>
+                                            <p><strong>Paróquia:</strong> {{ item.apoio.paroquia }}</p>
+                                            <p><strong>Telefone:</strong> {{ item.apoio.telefone|telefone }}</p>
+                                            <hr>
+                                            <h6>Camisas</h6>
+                                            <ul>
+                                                {% for t, q in item.tamanhos.items %}
+                                                    <li>{{ t }}: {{ q }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                            <p><strong>Total:</strong> {{ item.total }}</p>
+                                            <p><strong>Entregador:</strong> {{ request.user.get_full_name|default:request.user.nome }}</p>
+
+                                            <!-- NOVO CAMPO OBSERVAÇÃO -->
+                                            <div class="mb-3">
+                                                <label for="observacao{{ item.apoio.id }}" class="form-label"><strong>Observação</strong></label>
+                                                <textarea name="observacao" id="observacao{{ item.apoio.id }}" class="form-control" rows="3" placeholder="Digite uma observação (opcional)"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn btn-success">Confirmar Entrega</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginação -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ query }}&per_page={{ per_page }}">Anterior</a></li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if num >= page_obj.number|add:'-1' and num <= page_obj.number|add:'1' %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% else %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}&q={{ query }}&per_page={{ per_page }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ query }}&per_page={{ per_page }}">Próximo</a></li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Próximo</span></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+{% endblock %}

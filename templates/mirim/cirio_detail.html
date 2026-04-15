@@ -1,0 +1,43 @@
+{% extends "menu.html" %}
+{% block title %}Detalhes do Círio{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                Círio {{ cirio.ano }}
+            </div>
+
+            <div class="card-body">
+                <p><strong>Início:</strong> {{ cirio.inicio|date:"d/m/Y" }}</p>
+                <p><strong>Término:</strong> {{ cirio.termino|date:"d/m/Y" }}</p>
+                <p><strong>Status:</strong> {{ cirio.ativo|yesno:"Ativo,Inativo" }}</p>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                Regras
+            </div>
+
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Categoria</th>
+                    <th>Quantidade</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for r in regras %}
+                    <tr>
+                        <td>{{ r.categoria.nome }}</td>
+                        <td>{{ r.quantidade_necessaria }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+{% endblock %}

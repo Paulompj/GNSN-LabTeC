@@ -1,0 +1,148 @@
+{% extends 'menu.html' %}
+{% load static %}
+{% block title %}Entregar Camisa{% endblock %}
+{% block body %}
+    <div class="container mt-4">
+        <h3>Detalhes da Camisa</h3>
+
+        <form method="POST" enctype="multipart/form-data" action="{% url 'app:entregar_camisa' %}">
+            {% csrf_token %}
+            <input type="hidden" name="guarda_id" value="{{ guarda.idguarda }}">
+            <input type="hidden" name="camisa_id" value="{{ camisa.id }}">
+
+            <div class="row align-items-center mb-4 text-center">
+
+                <div class="col-md-1"></div>
+                <!-- Foto do Guarda -->
+                <div class="col-md-3">
+                    <img src="{% if guarda.foto %}{{ guarda.foto }}{% else %}{% static 'img/perfil.png' %}{% endif %}"
+                         alt="Foto do Guarda" class="img-thumbnail shadow-sm"
+                         style="width: 180px; height: 180px; object-fit: cover;">
+                </div>
+
+                <!-- Dados do Guarda e da Camisa -->
+                <div class="col-md-4 text-start">
+                    <div class="mb-2"><strong>Nome:</strong> {{ guarda.nome }}</div>
+                    <div class="mb-2 fs-5"><strong>Matricula:</strong> {{ guarda.matricula }}</div>
+                    <div class="mb-2 fs-4"><strong>Equipe:</strong> {{ camisa.equipe }}</div>
+                    <div class="mb-2 fs-5"><strong>Tamanho da Camisa:</strong> {{ camisa.tamcamisa }}</div>
+                    <div class="mb-2">
+                        <strong>Situação:</strong>
+                        {% if camisa.situacao == 1 %}
+                            <span class="badge bg-success">APTO</span>
+                        {% else %}
+                            <span class="badge bg-danger">INAPTO</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-3 d-flex justify-content-center">
+                    <div class="card shadow-lg border-0 d-flex flex-column justify-content-between p-3"
+                         style="
+                                 width: 180px; height: 180px; border-radius: 15px;
+                                 {% if camisa.equipe == 'E1' %} background:#f4b000; color:white;
+                                 {% elif camisa.equipe == 'E2' %} background:#e85c2a; color:white;
+                                 {% elif camisa.equipe == 'E3' %} background:#7ab731; color:white;
+                                 {% elif camisa.equipe == 'E4' %} background:#3fa9f5; color:white;
+                                 {% elif camisa.equipe == 'E5' %} background:#d22f27; color:white;
+                                 {% elif camisa.equipe == 'RB' %} background:#1c3b6b; color:white;
+                                 {% elif camisa.equipe == 'NB' %} background:#f2e2b3; color:black;
+                                 {% elif camisa.equipe == 'FC' %} background:#f5f1d7; color:black;
+                                 {% elif camisa.equipe == 'PS' %} background:#8b5c3f; color:white;
+                                 {% elif camisa.equipe == 'AT' %} background:#444; color:white;
+                                 {% elif camisa.equipe == 'NC' %} background:#2e98a7; color:white;
+                                 {% else %} background:#e6e6e6; color:black;
+                                 {% endif %}
+                                 ">
+                        <!-- Equipe -->
+                        <div class="text-center">
+                            <h1 class="fw-bold mb-3" style="font-family: 'Segoe UI', sans-serif;">
+                                {{ camisa.equipe }}
+                            </h1>
+                        </div>
+
+                        <!-- Linha com Tamanho e Quantidade -->
+                        <div class="text-center">
+                            <h3 class="fs-5 fw-semibold">Tamanho: {{ camisa.tamcamisa }}</h3>
+                        </div>
+
+                        <div class="text-center">
+                            <span class="fs-5 fw-semibold">
+                                Camisa:
+                                {% if camisa.equipe == "DR" %}
+                                    4x
+                                {% elif camisa.equipe == "SP" %}
+                                    3x
+                                {% elif camisa.equipe == "SI" %}
+                                    3x
+                                {% elif camisa.equipe == "SE" %}
+                                    3x
+                                {% else %}
+                                    2x
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- Nome do Recebedor -->
+            <div class="mb-3">
+                <label for="recebedor" class="form-label">Nome do Recebedor</label>
+                <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" id="mesmo" name="mesmo">
+                    <label class="form-check-label" for="mesmo">É o próprio</label>
+                </div>
+                <input type="text" class="form-control" id="recebedor" name="recebedor" required>
+                <div class="invalid-feedback">
+                    Por favor, informe o nome do recebedor.
+                </div>
+            </div>
+
+            <!-- Procuração (aparece só se não for o próprio) -->
+            <div class="mb-3" id="procuracaoDiv">
+                <label for="procuracao" class="form-label">Procuração (obrigatória se não for o próprio)</label>
+                <div class="input-group input-group-lg">
+                    <input type="file" accept="image/*,application/pdf" class="form-control" id="procuracao" name="procuracao">
+                </div>
+            </div>
+
+            <!-- Entregador -->
+            <div class="mb-3">
+                <label for="entregador" class="form-label">Entregador</label>
+                <input type="text" class="form-control" id="entregador" value="{{ request.user.nome }}" disabled>
+            </div>
+
+            <!-- Termo -->
+            <div class="mb-3">
+                <label for="termo" class="form-label">Termo de Voluntariado</label>
+                <div class="input-group input-group-lg">
+                    <input type="file" type="file" accept="image/*,application/pdf" class="form-control" id="termo" name="termo">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success">Entregar Camisa</button>
+        </form>
+    </div>
+
+    <script>
+        // Desabilitar/limpar recebedor e mostrar procuração quando necessário
+        document.getElementById('mesmo').addEventListener('change', function() {
+            var recebedor = document.getElementById('recebedor');
+            var procDiv = document.getElementById('procuracaoDiv');
+            var procuracao = document.getElementById('procuracao');
+            if (this.checked) {
+                recebedor.value = "{{ guarda.nome }}";
+                recebedor.readOnly = true;
+                procDiv.style.display = "none";
+            } else {
+                recebedor.value = '';
+                recebedor.readOnly = false;
+                procDiv.style.display = "block";
+                //procuracao.required = true;
+            }
+        });
+    </script>
+{% endblock %}

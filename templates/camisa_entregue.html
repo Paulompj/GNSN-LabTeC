@@ -1,0 +1,119 @@
+{% extends 'menu.html' %}
+{% load static %}
+{% block title %}Listagem de Camisas{% endblock %}
+{% block body %}
+    <div class="container mt-4">
+        <h3>Lista de Camisas</h3>
+
+        <!-- Formulário de busca e filtros -->
+        <form method="get" class="row g-3 mb-3">
+            <div class="col-md-3">
+                <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Buscar por nome ou matrícula">
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="ano" value="{{ ano }}" class="form-control" placeholder="Ano da camisa">
+            </div>
+            <div class="col-md-2">
+                <select name="per_page" class="form-select">
+                    {% for n in per_page_options %}
+                        <option value="{{ n }}" {% if per_page|stringformat:"s" == n|stringformat:"s" %}selected{% endif %}>{{ n }} por página</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="terceiro_only" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="1" {% if terceiro_only %}selected{% endif %}>Somente terceiros</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary mb-3">Buscar</button>
+            </div>
+        </form>
+
+        <!-- Tabela de resultados -->
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-dark">
+                <tr>
+                    <th>Foto</th>
+                    <th>Matrícula</th>
+                    <th>Nome</th>
+                    <th>Ano</th>
+                    <th>Equipe</th>
+                    <th>Tamanho</th>
+                    <th>Recebido</th>
+                    <th>Recebedor</th>
+                    <th>Termos / Procuração</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for camisa in page_obj %}
+                    <tr>
+                        <td>
+                            {% if camisa.guarda.foto %}
+                                <img src="{{ camisa.guarda.foto }}" class="img-thumbnail" width="50">
+                            {% else %}
+                                <img src="{% static 'img/perfil.png' %}" class="img-thumbnail" width="50">
+                            {% endif %}
+                        </td>
+                        <td>{{ camisa.guarda.matricula }}</td>
+                        <td>{{ camisa.guarda.nome }}</td>
+                        <td>{{ camisa.ano }}</td>
+                        <td>{{ camisa.equipe }}</td>
+                        <td>{{ camisa.tamcamisa }}</td>
+                        <td>{{ camisa.recebido|yesno:"Sim,Não" }}</td>
+                        <td>{{ camisa.recebedor }}</td>
+                        <td>
+                            {% if camisa.arquivo %}
+                                <a href="{{ camisa.arquivo.url }}" class="btn btn-success btn-sm" download>Baixar Termo</a>
+                            {% endif %}
+                            {% if camisa.procuracao and camisa.recebedor != camisa.guarda.nome %}
+                                <a href="{{ camisa.procuracao.url }}" class="btn btn-warning btn-sm" download>Baixar Procuração</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center">Nenhuma camisa encontrada.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginação -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ query }}&ano={{ ano }}&per_page={{ per_page }}{% if terceiro_only %}&terceiro_only=1{% endif %}">Anterior</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if num >= page_obj.number|add:'-1' and num <= page_obj.number|add:'1' %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}&q={{ query }}&ano={{ ano }}&per_page={{ per_page }}{% if terceiro_only %}&terceiro_only=1{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ query }}&ano={{ ano }}&per_page={{ per_page }}{% if terceiro_only %}&terceiro_only=1{% endif %}">Próximo</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Próximo</span></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+{% endblock %}
+

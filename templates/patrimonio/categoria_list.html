@@ -1,0 +1,88 @@
+{% extends 'menu.html' %}
+{% block title %}Categorias{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="fw-bold">Categorias</h3>
+            <a href="{% url 'patrimonio:categoria_create' %}" class="btn btn-success">
+                + Nova Categoria
+            </a>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Nome</th>
+                        <th>Descrição</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for categoria in categorias %}
+                        <tr>
+                            <td class="fw-semibold">{{ categoria.nome }}</td>
+                            <td>{{ categoria.descricao|default:"—"|truncatechars:50 }}</td>
+
+                            <td class="text-end">
+                                <a href="{% url 'patrimonio:categoria_edit' categoria.id %}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Editar
+                                </a>
+
+                                <button class="btn btn-sm btn-outline-danger"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteModal{{ categoria.id }}">
+                                    Excluir
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Modal DELETE -->
+                        <div class="modal fade" id="deleteModal{{ categoria.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Confirmar exclusão</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        Deseja realmente excluir a categoria
+                                        <strong>{{ categoria.nome }}</strong>?
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button class="btn btn-secondary" data-bs-dismiss="modal">
+                                            Cancelar
+                                        </button>
+
+                                        <form method="post"
+                                              action="{% url 'patrimonio:categoria_delete' categoria.id %}">
+                                            {% csrf_token %}
+                                            <button class="btn btn-danger">Excluir</button>
+                                        </form>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center py-4">
+                                Nenhuma categoria cadastrada.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

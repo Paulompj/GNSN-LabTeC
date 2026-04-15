@@ -1,0 +1,89 @@
+{% load static %}
+{% load mascara %}
+{% block menu %}
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #5f7f2e;">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'patrimonio:home' %}">
+                <img src="{% static 'img/brasao_guarda.png' %}"
+                     class="img-fluid"
+                     style="max-height:32px;">
+                Patrimônio</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    {% if request.user|has_group:"super" or request.user|has_group:"Direção" %}
+                    <!-- Dropdown Guarda -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="guardaDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Guarda
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="guardaDropdown">
+                            <li><a class="dropdown-item" href="{% url 'app:createguarda' %}">Cadastrar</a></li>
+                            <li><a class="dropdown-item" href="{% url 'app:readguarda' %}">Listar</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                
+                    <!-- Dropdown Empréstimo -->
+                    {% if request.user|has_group:"super" or request.user|has_group:"Patrimonio_adm" or request.user|has_group:"Patrimonio_solicitante" %}
+                    <a class="nav-link" href="{% url 'patrimonio:emprestimo_list' %}">
+                        Empréstimos
+                    </a>
+                    {% endif %}
+
+                    {% if request.user|has_group:"super" or request.user|has_group:"Patrimonio_adm" %}
+                        <!-- Dropdown Cadastros -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="outrosDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Cadastros
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="outrosDropdown">
+                                <li><a class="dropdown-item" href="{% url 'patrimonio:categoria_list' %}">Categoria</a></li>
+                                <li><a class="dropdown-item" href="{% url 'patrimonio:setor_list' %}">Setor</a></li>
+                                <li><a class="dropdown-item" href="{% url 'patrimonio:material_list' %}">Material</a></li>
+                                <li><a class="dropdown-item" href="{% url 'patrimonio:estoque_list' %}">Estoque</a></li>
+                            </ul>
+                        </li>
+                    {% endif %}
+                
+                    <!-- Dropdown Relatórios -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="relatorioDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Relatórios
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="relatorioDropdown">
+                            <li><a class="dropdown-item" href="{% url 'patrimonio:relatorio_validade' %}">Por Validade</a></li>
+                            <li><a class="dropdown-item" href="{% url 'patrimonio:relatorio_emprestimos_antigos' %}">Mais Antigos</a></li>
+                            <li><a class="dropdown-item" href="{% url 'patrimonio:relatorio_estoque' %}">Estoque</a></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <!-- Área do usuário logado -->
+                {% if request.user.is_authenticated %}
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="{% if request.user.foto %}{{ request.user.foto }}{% else %}{% static 'img/perfil.png' %}{% endif %}"
+                                     alt="Foto"
+                                     class="rounded-circle me-2"
+                                     style="width: 32px; height: 32px; object-fit: cover; border-radius: 50%;">
+                                {{ request.user.nome }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="{% url 'app:password_change' %}">Alterar Senha</a></li>
+                                <li><a class="dropdown-item" href="{% url 'app:logout' %}">Sair</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+{% endblock %}
+

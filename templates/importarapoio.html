@@ -1,0 +1,37 @@
+{% extends 'menu.html' %}
+{% load static %}
+{% block title %}Importar Guarda de Apoio{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h3>Importar Dados do Guarda de Apoio</h3>
+
+        <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="arquivo" class="form-label">Arquivo XLSX</label>
+                    <input type="file" id="arquivo" name="arquivo" class="form-control" accept=".xlsx" required>
+                    <div class="invalid-feedback">Selecione um arquivo XLSX.</div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Importar</button>
+        </form>
+    </div>
+
+    <script>
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })();
+    </script>
+{% endblock %}

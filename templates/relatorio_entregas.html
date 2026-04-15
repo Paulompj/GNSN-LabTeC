@@ -1,0 +1,106 @@
+{% extends 'menu.html' %}
+{% load static %}
+{% block title %}Relatório de Entregas{% endblock %}
+{% block body %}
+    <div class="container mt-4">
+        <h3>Relatório de Entregas</h3>
+
+        <!-- Filtro de ano e dia -->
+        <form method="get" class="row g-3 mb-4">
+            <div class="col-md-3">
+                <label for="ano" class="form-label">Ano</label>
+                <select name="ano" id="ano" class="form-select" onchange="this.form.submit()">
+                    <option value="">Todos</option>
+                    {% for a in anos_disponiveis %}
+                        <option value="{{ a }}" {% if a|stringformat:"s" == ano_selecionado %}selected{% endif %}>{{ a }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label for="data" class="form-label">Dias da Entrega (Ctrl+Clique para múltiplos)</label>
+                <select name="data" id="data" class="form-select" multiple onchange="this.form.submit()" size="5">
+                    {% for d in dias_entregas %}
+                        <option value="{{ d|date:"Y-m-d" }}" {% if d|stringformat:"s" in dias_selecionados %}selected{% endif %}>{{ d|date:"d/m/Y" }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+
+        <!-- Gráfico de entregas -->
+        <div class="card mb-4">
+            <div class="card-body">
+                {% if labels %}
+                    <canvas id="graficoEntregas" height="80"></canvas>
+                {% else %}
+                    <p class="text-center text-muted">Nenhuma entrega registrada neste dia.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Tabela detalhada de camisas -->
+        {% if tabela_camisas %}
+            <div class="card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <h5>Tabela de Camisas Entregues (Total: {{ total_geral }})</h5>
+                    <span class="text-muted">
+                {% if dias_selecionados %}Data: {{ dias_selecionados|join:", " }}{% else %}Todos os dias{% endif %} |
+                        {% if ano_selecionado %}Ano: {{ ano_selecionado }}{% else %}Todos os anos{% endif %}
+            </span>
+                </div>
+                <div class="card-body pt-0">
+                    {% for tam, info in tabela_camisas.items %}
+                        <h6 class="mt-3">Tamanho: {{ tam }} (Total: {{ info.total }})</h6>
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>Equipe</th>
+                                <th>Quantidade</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for equipe in info.equipes %}
+                                <tr>
+                                    <td>{{ equipe.equipe }}</td>
+                                    <td>{{ equipe.qtd }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endfor %}
+                    <h6 class="mt-3">Total Geral de Camisas Entregues: {{ total_geral }}</h6>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if labels %}
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            const ctx = document.getElementById('graficoEntregas').getContext('2d');
+            const graficoEntregas = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: {{ labels|safe }},
+                    datasets: [{
+                        label: 'Quantidade de Camisas Entregues',
+                        data: {{ data|safe }},
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: 'Quem mais entregou camisas no dia selecionado' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, precision: 0 }
+                    }
+                }
+            });
+        </script>
+    {% endif %}
+{% endblock %}

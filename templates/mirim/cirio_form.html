@@ -1,0 +1,109 @@
+{% extends "menu.html" %}
+{% block title %}Círio{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+
+        <h3 class="mb-3">
+            {% if cirio %}Editar Círio {{ cirio.ano }}{% else %}Novo Círio{% endif %}
+        </h3>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <input type="hidden" name="extra_forms" value="{{ extra_forms }}">
+
+            <!-- ===== DADOS DO CÍRIO ===== -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    Dados do Círio
+                </div>
+
+                <div class="card-body row g-3">
+
+                    <div class="col-md-4">
+                        <label>Ano</label>
+                        {{ form.ano }}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>Início</label>
+                        {{ form.inicio }}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>Término</label>
+                        {{ form.termino }}
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-check">
+                            {{ form.ativo }} <label>Ativo</label>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ===== REGRAS ===== -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    Regras do Círio
+                </div>
+
+                <div class="card-body">
+
+                    {{ formset.management_form }}
+
+                    <table class="table table-bordered align-middle">
+                        <thead>
+                        <tr>
+                            <th>Categoria</th>
+                            <th>Quantidade necessária</th>
+                            <th>Remover</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for form in formset %}
+                            <tr>
+                                {{ form.id }}
+
+                                <td>{{ form.categoria }}</td>
+
+                                <td>
+                                    <label class="small">Quantidade necessária:</label>
+                                    {{ form.quantidade_necessaria }}
+                                </td>
+
+                                <td class="text-center">
+                                    {{ form.DELETE }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <!-- BOTÃO ADICIONAR -->
+                    <button type="submit" name="add_regra" class="btn btn-outline-primary">
+                        + Adicionar Regra
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- BOTÕES -->
+            <div class="mt-4 text-center">
+                <button type="submit" class="btn btn-success btn-lg">
+                    Salvar
+                </button>
+
+                <a href="{% url 'mirim:cirio_list' %}" class="btn btn-secondary btn-lg">
+                    Cancelar
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+{% endblock %}

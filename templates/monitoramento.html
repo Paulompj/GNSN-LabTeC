@@ -1,0 +1,114 @@
+{% extends 'menu.html' %}
+{% load static %}
+
+{% block title %}Relatório de Camisas Entregues por Guarda{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+    <br>
+        <!-- Painel superior com totais -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="alert alert-success text-center">
+                    <h5>Total de Guardas que já receberam</h5>
+                    <p class="fs-4"><strong>{{ total_guardas_receberam }}</strong></p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="alert alert-info text-center">
+                    <h5>Total de Camisas entregues</h5>
+                    <p class="fs-4"><strong>{{ total_camisas_entregues }}</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Container dos gráficos -->
+        <div id="graficosContainer" class="d-flex flex-wrap gap-3 justify-content-start"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
+    <script>
+        const equipesData = {{ equipes_data|safe }};
+        const geralData = {{ geral_data|safe }};
+
+        // Função para calcular percentual
+        function calcularPercentual(recebidos, total) {
+            return total === 0 ? "0%" : ((recebidos / total) * 100).toFixed(1) + "%";
+        }
+
+        // Configuração padrão para gráficos de pizza
+        function configPie(labels, data, colors, percentual) {
+            return {
+                type: 'pie',
+                data: { labels, datasets: [{ data, backgroundColor: colors }] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        datalabels: {
+                            color: '#fff',
+                            font: { weight: 'bold', size: 12 },
+                            formatter: function(value, ctx) {
+                                const total = ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
+                                const pct = ((value/total)*100).toFixed(1) + "%";
+                                return value + "\n" + pct;
+                            }
+                        },
+                        title: { display: true, text: percentual, font: { size: 14, weight: 'bold' } }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            };
+        }
+
+        const container = document.getElementById("graficosContainer");
+
+        // --- Gráfico Geral ---
+        const divGeral = document.createElement("div");
+        divGeral.classList.add("p-2", "border", "rounded", "text-center");
+        divGeral.style.width = "260px";
+        divGeral.style.height = "260px";
+        divGeral.innerHTML = `
+    <h6>Geral</h6>
+    <div style="width:100%; height:200px;">
+        <canvas id="graficoGeral"></canvas>
+    </div>
+`;
+        container.appendChild(divGeral);
+
+        new Chart(document.getElementById('graficoGeral').getContext('2d'), configPie(
+            ['Recebidos', 'Não Recebidos'],
+            [geralData.recebidos_guardas, geralData.nao_recebidos_guardas],
+            ['#4caf50', '#f44336'],
+            `Recebidos: ${geralData.recebidos_guardas} / Total: ${geralData.total_guardas} (${calcularPercentual(geralData.recebidos_guardas, geralData.total_guardas)})`
+        ));
+
+        // --- Gráficos por equipe ---
+        equipesData.forEach(e => {
+            const div = document.createElement("div");
+            div.classList.add("p-2", "border", "rounded", "text-center");
+            div.style.width = "260px";
+            div.style.height = "260px";
+            div.innerHTML = `
+        <h6>${e.equipe}</h6>
+        <div style="width:100%; height:200px;">
+            <canvas id="grafico_${e.equipe}"></canvas>
+        </div>
+    `;
+            container.appendChild(div);
+
+            new Chart(div.querySelector("canvas").getContext("2d"), configPie(
+                ['Recebidos', 'Não Recebidos'],
+                [e.recebidos_guardas, e.nao_recebidos_guardas],
+                [e.cor, '#e6e6e6'],
+                `Recebidos: ${e.recebidos_guardas} / Total: ${e.total_guardas} (${calcularPercentual(e.recebidos_guardas, e.total_guardas)})`
+            ));
+        });
+
+        // Atualiza a página a cada 30s
+        setTimeout(() => location.reload(), 30000);
+    </script>
+{% endblock %}

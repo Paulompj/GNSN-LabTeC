@@ -1,0 +1,286 @@
+{% extends 'menu.html' %}
+{% load static %}
+{% block title %}Relatórios{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h3 class="mb-4 text-center">Relatório de Camisas</h3>
+
+        <!-- Filtro por Ano -->
+        <form method="get" class="row mb-4">
+            <div class="col-md-3">
+                <select name="ano" id="id_ano" class="form-select" required>
+                    <option value="" disabled {% if not ano_selecionado %}selected{% endif %}>Selecione um ano</option>
+                    {% for a in anos %}
+                        <option value="{{ a }}" {% if a|stringformat:"s" == ano_selecionado|stringformat:"s" %}selected{% endif %}>{{ a }}</option>
+                    {% endfor %}
+                </select>
+                <div class="invalid-feedback">Por favor, selecione um ano.</div>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+            </div>
+        </form>
+
+        <!-- Camisas Entregues -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Camisas Entregues</h5>
+                <div class="row">
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <canvas id="chartEquipe"></canvas>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <canvas id="chartTamanho"></canvas>
+                    </div>
+                    <div class="col-md-12 col-lg-4 mb-4">
+                        <canvas id="chartEquipeTamanho" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Camisas a Entregar -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Camisas a Entregar</h5>
+                <div class="row">
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <canvas id="chartAEntregarEquipe"></canvas>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <canvas id="chartAEntregarTamanho"></canvas>
+                    </div>
+                    <div class="col-md-12 col-lg-4 mb-4">
+                        <canvas id="chartAEntregarEquipeTamanho" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Totais -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Totais (Entregues + A Entregar)</h5>
+                <div class="row">
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <canvas id="chartTotalEquipe"></canvas>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <canvas id="chartTotalTamanho"></canvas>
+                    </div>
+                    <div class="col-md-12 col-lg-4 mb-4">
+                        <canvas id="chartTotalEquipeTamanho" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela Geral -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Tabela Geral</h5>
+                <div class="table-responsive">
+                    <table id="tabela-relatorio" class="table table-bordered table-hover">
+                        <thead class="table-light">
+                        <tr>
+                            <th onclick="sortTable(0)">Equipe</th>
+                            <th onclick="sortTable(1)">Tamanho</th>
+                            <th onclick="sortTable(2)">Entregues</th>
+                            <th onclick="sortTable(3)">A Entregar</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% regroup tabela_dados by equipe as equipes_grouped %}
+                        {% for grupo in equipes_grouped %}
+                            {% with grupo.list|length as total %}
+                                {% for row in grupo.list %}
+                                    <tr>
+                                        {% if forloop.first %}
+                                            <td rowspan="{{ total }}" class="text-center align-middle">{{ grupo.grouper|upper }}</td>
+                                        {% endif %}
+                                        <td>{{ row.tamanho }}</td>
+                                        <td>{{ row.entregues }}</td>
+                                        <td>{{ row.a_entregar }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% endwith %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const corEntregues = "#4caf50";   // verde para entregues
+
+        // Paleta azul para tamanhos (a_entregar)
+        const coresTamanho = {
+            'PP': '#cfeffd',
+            'P':  '#b3e5fc',
+            'M':  '#81d4fa',
+            'G':  '#4fc3f7',
+            'GG': '#29b6f6',
+            'XG': '#039be5',
+            '3G': '#0288d1',
+            '4G': '#0277bd',
+            '5G': '#01579b',
+            '6G': '#003c8f',
+            'ESPECIAL': '#6a1b9a',
+            'UN': '#90a4ae',
+            'default': '#e0e0e0'
+        };
+
+        // Cores das equipes (para borda e título)
+        const coresEquipe = {
+            'E1': '#f4b000',
+            'E2': '#e85c2a',
+            'E3': '#7ab731',
+            'E4': '#3fa9f5',
+            'E5': '#d22f27',
+            'RB': '#1c3b6b',
+            'NB': '#f2e2b3',
+            'FC': '#f5f1d7',
+            'PS': '#8b5c3f',
+            'AT': '#444444',
+            'NC': '#2e98a7',
+            'default': '#e6e6e6'
+        };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const entreguesPorEquipe = {{ entregues_por_equipe|safe }};
+            const entreguesPorTamanho = {{ entregues_por_tamanho|safe }};
+            const entreguesPorEquipeTamanho = {{ entregues_por_equipe_tamanho|safe }};
+            const aEntregarEquipe = {{ a_entregar_por_equipe|safe }};
+            const aEntregarTamanho = {{ a_entregar_por_tamanho|safe }};
+            const aEntregarEquipeTamanho = {{ a_entregar_por_equipe_tamanho|safe }};
+            const totalEquipe = {{ totais_por_equipe|safe }};
+            const totalTamanho = {{ totais_por_tamanho|safe }};
+            const totalEquipeTamanho = {{ totais_por_equipe_tamanho|safe }};
+
+            const ordemTamanhos = ['PP','P','M','G','GG','XG','3G','4G','5G','6G','ESPECIAL','UN'];
+
+            // --- Função para criar gráfico simples ---
+            function criarGrafico(ctx, tipo, labels, data, titulo, cores) {
+                if (!ctx) return;
+                new Chart(ctx, {
+                    type: tipo,
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: titulo,
+                            data: data,
+                            backgroundColor: tipo === 'pie'
+                                ? labels.map(l => coresTamanho[l] || coresEquipe[l] || cores['default'])
+                                : labels.map(l => coresEquipe[l] || cores['default']),
+                            borderColor: tipo === 'pie'
+                                ? '#fff'
+                                : labels.map(l => coresEquipe[l] || cores['default']),
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: { display: true, text: titulo },
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            }
+
+            // --- Função para criar gráfico de linhas empilhadas ---
+            function criarGraficoLinha(ctx, datasets, labels, titulo, altura=400) {
+                if (!ctx) return;
+                ctx.height = altura;
+                new Chart(ctx, {
+                    type: 'line',
+                    data: { labels: labels, datasets: datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { title: { display: true, text: titulo }, legend: { position: 'bottom' } },
+                        scales: { x: { stacked: true }, y: { stacked: true } }
+                    }
+                });
+            }
+
+            // --- Dados entregues ---
+            criarGrafico(document.getElementById('chartEquipe'), 'bar',
+                Object.keys(entreguesPorEquipe),
+                Object.values(entreguesPorEquipe),
+                'Camisas Entregues por Equipe',
+                coresEquipe
+            );
+
+            criarGrafico(document.getElementById('chartTamanho'), 'pie',
+                Object.keys(entreguesPorTamanho),
+                Object.values(entreguesPorTamanho),
+                'Camisas Entregues por Tamanho',
+                coresTamanho
+            );
+
+            const datasetsEntregues = Object.entries(entreguesPorEquipeTamanho).map(([equipe, dados]) => ({
+                label: equipe,
+                data: ordemTamanhos.map(t => dados[t] || 0),
+                borderColor: coresEquipe[equipe] || coresEquipe['default'],
+                backgroundColor: ordemTamanhos.map(t => coresTamanho[t] ? coresTamanho[t] + '33' : '#cccccc33'),
+                fill: true
+            }));
+            criarGraficoLinha(document.getElementById('chartEquipeTamanho'), datasetsEntregues, ordemTamanhos, 'Equipe x Tamanho Entregues', 500);
+
+            // --- Dados a entregar ---
+            criarGrafico(document.getElementById('chartAEntregarEquipe'), 'bar',
+                Object.keys(aEntregarEquipe),
+                Object.values(aEntregarEquipe),
+                'Camisas a Entregar por Equipe',
+                coresEquipe
+            );
+
+            criarGrafico(document.getElementById('chartAEntregarTamanho'), 'pie',
+                Object.keys(aEntregarTamanho),
+                Object.values(aEntregarTamanho),
+                'Camisas a Entregar por Tamanho',
+                coresTamanho
+            );
+
+            const datasetsAEntregar = Object.entries(aEntregarEquipeTamanho).map(([equipe, dados]) => ({
+                label: equipe,
+                data: ordemTamanhos.map(t => dados[t] || 0),
+                borderColor: coresEquipe[equipe] || coresEquipe['default'],
+                backgroundColor: ordemTamanhos.map(t => coresTamanho[t] ? coresTamanho[t] + '33' : '#cccccc33'),
+                fill: true
+            }));
+            criarGraficoLinha(document.getElementById('chartAEntregarEquipeTamanho'), datasetsAEntregar, ordemTamanhos, 'Equipe x Tamanho a Entregar', 500);
+
+            // --- Totais ---
+            criarGrafico(document.getElementById('chartTotalEquipe'), 'bar',
+                Object.keys(totalEquipe),
+                Object.values(totalEquipe),
+                'Totais por Equipe',
+                coresEquipe
+            );
+
+            criarGrafico(document.getElementById('chartTotalTamanho'), 'pie',
+                Object.keys(totalTamanho),
+                Object.values(totalTamanho),
+                'Totais por Tamanho',
+                coresTamanho
+            );
+
+            const datasetsTotal = Object.entries(totalEquipeTamanho).map(([equipe, dados]) => ({
+                label: equipe,
+                data: ordemTamanhos.map(t => dados[t] || 0),
+                borderColor: coresEquipe[equipe] || coresEquipe['default'],
+                backgroundColor: ordemTamanhos.map(t => coresTamanho[t] ? coresTamanho[t] + '33' : '#cccccc33'),
+                fill: true
+            }));
+            criarGraficoLinha(document.getElementById('chartTotalEquipeTamanho'), datasetsTotal, ordemTamanhos, 'Totais Equipe x Tamanho', 500);
+        });
+    </script>
+
+{% endblock %}

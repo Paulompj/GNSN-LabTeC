@@ -1,0 +1,45 @@
+{% extends 'menu.html' %}
+
+{% block title %}
+    {% if categoria %}Editar Categoria{% else %}Nova Categoria{% endif %}
+{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <h4 class="mb-4 fw-bold">
+                    {% if categoria %}Editar Categoria{% else %}Cadastrar Nova Categoria{% endif %}
+                </h4>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label">Nome</label>
+                        {{ form.nome }}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Descrição</label>
+                        {{ form.descricao }}
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'patrimonio:categoria_list' %}" class="btn btn-outline-secondary">
+                            Voltar
+                        </a>
+
+                        <button class="btn btn-success">
+                            Salvar
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

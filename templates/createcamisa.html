@@ -1,0 +1,65 @@
+{% extends 'menu.html' %}
+{% block title %}Cadastrar Camisa{% endblock %}
+{% block body %}
+
+    <div class="container mt-4">
+        <h3>Cadastro de Camisa</h3>
+
+        <p><strong>Guarda:</strong> {{ guarda.matricula }} - {{ guarda.nome }}</p>
+
+        <form method="POST" enctype="multipart/form-data"
+              class="needs-validation" novalidate>
+            {% csrf_token %}
+
+            <div class="row mb-3">
+                <div class="col-md-2">
+                    <label class="form-label">Ano</label>
+                    {{ form.ano }}
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Equipe</label>
+                    {{ form.equipe }}
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Tamanho</label>
+                    {{ form.tamcamisa }}
+                </div>
+            </div>
+
+            {# Campos ocultos / controlados pela view #}
+            <div style="display:none">
+                {{ form.situacao }}
+                {{ form.recebido }}
+                {{ form.entregador }}
+                {{ form.data }}
+                {{ form.arquivo }}
+                {{ form.recebedor }}
+            </div>
+
+            <div class="row">
+                <div class="col-12 text-end">
+                    <button class="btn btn-primary" type="submit">Salvar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })();
+    </script>
+
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "menu.html" %}
+{% block body %}
+
+    <div class="container py-5">
+        <div class="text-center mb-4">
+            <h2>TERMO DE RETIRADA E POSSE DE MATERIAL</h2>
+        </div>
+
+        <p><strong>Data/Hora da retirada:</strong> {{ emprestimo.data_retirada|date:"d/m/Y H:i" }}</p>
+        <p><strong>Retirante:</strong> {{ emprestimo.retirante.nome }} (Matrícula: {{ emprestimo.retirante.matricula }})</p>
+        <p><strong>Entregador:</strong> {{ entregador.nome }} (Matrícula: {{ entregador.matricula }})</p>
+
+        <h5 class="mt-4">Itens retirados:</h5>
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Material</th>
+                <th>Quantidade</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{{ emprestimo.material.nome }}</td>
+                <td>{{ emprestimo.quantidade }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="mt-4">
+            Declaro, para os devidos fins, que recebi o(s) equipamento(s) acima relacionado(s),
+            assumindo integral responsabilidade por sua guarda, conservação e uso adequado 
+            durante todo o período em que estiver(em) sob minha posse. Comprometo-me a zelar 
+            por sua integridade, responsabilizando-me por eventuais danos, extravios ou perdas 
+            que venham a ocorrer.
+            <br>
+            Declaro, ainda, que no momento da retirada o(s) referido(s) equipamento(s) 
+            encontra(m)-se em perfeitas condições de uso e funcionamento. Por fim, assumo o 
+            compromisso de devolvê-lo(s) ao patrimônio da Guarda de Nossa Senhora de Nazaré ao 
+            término da utilização, nas mesmas condições em que foi(ram) recebido(s), ressalvado o 
+            desgaste natural decorrente do uso regular.
+        </p>
+
+        <br><br>
+
+        <div class="row mt-5">
+            <div class="col-6 text-center">
+                <p>__________________________________________</p>
+                <p>{{ emprestimo.retirante.nome }}</p>
+                <p>Assinatura do Retirante</p>
+            </div>
+            <div class="col-6 text-center">
+                <p>__________________________________________</p>
+                <p>{{ entregador.nome }}</p>
+                <p>Assinatura do Entregador</p>
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            <button onclick="window.print()" class="btn btn-primary">Imprimir Termo</button>
+            <a href="{% url 'patrimonio:emprestimo_list' %}" class="btn btn-secondary">Voltar</a>
+        </div>
+    </div>
+
+{% endblock %}

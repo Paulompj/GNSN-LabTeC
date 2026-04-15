@@ -1,0 +1,46 @@
+{% extends "menu.html" %}
+{% block title %}Guardas{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between mb-3">
+            <h3>Guardas</h3>
+            <a href="{% url 'mirim:guarda_create' %}" class="btn btn-primary">Novo Guarda</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover bg-white shadow-sm">
+                <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Matrícula</th>
+                    <th>Presenças</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for g in guardas %}
+                    <tr>
+                        <td>{{ g.nome }}</td>
+                        <td>{{ g.matricula }}</td>
+                        <td>{{ g.total_presencas }}</td>
+                        <td>{{ g.status_aptidao }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'mirim:guarda_detail' g.pk %}" class="btn btn-sm btn-primary">Frequência</a>
+                            <a href="{% url 'mirim:guarda_consulta' g.pk %}" class="btn btn-sm btn-info text-white">Detalhes</a>
+                            <a href="{% url 'mirim:guarda_update' g.id %}" class="btn btn-sm btn-warning">Editar</a>
+                            <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-model="guarda" data-pk="{{ g.id }}">Excluir</button>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">Nenhum guarda cadastrado.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

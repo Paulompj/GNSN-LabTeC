@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Login{% endblock %}
+
+{% block body %}
+    <div class="container d-flex justify-content-center align-items-center vh-100">
+        <div class="card shadow-lg p-4 border-0" style="width: 100%; max-width: 420px; border-radius: 16px;">
+
+            <!-- Logo -->
+            <div class="text-center mb-3">
+                <img src="{% static 'img/brasao_guarda.png' %}" alt="Logo" class="img-fluid" style="max-height: 90px;">
+            </div>
+
+            <h4 class="text-center mb-4 fw-bold">Sistema de Camisas</h4>
+
+            <!-- Mensagens -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert 
+                    {% if message.tags == 'error' %}alert-danger
+                    {% elif message.tags == 'success' %}alert-success
+                    {% elif message.tags == 'warning' %}alert-warning
+                    {% else %}alert-info
+                    {% endif %}
+                    alert-dismissible fade show"
+                         role="alert">
+
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <div id="alert-dev" class="alert alert-warning alert-dismissible fade d-none" role="alert">
+                O módulo Guarda está em desenvolvimento.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Formulário de login -->
+            <form method="POST" novalidate>
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="matricula" class="form-label">Matrícula</label>
+                    <input type="number" id="matricula" name="matricula" class="form-control form-control-lg"
+                           placeholder="Digite sua matrícula" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="senha" class="form-label">Senha</label>
+                    <input type="password" id="senha" name="senha" class="form-control form-control-lg"
+                           placeholder="Digite sua senha" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
+                    Entrar
+                </button>
+            </form>
+
+            <!-- Botões de consulta pública -->
+            <div class="mt-4 d-grid gap-2">
+                <a href="#"
+                   id="btnGuardaDev"
+                   class="btn text-white fw-semibold py-2 bg-guarda">
+                    Consultar Frequência da Guarda
+                </a>
+                <a href="{% url 'mirim:consulta' %}"
+                   class="btn text-white fw-semibold py-2 bg-guarda-mirim">
+                    Consultar Frequência da Guarda Mirim
+                </a>
+            </div>
+
+            <!-- Rodapé -->
+            <div class="mt-4 text-center">
+                <small class="text-muted">© {{ now.year }} GNSN</small>
+            </div>
+        </div>
+    </div>
+    <style>
+        /* Cores dos módulos existentes */
+        .bg-guarda { background-color: #1a174d; }
+        .bg-guarda-mirim { background-color: #59b8ef; }
+    </style>
+    <script>
+        document.getElementById("btnGuardaDev").addEventListener("click", function(e){
+            e.preventDefault();
+
+            const alertBox = document.getElementById("alert-dev");
+            alertBox.classList.remove("d-none");
+            alertBox.classList.add("show");
+        });
+    </script>
+{% endblock %}

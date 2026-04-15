@@ -1,0 +1,22 @@
+{% extends 'menu.html' %}
+{% load static %}
+{% block title %}Atribuir Permissões{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h3>Atribuir Permissões ao Guarda: {{ guarda }}</h3>
+
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" value="1" id="reset_senha" name="reset_senha">
+                <label class="form-check-label" for="reset_senha">
+                    Resetar ou criar a senha do guarda
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary">Salvar Permissões</button>
+            <a href="{% url 'app:readguarda' %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+{% endblock %}

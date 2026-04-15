@@ -1,0 +1,137 @@
+{% load static %}
+{% load mascara %}
+{% block menu %}
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #f4b000;">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'app:home' %}">
+                <img src="{% static 'img/brasao_guarda.png' %}"
+                     class="img-fluid"
+                     style="max-height:32px;">
+                Uniforme</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    {% if request.user|has_group:"super" or request.user|has_group:"Direção" %}
+                        <!-- Dropdown Guarda -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="guardaDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Guarda
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="guardaDropdown">
+                                <li><a class="dropdown-item" href="{% url 'app:createguarda' %}">Cadastrar</a></li>
+                                <li><a class="dropdown-item" href="{% url 'app:readguarda' %}">Listar</a></li>
+                            </ul>
+                        </li>
+                    {% endif %}
+
+                    <!-- Dropdown Apoio -->
+                    {% if request.user|has_group:"super" or request.user|has_group:"Direção" or request.user|has_group:"Comissão" or request.user|has_group:"Entregador_geral" %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="guardaDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Apoio
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="guardaDropdown">
+                            <li><a class="dropdown-item" href="{% url 'app:readapoio' %}">Entregar</a></li>
+                            <li><a class="dropdown-item" href="{% url 'app:relatorio_apoio' %}">Relatório</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+
+                    <!-- Dropdown Camisa -->
+                    {% if request.user|has_group:"super" or request.user|has_group:"Direção" or request.user|has_group:"Comissão" or request.user|has_group:"Entregador_geral" %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="camisaDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Camisa
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="camisaDropdown">
+                            <li><a class="dropdown-item" href="{% url 'app:findcamisa' %}">Entregar</a></li>
+
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'app:minhas_entregas' %}">Minhas Entregas</a></li>
+                            {% if request.user|has_group:"super" or request.user|has_group:"Direção" %}
+                                <li><a class="dropdown-item" href="{% url 'app:readcamisa' %}">Todas Entregas (Listar)</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'app:camisa_entregue' %}">Baixar Documentos</a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                    {% endif %}
+
+                    <!-- Dropdown Relatórios -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="relatorioDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Relatórios
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="relatorioDropdown">
+                            <li><a class="dropdown-item" href="{% url 'app:monitoramento' %}">Monitoramento</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item disabled" desable>Por Guardas</a></li>
+                            <li><a class="dropdown-item" href="{% url 'app:relatorio2' %}">Geral</a></li>
+                            <li><a class="dropdown-item" href="{% url 'app:relatorio_entregas' %}">Entregas</a></li>
+                            <li><a class="dropdown-item" href="{% url 'app:relatorio_barras' %}">Progresso Equipes</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item disabled" desable>Por Camisas</a></li>
+                            <li><a class="dropdown-item" href="{% url 'app:relatorios' %}">Geral</a></li>
+                            <li><a class="dropdown-item" href="{% url 'app:relatorio_camisas' %}">Estoque por Tamanho</a></li>
+                            <li><a class="dropdown-item" href="{% url 'app:relatorio_camisas2' %}">Estoque por Equipe</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'app:relatorio_apoio' %}">Apoio</a></li>
+                        </ul>
+                    </li>
+
+                    {% if request.user|has_group:"super" %}
+                        <!-- Dropdown Importar -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="importarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Importar
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="importarDropdown">
+                                <li><a class="dropdown-item" href="{% url 'app:importaguardas' %}">Guardas</a></li>
+                                <li><a class="dropdown-item" href="{% url 'app:importacamisas' %}">Camisas</a></li>
+                                <li><a class="dropdown-item" href="{% url 'app:importarapoio' %}">Apoio</a></li>
+                                <li><a class="dropdown-item" href="{% url 'app:deletar_camisas_por_ano' %}">Deletar Camisas</a></li>
+                            </ul>
+                        </li>
+                    {% endif %}
+
+                    {% if request.user|has_group:"super" or request.user|has_group:"Direção" %}
+                        <!-- Dropdown Outros -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="outrosDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Outros
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="outrosDropdown">
+                                <li><a class="dropdown-item" href="{% url 'app:reconhecimento_facial' %}">Identificar Guardas</a></li>
+                            </ul>
+                        </li>
+                    {% endif %}
+                </ul>
+
+                <!-- Área do usuário logado -->
+                {% if request.user.is_authenticated %}
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="{% if request.user.foto %}{{ request.user.foto }}{% else %}{% static 'img/perfil.png' %}{% endif %}"
+                                     alt="Foto"
+                                     class="rounded-circle me-2"
+                                     style="width: 32px; height: 32px; object-fit: cover; border-radius: 50%;">
+                                {{ request.user.nome }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="{% url 'app:password_change' %}">Alterar Senha</a></li>
+                                <li><a class="dropdown-item" href="{% url 'app:logout' %}">Sair</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    
+{% endblock %}

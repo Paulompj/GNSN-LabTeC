@@ -1,0 +1,22 @@
+{% extends 'menu.html' %}
+{% load static %}
+{% block title %}Entregar Camisa{% endblock %}
+{% block body %}
+    <div class="container mt-4">
+        <h2>Deletar camisas por ano</h2>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="ano">Ano</label>
+                <select id="ano" name="ano" class="form-control" required>
+                    <option value="">-- Selecione o ano --</option>
+                    {% for ano in anos %}
+                        <option value="{{ ano }}">{{ ano }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-danger mt-2">Deletar camisas e logs</button>
+        </form>
+    </div>
+{% endblock %}

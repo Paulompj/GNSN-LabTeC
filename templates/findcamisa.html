@@ -1,0 +1,106 @@
+{% extends 'menu.html' %}
+{% load static %}
+{% block title %}Entregar Camisa{% endblock %}
+{% block body %}
+    <div class="container mt-4">
+        
+        <h3>Entrega de Camisa</h3>
+
+        {% if error %}
+            <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+                <svg class="bi flex-shrink-0 me-2" width="24" height="18" role="img" aria-label="Danger:">
+                    <use xlink:href="#exclamation-triangle-fill"/>
+                </svg>
+                <strong>Erro: </strong>{{ error }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+
+        <form id="form" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-2 mb-3">
+                    <label for="id_ano">Círio <span class="text-danger">*</span></label>
+                    <select name="ano" id="id_ano" class="form-select" required>
+                        {% for ano in anos %}
+                            <option value="{{ ano }}">{{ ano }}</option>
+                        {% endfor %}
+                        <option value="" disabled>Selecione um ano</option>
+                    </select>
+                    <div class="invalid-feedback">
+                        Por favor, selecione um ano.
+                    </div>
+                </div>
+
+                <div class="col-md-2 mb-3">
+                    <label for="id_matricula">Matrícula <span class="text-danger">*</span></label>
+                    <input type="text" name="matricula" class="form-control" required id="id_matricula"
+                           pattern="\d{4}" maxlength="4" placeholder="0000">
+                    <div class="invalid-feedback">
+                        Por favor, informe a matrícula do guarda.
+                    </div>
+                </div>
+
+                <div class="col-md-1 mb-3 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" type="submit">Buscar</button>
+                </div>
+            </div>
+        </form>
+        {% if ultimas_camisas %}
+            <div class="mt-4">
+                <h5>Últimos Uniformes Entregues</h5>
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Data</th>
+                        <th>Matrícula</th>
+                        <th>Guarda</th>
+                        <th>Equipe</th>
+                        <th>Tamanho</th>
+                        <th>Recebido por</th>
+                        <th>Entregador</th>
+                        
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for c in ultimas_camisas %}
+                        <tr>
+                            <td>{{ c.data|date:"d/m/Y H:i" }}</td>
+                            <td>{{ c.guarda.matricula }}</td>
+                            <td>{{ c.guarda.nome }}</td>
+                            <td>{{ c.equipe }}</td>
+                            <td>{{ c.tamcamisa }}</td>
+                            <td>{{ c.recebedor }}</td>
+                            <td>{{ c.entregador.nome }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Exemplo de validação do Bootstrap 5
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })();
+
+        // Máscara para aceitar apenas 4 dígitos na matrícula
+        document.getElementById('id_matricula').addEventListener('input', function (e) {
+            this.value = this.value.replace(/\D/g,''); // remove tudo que não for número
+            if (this.value.length > 4) this.value = this.value.slice(0,4);
+        });
+    </script>
+{% endblock %}

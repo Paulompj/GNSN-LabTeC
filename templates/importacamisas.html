@@ -1,0 +1,42 @@
+{% extends 'menu.html' %}
+{% load static %}
+{% block title %}Importar Camisas{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h3>Importar Dados de Camisas</h3>
+
+        <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <div class="row mb-3">
+                <div class="col-md-2">
+                    <label for="ano" class="form-label">Ano (4 dígitos)</label>
+                    <input type="text" id="ano" name="ano" maxlength="4" pattern="\d{4}" class="form-control" required placeholder="2025">
+                    <div class="invalid-feedback">Digite um ano válido (4 dígitos).</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="arquivo" class="form-label">Arquivo XLSX</label>
+                    <input type="file" id="arquivo" name="arquivo" class="form-control" accept=".xlsx" required>
+                    <div class="invalid-feedback">Selecione um arquivo XLSX.</div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Importar</button>
+        </form>
+    </div>
+
+    <script>
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })();
+    </script>
+{% endblock %}

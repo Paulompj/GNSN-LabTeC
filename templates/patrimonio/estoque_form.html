@@ -1,0 +1,60 @@
+{% extends 'menu.html' %}
+
+{% block title %}
+    {% if estoque %}Editar Estoque{% else %}Novo Controle de Estoque{% endif %}
+{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <h4 class="fw-bold mb-4">
+                    {% if estoque %}Editar Estoque{% else %}Cadastrar Controle de Estoque{% endif %}
+                </h4>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="row">
+
+                        <div class="col-md-5 mb-3">
+                            <label class="form-label">Material</label>
+                            {{ form.material }}
+                        </div>
+
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">Quantidade</label>
+                            {{ form.quantidade }}
+                        </div>
+                        
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Validade</label>
+                            {{ form.validade }}
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Local provisório</label>
+                            {{ form.local_provisorio }}
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-3">
+                        <a href="{% url 'patrimonio:estoque_list' %}" class="btn btn-outline-secondary">
+                            Voltar
+                        </a>
+
+                        <button class="btn btn-success">
+                            Salvar
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

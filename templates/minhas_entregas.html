@@ -1,0 +1,135 @@
+{% extends 'menu.html' %}
+{% load static %}
+{% block title %}Minhas Entregas{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h3>Minhas Entregas</h3>
+
+        <div class="table-responsive">
+            <table id="dataTable" class="table table-bordered table-striped align-middle">
+                <thead class="table-dark">
+                <tr>
+                    <th>Foto</th>
+                    <th>Matrícula</th>
+                    <th>Nome</th>
+                    <th>Ano</th>
+                    <th>Equipe</th>
+                    <th>Recebido</th>
+                    <th>Tamanho</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for camisa in page_obj %}
+                    <tr style="height:60px;">
+                        <td>
+                            {% if camisa.guarda.foto %}
+                                <img src="{{ camisa.guarda.foto }}" style="width:60px; height:60px; object-fit:cover;">
+                            {% else %}
+                                <img src="{% static 'img/perfil.png' %}" style="width:60px; height:60px; object-fit:cover;">
+                            {% endif %}
+                        </td>
+                        <td>{{ camisa.guarda.matricula }}</td>
+                        <td>{{ camisa.guarda.nome }}</td>
+                        <td>{{ camisa.ano }}</td>
+                        <td style="background-color:
+                                {% if camisa.equipe == 'E1' %}#f4b000
+                                {% elif camisa.equipe == 'E2' %}#e85c2a
+                                {% elif camisa.equipe == 'E3' %}#7ab731
+                                {% elif camisa.equipe == 'E4' %}#3fa9f5
+                                {% elif camisa.equipe == 'E5' %}#d22f27
+                                {% elif camisa.equipe == 'RB' %}#1c3b6b
+                                {% elif camisa.equipe == 'NB' %}#f2e2b3
+                                {% elif camisa.equipe == 'FC' %}#f5f1d7
+                                {% elif camisa.equipe == 'PS' %}#8b5c3f
+                                {% elif camisa.equipe == 'AT' %}#444444
+                                {% elif camisa.equipe == 'NC' %}#2e98a7
+                                {% elif camisa.equipe == 'ASCOM' %}#212529
+                                {% elif camisa.equipe == 'BS' %}#212529
+                                {% elif camisa.equipe == 'CP' %}#212529
+                                {% elif camisa.equipe == 'DR' %}#212529
+                                {% elif camisa.equipe == 'ES' %}#212529
+                                {% elif camisa.equipe == 'SE' %}#212529
+                                {% elif camisa.equipe == 'SI' %}#212529
+                                {% else %}transparent{% endif %}; color: #fff;">{{ camisa.equipe }}</td>
+                        <td>{{ camisa.recebido|yesno:"Sim,Não" }}</td>
+                        <td>{{ camisa.tamcamisa }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">Nenhuma entrega encontrada.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginação -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&per_page={{ per_page }}">Anterior</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if num >= page_obj.number|add:'-1' and num <= page_obj.number|add:'1' %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% else %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}&per_page={{ per_page }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&per_page={{ per_page }}">Próximo</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Próximo</span></li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <!-- Select de registros por página -->
+        <form method="get" class="mt-2">
+            <select name="per_page" class="form-select" style="width:auto; display:inline-block;" onchange="this.form.submit()">
+                {% for n in per_page_options %}
+                    <option value="{{ n }}" {% if per_page|stringformat:"s" == n|stringformat:"s" %}selected{% endif %}>{{ n }}</option>
+                {% endfor %}
+                <option value="all" {% if per_page == "all" %}selected{% endif %}>Todos</option>
+            </select>
+        </form>
+
+        <!-- Botão de exportação -->
+        <button class="btn btn-primary mt-3" onclick="exportarExcel()">Exportar Excel</button>
+    </div>
+
+    <script>
+        function exportarExcel() {
+            let tabela = document.getElementById("dataTable").cloneNode(true);
+
+            // força todas as imagens a ficarem 60x60 no export
+            let imgs = tabela.querySelectorAll("img");
+            imgs.forEach(img => {
+                img.setAttribute("width", "60");
+                img.setAttribute("height", "60");
+                img.style.width = "60px";
+                img.style.height = "60px";
+            });
+
+            let tabelaHTML = tabela.outerHTML;
+
+            let blob = new Blob([tabelaHTML], { type: "application/vnd.ms-excel" });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "minhas_entregas.xls";
+            link.click();
+        }
+    </script>
+
+{% endblock %}

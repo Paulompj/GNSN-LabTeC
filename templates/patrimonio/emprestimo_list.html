@@ -1,0 +1,175 @@
+{% extends "menu.html" %}
+{% block body %}
+
+    <div class="container py-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="fw-bold">Solicitações de Empréstimo</h3>
+            <a href="{% url 'patrimonio:emprestimo_create' %}" class="btn btn-success">
+                Nova Solicitação
+            </a>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Data de Solicitação</th>
+                        <th>Material</th>
+                        <th>Quantidade</th>
+                        <th>Solicitante</th>
+                        <th>Status</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    {% for e in emprestimos %}
+                        <tr>
+                            <td>{{ e.data_solicitacao }}</td>
+                            <td>{{ e.material }}</td>
+                            <td>{{ e.quantidade }}</td>
+                            <td>{{ e.solicitante }}</td>
+                            <td>
+                            <span class="badge bg-secondary">
+                                {{ e.get_status_display }}
+                            </span>
+                            </td>
+
+                            <td class="text-end d-flex justify-content-end gap-2 flex-wrap">
+
+                                {% if e.status == "solicitado" %}
+                                    <a href="{% url 'patrimonio:emprestimo_edit' e.id %}" class="btn btn-sm btn-primary">
+                                        Editar
+                                    </a>
+                                {% endif %}
+
+                                <!-- EXCLUIR -->
+                                {% if e.status == "solicitado" %}
+                                <button class="btn btn-sm btn-danger"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#confirmModal"
+                                        data-url="{% url 'patrimonio:emprestimo_delete' e.id %}"
+                                        data-title="Confirmar exclusão"
+                                        data-message="Deseja realmente excluir esta solicitação?">
+                                    Excluir
+                                </button>
+                                {% endif %}
+
+                                {% if e.status == "solicitado" and is_patrimonio_adm %}
+                                    <!-- APROVAR -->
+                                    <button class="btn btn-sm btn-success"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#confirmModal"
+                                            data-url="{% url 'patrimonio:emprestimo_aprovar' e.id %}"
+                                            data-title="Aprovar solicitação"
+                                            data-message="Deseja aprovar esta solicitação de empréstimo?">
+                                        Aprovar
+                                    </button>
+                                {% endif %}
+
+                                {% if e.status == "aprovado" and is_patrimonio_adm %}
+                                    <!-- Entregar -->
+                                    <button class="btn btn-sm btn-success"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#confirmModal"
+                                            data-url="{% url 'patrimonio:emprestimo_retirar' e.id %}"
+                                            data-title="Entregar solicitação"
+                                            data-message="Você está prestes a registrar a retirada do empréstimo: 
+                                            Material: {{ e.material }} 
+                                            Quantidade: {{ e.quantidade }} 
+                                            Solicitante: {{ e.solicitante }} 
+                                            Status atual: {{ e.get_status_display }}">
+                                        Entregar
+                                    </button>
+                                {% endif %}
+
+                                {% if is_patrimonio_adm and e.status in "retirado" %}
+                                    <!-- DEVOLVER -->
+                                    <button class="btn btn-sm btn-warning"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#confirmModal"
+                                            data-url="{% url 'patrimonio:emprestimo_devolver' e.id %}"
+                                            data-title="Registrar devolução"
+                                            data-message="Confirmar a devolução deste material?">
+                                        Devolução
+                                    </button>
+                                {% endif %}
+
+                                {% if e.status == "retirado" %}
+                                    <!-- Termo -->
+                                    <button class="btn btn-sm btn-primary"
+                                            onclick="window.location.href='{% url 'patrimonio:emprestimo_termo' e.id %}'"">
+                                        Termo
+                                    </button>
+                                {% endif %}
+
+                            </td>
+                        </tr>
+
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">
+                                Nenhuma solicitação registrada.
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MODAL ÚNICO DE CONFIRMAÇÃO -->
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmTitle">Confirmação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body" id="confirmMessage">
+                    Tem certeza?
+                </div>
+
+                <div class="modal-footer">
+                    <form method="post" id="confirmForm">
+                        {% csrf_token %}
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-danger">
+                            Confirmar
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- SCRIPT PARA CONFIGURAR O MODAL DINAMICAMENTE -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const modal = document.getElementById("confirmModal");
+            const form = document.getElementById("confirmForm");
+            const title = document.getElementById("confirmTitle");
+            const message = document.getElementById("confirmMessage");
+
+            modal.addEventListener("show.bs.modal", function (event) {
+                const button = event.relatedTarget;
+
+                form.action = button.getAttribute("data-url");
+                title.textContent = button.getAttribute("data-title");
+                message.textContent = button.getAttribute("data-message");
+            });
+        });
+    </script>
+
+{% endblock %}

@@ -1,0 +1,254 @@
+{% extends 'menu.html' %}
+{% load static %}
+{% block title %}Reconhecimento Facial{% endblock %}
+
+{% block body %}
+    <div class="container mt-4 text-center">
+        <h3 class="mb-4">Identificação de Guardas</h3>
+
+        <!-- Seletor de câmera -->
+        <select id="cameraSelect" class="form-select mb-3"></select>
+
+        <!-- Vídeo -->
+        <div class="video-container mb-3">
+            <video id="video" autoplay playsinline muted class="rounded shadow"
+                   style="width: 100%; max-width: 420px; border: 3px solid #007bff;"></video>
+        </div>
+
+        <p id="resultado" class="fw-bold text-muted">Aguardando rostos...</p>
+
+        <!-- Lista de rostos reconhecidos -->
+        <div id="listaReconhecidos" class="mt-4">
+            <h5 class="text-start mb-3">Guardas Identificados</h5>
+            <div class="row g-3" id="reconhecidosContainer"></div>
+        </div>
+    </div>
+
+    <!-- Modal do Bootstrap -->
+    <div class="modal fade" id="modalRosto" tabindex="-1" aria-labelledby="modalRostoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalRostoLabel">Rosto Reconhecido</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body" id="modalBodyRosto">
+                    <!-- Conteúdo preenchido via JS -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="btnSalvarFrequencia">Salvar</button>
+                    <button type="button" class="btn btn-secondary" id="btnCancelarFrequencia" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById("video");
+        const cameraSelect = document.getElementById("cameraSelect");
+        const resultado = document.getElementById("resultado");
+        const container = document.getElementById("reconhecidosContainer");
+        const reconhecidos = new Set(); // rostos já salvos
+        let modalAberto = false;
+        let rostoAtual = null;
+        let streamGlobal = null;
+
+        // Inicializa câmeras
+        async function initCameras() {
+            try {
+                // Solicita permissão inicial
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                stream.getTracks().forEach(track => track.stop());
+
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(d => d.kind === "videoinput");
+
+                cameraSelect.innerHTML = "";
+                videoDevices.forEach((device, index) => {
+                    const option = document.createElement("option");
+                    option.value = device.deviceId;
+                    option.text = device.label || `Câmera ${index + 1}`;
+                    cameraSelect.appendChild(option);
+                });
+
+                if (videoDevices.length > 0) {
+                    iniciarCamera(videoDevices[0].deviceId);
+                }
+            } catch (err) {
+                resultado.textContent = "Erro ao acessar câmeras: " + err;
+                resultado.style.color = "red";
+            }
+        }
+
+        cameraSelect.onchange = () => {
+            iniciarCamera(cameraSelect.value);
+        };
+
+        async function iniciarCamera(deviceId) {
+            if (streamGlobal) {
+                streamGlobal.getTracks().forEach(track => track.stop());
+            }
+            try {
+                const constraints = { video: { deviceId: deviceId ? { exact: deviceId } : undefined } };
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = stream;
+                streamGlobal = stream;
+                iniciarReconhecimento();
+            } catch (err) {
+                console.error("Erro ao iniciar câmera: ", err);
+            }
+        }
+
+        // Reconhecimento contínuo
+        function iniciarReconhecimento() {
+            setInterval(() => {
+                if (!modalAberto) capturarEReconhecer();
+            }, 4000);
+        }
+
+        async function capturarEReconhecer() {
+            const canvas = document.createElement("canvas");
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(video, 0, 0);
+            const imagemBase64 = canvas.toDataURL("image/jpeg");
+
+            resultado.textContent = "Verificando rostos...";
+            resultado.style.color = "gray";
+
+            try {
+                const response = await fetch(window.location.href, {
+                    method: "POST",
+                    headers: { "X-CSRFToken": getCookie("csrftoken") },
+                    body: new URLSearchParams({ imagem: imagemBase64 })
+                });
+
+                const data = await response.json();
+
+                if (data.status === "ok") {
+                    const guarda = data.guarda || {};
+                    const nome = guarda.nome || "Nome não informado";
+                    const matricula = guarda.matricula || "Desconhecida";
+                    const foto_url = guarda.foto_url || guarda.foto || "";
+
+                    if (reconhecidos.has(matricula)) {
+                        resultado.textContent = `${nome} (matrícula ${matricula}) já reconhecido.`;
+                        resultado.style.color = "orange";
+                        return;
+                    }
+
+                    rostoAtual = { nome, matricula, foto_url, imagemCapturada: imagemBase64 };
+                    abrirModalRosto();
+                } else {
+                    resultado.textContent = data.mensagem || "Rosto não reconhecido.";
+                    resultado.style.color = "red";
+                }
+            } catch (err) {
+                resultado.textContent = "Erro na requisição: " + err;
+                resultado.style.color = "red";
+            }
+        }
+
+        // Modal
+        function abrirModalRosto() {
+            if (!rostoAtual) return;
+            modalAberto = true;
+
+            // Pausa vídeo
+            video.pause();
+
+            const modalBody = document.getElementById("modalBodyRosto");
+            if (!modalBody) return;
+
+            const foto_url_decodificada = rostoAtual.foto_url ? 'https://'+decodeURIComponent(rostoAtual.foto_url).split('https:/')[1] : "";
+
+            modalBody.innerHTML = `
+            <div class="d-flex justify-content-center mb-3 flex-wrap">
+                <img src="${rostoAtual.imagemCapturada}" alt="Rosto detectado"
+                     class="rounded-circle me-2 border border-2 border-secondary" style="width:80px; height:80px; object-fit:cover;">
+                ${foto_url_decodificada ? `<img src="${foto_url_decodificada}" alt="Foto cadastrada"
+                     class="rounded-circle border border-2 border-success" style="width:80px; height:80px; object-fit:cover;">` : ""}
+            </div>
+            <h6 class="text-center">${rostoAtual.nome}</h6>
+            <small class="text-muted d-block text-center">Matrícula: ${rostoAtual.matricula}</small>
+        `;
+
+            const modal = new bootstrap.Modal(document.getElementById('modalRosto'));
+            modal.show();
+
+            document.getElementById("btnSalvarFrequencia").onclick = () => {
+                adicionarLista(rostoAtual);
+                modal.hide();
+            };
+
+            document.getElementById("btnCancelarFrequencia").onclick = () => {
+                modal.hide();
+            };
+
+            document.getElementById('modalRosto').addEventListener('hidden.bs.modal', () => {
+                modalAberto = false;
+                rostoAtual = null;
+                video.play();
+            });
+        }
+
+        function adicionarLista(rosto) {
+            const agora = new Date();
+            const hora = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const data = agora.toLocaleDateString('pt-BR');
+
+            const div = document.createElement("div");
+            div.classList.add("col-md-4", "col-sm-6");
+            div.id = "guarda-" + rosto.matricula;
+
+            const foto_url_decodificada = rosto.foto_url ? 'https://'+decodeURIComponent(rostoAtual.foto_url).split('https:/')[1] : "";
+
+            div.innerHTML = `
+            <div class="card shadow-sm rounded-4">
+                <div class="card-body text-center">
+                    <div class="d-flex justify-content-center mb-3 flex-wrap">
+                        <img src="${rosto.imagemCapturada}" alt="Rosto detectado"
+                             class="rounded-circle me-2 border border-2 border-secondary" style="width:60px; height:60px; object-fit:cover;">
+                        ${foto_url_decodificada ? `<img src="${foto_url_decodificada}" alt="Foto cadastrada"
+                             class="rounded-circle border border-2 border-success" style="width:60px; height:60px; object-fit:cover;">` : ""}
+                    </div>
+                    <h6 class="mb-1">${rosto.nome}</h6>
+                    <small class="text-muted d-block">Matrícula: ${rosto.matricula}</small>
+                    <small class="text-secondary">Reconhecido em ${data} às ${hora}</small>
+                </div>
+            </div>
+        `;
+
+            container.prepend(div); // adiciona no topo
+            reconhecidos.add(rosto.matricula);
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== "") {
+                const cookies = document.cookie.split(";");
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + "=")) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        initCameras(); // chama inicialização das câmeras
+    </script>
+
+    <style>
+        body { background-color: #f9f9f9; }
+        .video-container { display: flex; justify-content: center; }
+        #listaReconhecidos { margin-bottom: 50px; }
+        @media (max-width: 768px) {
+            video { width: 100%; max-width: 100%; }
+            #cameraSelect { width: 100%; }
+        }
+    </style>
+{% endblock %}

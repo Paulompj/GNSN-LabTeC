@@ -1,0 +1,55 @@
+{% extends 'menu.html' %}
+
+{% block title %}
+    {% if setor %}Editar Setor{% else %}Novo Setor{% endif %}
+{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <h4 class="mb-4 fw-bold">
+                    {% if setor %}Editar Setor{% else %}Cadastrar Novo Setor{% endif %}
+                </h4>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label">Nome</label>
+                        {{ form.nome }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Localização</label>
+                        {{ form.localizacao }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Observações</label>
+                        {{ form.observacoes }}
+                    </div>
+
+                    <div class="form-check mb-4">
+                        {{ form.ativo }}
+                        <label class="form-check-label">Ativo</label>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'patrimonio:setor_list' %}" class="btn btn-outline-secondary">
+                            Voltar
+                        </a>
+
+                        <button class="btn btn-success">
+                            Salvar
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

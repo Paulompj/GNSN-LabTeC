@@ -1,0 +1,135 @@
+{% extends 'menu.html' %}
+{% load static %}
+{% block title %}Relatório por Equipe{% endblock %}
+
+{% block body %}
+    <div class="container-fluid mt-4">
+        <h3 class="mb-4 text-center">Relatório das Entregas por Equipe</h3>
+
+        <!-- Filtro por ano -->
+        <form method="get" class="row mb-4">
+            <div class="col-md-3">
+                <select name="ano" class="form-select">
+                    {% for a in anos_disponiveis %}
+                        <option value="{{ a }}" {% if a|stringformat:"s" == ano|stringformat:"s" %}selected{% endif %}>{{ a }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+            </div>
+        </form>
+
+        <!-- Cards por equipe (4 por linha) -->
+        <div class="row">
+            {% for equipe in equipes %}
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">{{ equipe }}</h5>
+                            <canvas id="chart-{{ equipe|slugify }}" style="height:300px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dados = {{ dados_por_equipe|safe }};
+            const tamanhos_ordem = {{ tamanhos_ordem|safe }};
+
+            // Cores por tamanho (escala de azul)
+            const coresTamanho = {
+                'PP': '#cfeffd',
+                'P':  '#b3e5fc',
+                'M':  '#81d4fa',
+                'G':  '#4fc3f7',
+                'GG': '#29b6f6',
+                'XG': '#039be5',
+                '3G': '#0288d1',
+                '4G': '#0277bd',
+                '5G': '#01579b',
+                '6G': '#003c8f',
+                'ESPECIAL': '#6a1b9a',
+                'UN': '#90a4ae',
+                'default': '#e0e0e0'
+            };
+
+            // Cores das equipes
+            const coresEquipe = {
+                'E1': '#f4b000',
+                'E2': '#e85c2a',
+                'E3': '#7ab731',
+                'E4': '#3fa9f5',
+                'E5': '#d22f27',
+                'RB': '#1c3b6b',
+                'NB': '#f2e2b3',
+                'FC': '#f5f1d7',
+                'PS': '#8b5c3f',
+                'AT': '#444444',
+                'NC': '#2e98a7',
+                'default': '#e6e6e6'
+            };
+
+            // Cor fixa para "Entregues"
+            const corEntregues = "#4caf50";   // verde
+
+            Object.keys(dados).forEach(equipe => {
+                const entregues = [];
+                const a_entregar = [];
+                const labels = [];
+
+                tamanhos_ordem.forEach((t, idx) => {
+                    if(dados[equipe][t]){
+                        labels.push(t);
+                        entregues.push(dados[equipe][t].entregues);
+                        a_entregar.push(dados[equipe][t].a_entregar);
+                    }
+                });
+
+                const ctx = document.getElementById('chart-' + equipe.replace(/\s+/g,'-').toLowerCase());
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Entregues',
+                                data: entregues,
+                                backgroundColor: corEntregues,
+                                borderColor: labels.map(l => coresEquipe[equipe] || coresEquipe['default']),
+                                borderWidth: 2,
+                                stack: 'Stack 0'
+                            },
+                            {
+                                label: 'A Entregar',
+                                data: a_entregar,
+                                backgroundColor: labels.map(l => coresTamanho[l] || coresTamanho['default']),
+                                borderColor: labels.map(l => coresEquipe[equipe] || coresEquipe['default']),
+                                borderWidth: 2,
+                                stack: 'Stack 0'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Equipe: ' + equipe,
+                                color: coresEquipe[equipe] || coresEquipe['default']
+                            },
+                            legend: { position: 'bottom' }
+                        },
+                        scales: {
+                            x: { stacked: true },
+                            y: { stacked: true, beginAtZero: true }
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

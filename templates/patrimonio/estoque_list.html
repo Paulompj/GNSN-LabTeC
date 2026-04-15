@@ -1,0 +1,106 @@
+{% extends 'menu.html' %}
+{% block title %}Controle de Estoque{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="fw-bold">Estoque</h3>
+
+            <a href="{% url 'patrimonio:estoque_create' %}" class="btn btn-success">
+                + Novo Controle
+            </a>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+                    <tr>
+                        <th>Material</th>
+                        <th>Categoria</th>
+                        <th>Quantidade</th>
+                        <th>Validade</th>
+                        <th>Local provisório</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for e in estoques %}
+                        <tr>
+                            <td class="fw-semibold">{{ e.material.nome }}</td>
+                            <td>{{ e.material.categoria.nome }}</td>
+                            <td>{{ e.quantidade }}</td>
+
+                            <td>
+                                {% if e.validade %}
+                                    {{ e.validade|date:"d/m/Y" }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+
+                            <td>{{ e.local_provisorio|default:"—" }}</td>
+
+                            <td class="text-end">
+                                <a href="{% url 'patrimonio:estoque_edit' e.id %}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Editar
+                                </a>
+
+                                <button class="btn btn-sm btn-outline-danger"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteModal{{ e.id }}">
+                                    Excluir
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Modal DELETE -->
+                        <div class="modal fade" id="deleteModal{{ e.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Confirmar exclusão</h5>
+                                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        Excluir controle de estoque do material
+                                        <strong>{{ e.material.nome }}</strong>?
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button class="btn btn-secondary" data-bs-dismiss="modal">
+                                            Cancelar
+                                        </button>
+
+                                        <form method="post"
+                                              action="{% url 'patrimonio:estoque_delete' e.id %}">
+                                            {% csrf_token %}
+                                            <button class="btn btn-danger">Excluir</button>
+                                        </form>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                Nenhum controle de estoque cadastrado.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

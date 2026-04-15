@@ -1,0 +1,207 @@
+{% extends "menu.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block body %}
+    <div class="container mt-4 mb-0">
+
+        <!-- ===== ABAS ===== -->
+        <ul class="nav nav-tabs custom-tabs mt-0 mb-0">
+            {% for c in cirios %}
+                <li class="nav-item">
+                    <a href="?ano={{ c.ano }}"
+                       class="nav-link {% if cirio and c.ano == cirio.ano %}active{% endif %}">
+                        Círio {{ c.ano }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <!-- ===== CARDS ===== -->
+        <div class="row mt-0 mb-4">
+
+            <div class="col-md-2">
+                <div class="card shadow-sm text-center p-3 border-0 bg-light">
+                    <h6 class="text-muted">Total</h6>
+                    <h3 class="fw-bold">{{ total_guardas }}</h3>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="card shadow-sm text-center p-3 border-0 bg-apto text-white">
+                    <h6>Aptos</h6>
+                    <h3 class="fw-bold">{{ status_count.apto }}</h3>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="card shadow-sm text-center p-3 border-0 bg-tendencia text-white">
+                    <h6>Tendência</h6>
+                    <h3 class="fw-bold">{{ status_count.tendencia }}</h3>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="card shadow-sm text-center p-3 border-0 bg-baixo ">
+                    <h6>Abaixo</h6>
+                    <h3 class="fw-bold">{{ status_count.baixo }}</h3>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="card shadow-sm text-center p-3 border-0 bg-critico text-white">
+                    <h6>Abaixo 50%</h6>
+                    <h3 class="fw-bold">{{ status_count.critico }}</h3>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="card shadow-sm text-center p-3 border-0 bg-inapto text-white">
+                    <h6>Inaptos</h6>
+                    <h3 class="fw-bold">{{ status_count.inapto }}</h3>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ===== GRÁFICOS ===== -->
+        <div class="row g-4">
+
+            <div class="col-md-6">
+                <div class="card shadow-sm border-top-0">
+                    <div class="card-header fw-bold">
+                        Distribuição de Status
+                    </div>
+                    <div class="card-body d-flex justify-content-center align-items-center">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card shadow-sm border-top-0">
+                    <div class="card-header fw-bold">
+                        Participação por Categoria
+                    </div>
+                    <div class="card-body">
+                        <canvas id="categoriaChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        /* ===== CORES PADRÃO ===== */
+        const CORES_STATUS = {
+            apto: '#198754',
+            tendencia: '#0d6efd',
+            baixo: '#f4b000',
+            critico: '#dc3545',
+            inapto: '#212529'
+        };
+
+        const CORES_CATEGORIAS = {
+            'Missa': '#0d6efd',
+            'Adoração': '#f4b000',
+            'Reunião': '#198754',
+            'Cenáculo': '#6f42c1',
+            'Procissão': '#fd7e14'
+        };
+
+        /* ===== STATUS ===== */
+        new Chart(document.getElementById('statusChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Apto', 'Tendência', 'Abaixo','Abaixo 50%', 'Inapto'],
+                datasets: [{
+                    data: [
+                        {{ status_count.apto }},
+                        {{ status_count.tendencia }},
+                        {{ status_count.baixo }},
+                        {{ status_count.critico }},
+                        {{ status_count.inapto }}
+                    ],
+                    backgroundColor: [
+                        CORES_STATUS.apto,
+                        CORES_STATUS.tendencia,
+                        CORES_STATUS.baixo,
+                        CORES_STATUS.critico,
+                        CORES_STATUS.inapto
+                    ]
+                }]
+            }
+        });
+
+        /* ===== CATEGORIAS ===== */
+        const labelsCategorias = [
+            {% for c in categorias_chart %}
+                '{{ c.evento__categoria__nome|default:"Sem categoria" }}',
+            {% endfor %}
+        ];
+
+        const valoresCategorias = [
+            {% for c in categorias_chart %}
+                {{ c.total }},
+            {% endfor %}
+        ];
+
+        /* aplica cores automaticamente */
+        const coresCategorias = labelsCategorias.map(c => CORES_CATEGORIAS[c] || '#6c757d');
+
+        new Chart(document.getElementById('categoriaChart'), {
+            type: 'bar',
+            data: {
+                labels: labelsCategorias,
+                datasets: [{
+                    data: valoresCategorias,
+                    backgroundColor: coresCategorias
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    </script>
+
+    <style>
+
+        /* ===== ABAS ===== */
+        .custom-tabs {
+            margin-bottom: -1px;
+        }
+
+        .custom-tabs .nav-link {
+            border: 1px solid #dee2e6;
+            border-bottom: none;
+            background-color: #f8f9fa;
+        }
+
+        .custom-tabs .nav-link.active {
+            background-color: #fff;
+            border-top: 3px solid #0d6efd;
+            font-weight: bold;
+        }
+
+        /* ===== STATUS ===== */
+        .bg-apto { background-color: #198754; }
+        .bg-tendencia { background-color: #0d6efd; }
+        .bg-baixo { background-color: #f4b000; }
+        .bg-critico { background-color: #dc3545; }
+        .bg-inapto { background-color: #212529; }
+
+        /* ===== VISUAL ===== */
+        .card {
+            border-top: 0;
+        }
+
+    </style>
+
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "menu.html" %}
+{% block body %}
+
+    <div class="container py-4">
+
+        <!-- Título -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="fw-bold mb-0">Validade de Materiais</h3>
+            <span class="text-muted">Ordenado por vencimento</span>
+        </div>
+
+        <!-- Card -->
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0">
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead class="table-light">
+                        <tr>
+                            <th>Material</th>
+                            <th>Categoria</th>
+                            <th>Setor</th>
+                            <th>Quantidade</th>
+                            <th>Validade</th>
+                            <th>Status</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for e in estoques %}
+                            <tr
+                                    {% if e.validade < hoje %}
+                                        class="table-danger"
+                                    {% elif e.validade <= limite %}
+                                        class="table-warning"
+                                    {% endif %}
+                            >
+                                <td class="fw-semibold">{{ e.material.nome }}</td>
+                                <td>{{ e.material.categoria.nome }}</td>
+                                <td>{{ e.material.setor.nome|default:"—" }}</td>
+                                <td>{{ e.quantidade }}</td>
+                                <td>{{ e.validade|date:"d/m/Y" }}</td>
+                                <td>
+                                    {% if e.validade < hoje %}
+                                        <span class="badge bg-danger">Vencido</span>
+                                    {% elif e.validade <= limite %}
+                                        <span class="badge bg-warning text-dark">Vence em breve</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Regular</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                    Nenhum material com validade cadastrada.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends 'menu.html' %}
+{% load static %}
+{% block title %}Cadastrar Guarda{% endblock %}
+{% block body %}
+    <div class="container mt-4">
+        <h3>Cadastro de Guardas</h3>
+        <form id="form" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+            {% csrf_token %}
+
+            <!-- Linha 1: Nome, Matrícula, Turma, Matricula Padrinho -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="id_nome" class="form-label">Nome</label>
+                    {{ form.nome }}
+                </div>
+                <div class="col-md-2">
+                    <label for="id_matricula" class="form-label">Matrícula</label>
+                    {{ form.matricula }}
+                </div>
+                <div class="col-md-2">
+                    <label for="id_turma" class="form-label">Turma</label>
+                    {{ form.turma }}
+                </div>
+                <div class="col-md-2">
+                    <label for="id_matricula_padrinho" class="form-label">Matrícula Padrinho</label>
+                    {{ form.matricula_padrinho }}
+                </div>
+            </div>
+
+            <!-- Linha 2: Nascimento, Sexo -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <label for="id_nascimento" class="form-label">Data de Nascimento</label>
+                    {{ form.nascimento }}
+                </div>
+                <div class="col-md-4">
+                    <label for="id_sexo" class="form-label">Sexo</label>
+                    {{ form.sexo }}
+                </div>
+                <div class="col-md-4">
+                    <label for="id_estado_civil" class="form-label">Estado Civil</label>
+                    {{ form.estado_civil }}
+                </div>
+            </div>
+
+            <!-- Linha 3: CEP, Endereço, UF -->
+            <div class="row mb-3">
+                <div class="col-md-2">
+                    <label for="id_cep" class="form-label">CEP</label>
+                    {{ form.cep }}
+                </div>
+                <div class="col-md-8">
+                    <label for="id_endereco" class="form-label">Endereço</label>
+                    {{ form.endereco }}
+                </div>
+                <div class="col-md-2">
+                    <label for="id_UF" class="form-label">UF</label>
+                    {{ form.UF }}
+                </div>
+            </div>
+
+            <!-- Linha 4: Cidade, Bairro, Complemento -->
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label for="id_cidade" class="form-label">Cidade</label>
+                    {{ form.cidade }}
+                </div>
+                <div class="col-md-3">
+                    <label for="id_bairro" class="form-label">Bairro</label>
+                    {{ form.bairro }}
+                </div>
+                <div class="col-md-6">
+                    <label for="id_complemento" class="form-label">Complemento</label>
+                    {{ form.complemento }}
+                </div>
+            </div>
+
+            <!-- Linha 5: CPF, RG, Telefone, Celular, Comercial -->
+            <div class="row mb-3">
+                <div class="col-md-2">
+                    <label for="id_cpf" class="form-label">CPF</label>
+                    {{ form.cpf }}
+                </div>
+                <div class="col-md-2">
+                    <label for="id_rg" class="form-label">RG</label>
+                    {{ form.rg }}
+                </div>
+                <div class="col-md-2">
+                    <label for="id_telefone" class="form-label">Telefone</label>
+                    {{ form.telefone }}
+                </div>
+                <div class="col-md-3">
+                    <label for="id_celular" class="form-label">Celular</label>
+                    {{ form.celular }}
+                </div>
+                <div class="col-md-3">
+                    <label for="id_tel_comercial" class="form-label">Tel. Comercial</label>
+                    {{ form.tel_comercial }}
+                </div>
+            </div>
+
+            <!-- Linha 6: Email, Foto -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="id_email" class="form-label">E-mail</label>
+                    {{ form.email }}
+                </div>
+                <div class="col-md-6">
+                    <label for="id_foto" class="form-label">Foto</label>
+                    {{ form.foto }}
+                </div>
+            </div>
+
+            <!-- Linha 7: Observação, Ativo, Staff -->
+            <div class="row mb-3">
+                <div class="col-md-8">
+                    <label for="id_observacao" class="form-label">Observação</label>
+                    {{ form.observacao }}
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check mt-4">
+                        {{ form.is_active }}
+                        <label class="form-check-label" for="id_is_active">Ativo</label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check mt-4">
+                        {{ form.is_staff }}
+                        <label class="form-check-label" for="id_is_staff">Staff</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botão salvar -->
+            <div class="row">
+                <div class="col-12 text-end">
+                    <button class="btn btn-primary" type="submit">Salvar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Validação do Bootstrap 5
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })();
+    </script>
+{% endblock %}
