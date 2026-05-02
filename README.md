@@ -43,7 +43,7 @@ Execute os comandos abaixo no **PowerShell**:
 
 ```powershell
 # 1. Acessa a pasta do projeto
-cd "C:\Users\Paulo Moraes\GNSN-discentes"
+cd "C:\Users\Seu Usuário\GNSN-discentes"
 
 # 2. Instala Python 3.10 (caso não tenha)
 winget install --id Python.Python.3.10 -e
@@ -97,6 +97,10 @@ Set-Content -Path ".\venv\Lib\site-packages\face_recognition\__init__.py" -Value
 
 # Aplica migrations (SQLite)
 .\venv\Scripts\python.exe manage.py migrate
+```
+## Criar o usuário administrador
+```powershell
+.\venv\Scripts\python.exe manage.py createsuperuser
 ```
 ## Executar o projeto
 
