@@ -9,6 +9,10 @@ Abra o terminal (PowerShell) e execute o bloco abaixo **linha por linha** ou col
 cd "C:\Users\Paulo Moraes\GNSN-discentes"
 
 # 2. Cria o ambiente virtual usando o launcher do Python 3.10
+# **caso não tenha versão 3.10 instalada**
+winget install --id Python.Python.3.10 -e
+
+# se ja estiver instalada
 py -3.10 -m venv venv
 
 # 3. Ativa o ambiente virtual
@@ -46,7 +50,10 @@ Set-Content -Path ".\venv\Lib\site-packages\face_recognition\__init__.py" -Value
 # 11. Aplica as migrations para criar o banco de dados SQLite
 .\venv\Scripts\python.exe manage.py migrate
 
-# 12. Inicia o servidor local
+# 12. Cria Super User antes de iniciar
+.\venv\Scripts\python.exe manage.py createsuperuser
+
+# 13. Inicia o servidor local
 .\venv\Scripts\python.exe manage.py runserver
 ```
 
