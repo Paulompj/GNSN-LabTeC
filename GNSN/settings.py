@@ -45,13 +45,13 @@ ALLOWED_HOSTS = [
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Segurança nos cookies
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
 
 # Segurança extra (opcional, mas recomendado)
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_SSL_REDIRECT = True  # força sempre HTTPS
+SECURE_BROWSER_XSS_FILTER = False
+SECURE_CONTENT_TYPE_NOSNIFF = False
+SECURE_SSL_REDIRECT = False  # força sempre HTTPS
 
 # Application definition
 
@@ -151,9 +151,19 @@ USE_TZ = True
 
 #FORCE_SCRIPT_NAME = '/gnsn'
 STATIC_URL = '/gnsn/static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
+
 MEDIA_URL = '/gnsn/media/'
-STATIC_ROOT = '/home/django/apps/GNSN/static/'
-MEDIA_ROOT = '/home/django/apps/GNSN/media/'
+
+import os
+if os.name == 'nt':
+    # Ambiente local (Windows)
+    STATIC_ROOT = BASE_DIR / 'staticfiles'
+    MEDIA_ROOT = BASE_DIR / 'media'
+else:
+    # Ambiente de produção (Linux)
+    STATIC_ROOT = '/home/django/apps/GNSN/static/'
+    MEDIA_ROOT = '/home/django/apps/GNSN/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

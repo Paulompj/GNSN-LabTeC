@@ -17,7 +17,7 @@ import math
 def group_required(*group_names):
     def decorator(view_func):
         def _wrapped_view(request, *args, **kwargs):
-            if request.user.is_authenticated and request.user.groups.filter(name__in=group_names).exists():
+            if request.user.is_authenticated and (request.user.is_superuser or request.user.groups.filter(name__in=group_names).exists()):
                 return view_func(request, *args, **kwargs)
             messages.error(request, "Você não tem permissão para acessar esta página.")
             return redirect("mirim:home")
@@ -61,6 +61,10 @@ def dashboard(request):
         cirio = get_object_or_404(Cirio, ano=ano)
     else:
         cirio = Cirio.objects.filter(ativo=True).first()
+
+    if not cirio:
+        messages.warning(request, "Nenhum Círio ativo encontrado. Por favor, cadastre um Círio antes de acessar o painel.")
+        return redirect("mirim:home")
 
     cirios = Cirio.objects.all().order_by("ano")
     guardas = GuardaMirim.objects.all()
@@ -421,6 +425,10 @@ def guarda_detail(request, pk):
     else:
         cirio = Cirio.objects.filter(ativo=True).first()
 
+    if not cirio:
+        messages.warning(request, "Nenhum Círio ativo encontrado. Não é possível ver detalhes do guarda sem um Círio.")
+        return redirect("mirim:guarda_list")
+
     # 🔥 frequências dentro do período do círio
     frequencias = (
         guarda.frequencias
@@ -543,6 +551,10 @@ def mirim_detail_consulta(request):
         cirio = get_object_or_404(Cirio, ano=ano)
     else:
         cirio = Cirio.objects.filter(ativo=True).first()
+
+    if not cirio:
+        messages.warning(request, "Consulta indisponível no momento: nenhum Círio ativo configurado no sistema.")
+        return redirect("mirim:consulta")
 
     # 🔥 frequências dentro do período do círio
     frequencias = (

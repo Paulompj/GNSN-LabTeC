@@ -1,5 +1,6 @@
 import faiss
 import numpy as np
+from django.db.utils import OperationalError, ProgrammingError
 from .models import Guarda
 
 class FaceIndex:
@@ -9,28 +10,32 @@ class FaceIndex:
         self.load_index()
 
     def load_index(self):
-        self.guardas = Guarda.objects.exclude(encoding=None)
+        try:
+            self.guardas = Guarda.objects.exclude(encoding=None)
 
-        encodings = []
-        valid_guardas = []
+            encodings = []
+            valid_guardas = []
 
-        for g in self.guardas:
-            try:
-                arr = np.frombuffer(g.encoding, dtype=np.float32)
-                if arr.size in [128, 512]:  # tamanho esperado
-                    encodings.append(arr)
-                    valid_guardas.append(g)
-                else:
-                    print(f"⚠️ Encoding inválido para {g.matricula}: tamanho {arr.size}")
-            except Exception as e:
-                print(f"Erro ao carregar encoding do guarda {g.matricula}: {e}")
+            for g in self.guardas:
+                try:
+                    arr = np.frombuffer(g.encoding, dtype=np.float32)
+                    if arr.size in [128, 512]:  # tamanho esperado
+                        encodings.append(arr)
+                        valid_guardas.append(g)
+                    else:
+                        print(f"AVISO: Encoding inválido para {g.matricula}: tamanho {arr.size}")
+                except Exception as e:
+                    print(f"Erro ao carregar encoding do guarda {g.matricula}: {e}")
 
-        if encodings:
-            self.index = faiss.IndexFlatL2(len(encodings[0]))
-            self.index.add(np.array(encodings))
-            self.guardas = valid_guardas
-        else:
-            print("⚠️ Nenhum encoding válido encontrado.")
+            if encodings:
+                self.index = faiss.IndexFlatL2(len(encodings[0]))
+                self.index.add(np.array(encodings))
+                self.guardas = valid_guardas
+            else:
+                print("AVISO: Nenhum encoding válido encontrado.")
+                self.index = None
+        except (OperationalError, ProgrammingError):
+            print("AVISO: Tabelas do banco de dados ainda não criadas. Ignorando load_index().")
             self.index = None
 
     def search(self, encoding, threshold=0.5):
