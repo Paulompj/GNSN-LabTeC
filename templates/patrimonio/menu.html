@@ -15,19 +15,6 @@
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    {% if request.user|has_group:"super" or request.user|has_group:"Direção" %}
-                    <!-- Dropdown Guarda -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="guardaDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Guarda
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="guardaDropdown">
-                            <li><a class="dropdown-item" href="{% url 'app:createguarda' %}">Cadastrar</a></li>
-                            <li><a class="dropdown-item" href="{% url 'app:readguarda' %}">Listar</a></li>
-                        </ul>
-                    </li>
-                    {% endif %}
-                
                     <!-- Dropdown Empréstimo -->
                     {% if request.user|has_group:"super" or request.user|has_group:"Patrimonio_adm" or request.user|has_group:"Patrimonio_solicitante" %}
                     <a class="nav-link" href="{% url 'patrimonio:emprestimo_list' %}">

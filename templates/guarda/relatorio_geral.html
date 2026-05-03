@@ -1,0 +1,411 @@
+{% extends 'menu.html' %}
+{% load static %}
+{% block title %}Relatórios{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+
+        <h3 class="mb-4 text-center">Relatório Geral</h3>
+
+        <!-- Filtro por Ano -->
+        <form method="get" class="row mb-4">
+            <div class="col-md-3">
+                <select name="ano" id="id_ano" class="form-select" required>
+                    <option value="" disabled {% if not request.GET.ano %}selected{% endif %}>Selecione um ano</option>
+                    {% for a in anos %}
+                        <option value="{{ a }}" {% if a|stringformat:"s" == request.GET.ano|stringformat:"s" %}selected{% endif %}>{{ a }}</option>
+                    {% endfor %}
+                </select>
+                <div class="invalid-feedback">
+                    Por favor, selecione um ano.
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+            </div>
+        </form>
+
+        <!-- Gráficos de entregues -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Guardas Recebidos</h5>
+                <div class="row">
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title text-center">por Equipe</h5>
+                                <canvas id="chartEquipe"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title text-center">por Tamanho</h5>
+                                <canvas id="chartTamanho"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-lg-4 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title text-center">Equipe x Tamanho</h5>
+                                <canvas id="chartEquipeTamanho"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Camisas a Entregar -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Guardas a Entregar</h5>
+                <div class="row">
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title text-center">por Equipe</h5>
+                                <canvas id="chartAEntregarEquipe"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title text-center">por Tamanho</h5>
+                                <canvas id="chartAEntregarTamanho"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-lg-4 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title text-center">Equipe x Tamanho</h5>
+                                <canvas id="chartAEntregarEquipeTamanho"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Totais -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Totais (Entregues + A Entregar)</h5>
+                <div class="row">
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title text-center">por Equipe</h5>
+                                <canvas id="chartTotalEquipe"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title text-center">por Tamanho</h5>
+                                <canvas id="chartTotalTamanho"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-lg-4 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title text-center">Equipe x Tamanho</h5>
+                                <canvas id="chartTotalEquipeTamanho"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de relatórios -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Tabela Geral</h5>
+                <div class="table-responsive">
+                    <table id="tabela-relatorio" class="table table-bordered table-hover align-middle text-center">
+                        <thead class="table-light">
+                        <tr>
+                            <th onclick="sortTable(0)">Equipe</th>
+                            <th onclick="sortTable(1)">Tamanho</th>
+                            <th onclick="sortTable(2)">Entregues</th>
+                            <th onclick="sortTable(3)">A Entregar</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% regroup tabela_dados by equipe as grupos %}
+                        {% for grupo in grupos %}
+                            {% for row in grupo.list %}
+                                <tr>
+                                    {% if forloop.first %}
+                                        <td rowspan="{{ grupo.list|length }}" class="fw-bold text-uppercase fs-5 align-middle equipe-cell" data-equipe="{{ grupo.grouper }}">
+                                            {{ grupo.grouper }}
+                                        </td>
+                                    {% endif %}
+                                    <td class="tamanho-cell" data-tamanho="{{ row.tamanho }}">{{ row.tamanho }}</td>
+                                    <td>{{ row.entregues }}</td>
+                                    <td>{{ row.a_entregar }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% empty %}
+                            <tr><td colspan="4">Nenhum dado disponível.</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // ---------- mapas de cor ----------
+        const coresEquipe = {
+            'E1': '#f4b000',
+            'E2': '#e85c2a',
+            'E3': '#7ab731',
+            'E4': '#3fa9f5',
+            'E5': '#d22f27',
+            'RB': '#1c3b6b',
+            'NB': '#f2e2b3',
+            'FC': '#f5f1d7',
+            'PS': '#8b5c3f',
+            'AT': '#444444',
+            'NC': '#2e98a7',
+            'default': '#e6e6e6'
+        };
+
+        // esquema por tamanho (progressão de saturação para percepção de grande->pequeno)
+        const coresTamanho = {
+            'PP': '#cfeffd',
+            'P':  '#b3e5fc',
+            'M':  '#81d4fa',
+            'G':  '#4fc3f7',
+            'GG': '#29b6f6',
+            'XG': '#039be5',
+            '3G': '#0288d1',
+            '4G': '#0277bd',
+            '5G': '#01579b',
+            '6G': '#003c8f',
+            'ESPECIAL': '#6a1b9a',
+            'UN': '#90a4ae',
+            'default': '#e0e0e0'
+        };
+
+        // utilitário: converte hex -> luminance para decidir cor do texto (black/white)
+        function hexToRgb(hex) {
+            const h = hex.replace('#','');
+            const bigint = parseInt(h, 16);
+            return {
+                r: (bigint >> 16) & 255,
+                g: (bigint >> 8) & 255,
+                b: bigint & 255
+            };
+        }
+        function luminance(hex) {
+            const {r,g,b} = hexToRgb(hex);
+            // fórmula de luminância relativa
+            const a = [r,g,b].map(v => {
+                v /= 255;
+                return v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4);
+            });
+            return 0.2126*a[0] + 0.7152*a[1] + 0.0722*a[2];
+        }
+        function textColorForBackground(hex) {
+            // se luminance baixa -> texto branco, senão preto (threshold ~0.179)
+            return luminance(hex) > 0.179 ? '#000000' : '#ffffff';
+        }
+
+        // ---------- dados do contexto (vinham do Django) ----------
+        const entreguesPorEquipe = {{ entregues_por_equipe|safe }};
+        const entreguesPorTamanho = {{ entregues_por_tamanho|safe }};
+        const entreguesPorEquipeTamanho = {{ entregues_por_equipe_tamanho|safe }};
+
+        const aEntregarEquipe = {{ a_entregar_por_equipe|safe }};
+        const aEntregarTamanho = {{ a_entregar_por_tamanho|safe }};
+        const aEntregarEquipeTamanho = {{ a_entregar_por_equipe_tamanho|safe }};
+
+        const totalEquipe = {{ totais_por_equipe|safe }};
+        const totalTamanho = {{ totais_por_tamanho|safe }};
+        const totalEquipeTamanho = {{ totais_por_equipe_tamanho|safe }};
+
+        // ---------- helpers para gerar arrays de cores ----------
+        function coresParaEquipes(labels) {
+            return labels.map(l => coresEquipe[l] || coresEquipe['default']);
+        }
+        function coresParaTamanhos(labels) {
+            return labels.map(l => coresTamanho[l] || coresTamanho['default']);
+        }
+
+        // ---------- criar gráfico de barra simples ----------
+        function criarGraficoBarra(ctx, labels, data, label, colors) {
+            return new Chart(ctx, {
+                type: 'bar',
+                data: { labels: labels, datasets: [{ label: label, data: data, backgroundColor: colors, borderColor: colors.map(c => c), borderWidth: 1 }] },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+        }
+
+        // ---------- Gráficos Recebidos (Entregues) ----------
+        // Por equipe
+        const labelsEquipe = Object.keys(entreguesPorEquipe);
+        const dataEquipe = Object.values(entreguesPorEquipe);
+        const colorsEquipe = coresParaEquipes(labelsEquipe);
+        criarGraficoBarra(document.getElementById('chartEquipe'), labelsEquipe, dataEquipe, 'Camisas Entregues', colorsEquipe);
+
+        // Por tamanho
+        const labelsTamanho = Object.keys(entreguesPorTamanho);
+        const dataTamanho = Object.values(entreguesPorTamanho);
+        const colorsTamanho = coresParaTamanhos(labelsTamanho);
+        criarGraficoBarra(document.getElementById('chartTamanho'), labelsTamanho, dataTamanho, 'Camisas Entregues', colorsTamanho);
+
+        // Equipe x Tamanho (stacked) -> usamos cor por equipe para cada dataset
+        const tamanhos = [...new Set([].concat(...Object.values(entreguesPorEquipeTamanho).map(obj => Object.keys(obj))))];
+        const datasetsEquipeTamanho = Object.entries(entreguesPorEquipeTamanho).map(([equipe, dados]) => ({
+            label: equipe,
+            data: tamanhos.map(t => dados[t] || 0),
+            backgroundColor: coresEquipe[equipe] || coresEquipe['default']
+        }));
+        new Chart(document.getElementById('chartEquipeTamanho'), {
+            type: 'bar',
+            data: { labels: tamanhos, datasets: datasetsEquipeTamanho },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { x: { stacked: true }, y: { stacked: true } } }
+        });
+
+        // ---------- Gráficos A Entregar ----------
+        // Por equipe
+        const labelsAEntregarEquipe = Object.keys(aEntregarEquipe);
+        const dataAEntregarEquipe = Object.values(aEntregarEquipe);
+        criarGraficoBarra(document.getElementById('chartAEntregarEquipe'), labelsAEntregarEquipe, dataAEntregarEquipe, 'Camisas a Entregar', coresParaEquipes(labelsAEntregarEquipe));
+
+        // Por tamanho
+        const labelsAEntregarTamanho = Object.keys(aEntregarTamanho);
+        const dataAEntregarTamanho = Object.values(aEntregarTamanho);
+        criarGraficoBarra(document.getElementById('chartAEntregarTamanho'), labelsAEntregarTamanho, dataAEntregarTamanho, 'Camisas a Entregar', coresParaTamanhos(labelsAEntregarTamanho));
+
+        // Equipe x Tamanho (a entregar)
+        const tamanhosAEntregar = [...new Set([].concat(...Object.values(aEntregarEquipeTamanho).map(obj => Object.keys(obj))))];
+        const datasetsAEntregar = Object.entries(aEntregarEquipeTamanho).map(([equipe, dados]) => ({
+            label: equipe,
+            data: tamanhosAEntregar.map(t => dados[t] || 0),
+            backgroundColor: coresEquipe[equipe] || coresEquipe['default']
+        }));
+        new Chart(document.getElementById('chartAEntregarEquipeTamanho'), {
+            type: 'bar',
+            data: { labels: tamanhosAEntregar, datasets: datasetsAEntregar },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { x: { stacked: true }, y: { stacked: true } } }
+        });
+
+        // ---------- Gráficos Totais ----------
+        // Por equipe
+        const labelsTotalEquipe = Object.keys(totalEquipe);
+        const dataTotalEquipe = Object.values(totalEquipe);
+        criarGraficoBarra(document.getElementById('chartTotalEquipe'), labelsTotalEquipe, dataTotalEquipe, 'Totais', coresParaEquipes(labelsTotalEquipe));
+
+        // Por tamanho
+        const labelsTotalTamanho = Object.keys(totalTamanho);
+        const dataTotalTamanho = Object.values(totalTamanho);
+        criarGraficoBarra(document.getElementById('chartTotalTamanho'), labelsTotalTamanho, dataTotalTamanho, 'Totais', coresParaTamanhos(labelsTotalTamanho));
+
+        // Equipe x Tamanho (totais)
+        const tamanhosTotal = [...new Set([].concat(...Object.values(totalEquipeTamanho).map(obj => Object.keys(obj))))];
+        const datasetsTotal = Object.entries(totalEquipeTamanho).map(([equipe, dados]) => ({
+            label: equipe,
+            data: tamanhosTotal.map(t => dados[t] || 0),
+            backgroundColor: coresEquipe[equipe] || coresEquipe['default']
+        }));
+        new Chart(document.getElementById('chartTotalEquipeTamanho'), {
+            type: 'bar',
+            data: { labels: tamanhosTotal, datasets: datasetsTotal },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { x: { stacked: true }, y: { stacked: true } } }
+        });
+
+        // ---------- Colorir a tabela (aplicar cores por equipe e por tamanho) ----------
+        document.addEventListener('DOMContentLoaded', function() {
+            // equipe-cells: tem data-equipe
+            document.querySelectorAll('.equipe-cell').forEach(td => {
+                const eq = (td.dataset.equipe || '').trim();
+                const cor = coresEquipe[eq] || coresEquipe['default'];
+                td.style.background = cor;
+                td.style.color = textColorForBackground(cor);
+            });
+
+            // tamanho-cells: cada célula tem data-tamanho
+            document.querySelectorAll('.tamanho-cell').forEach(td => {
+                const t = (td.dataset.tamanho || '').trim();
+                const cor = coresTamanho[t] || coresTamanho['default'];
+                td.style.background = cor;
+                td.style.color = textColorForBackground(cor);
+            });
+        });
+
+        // ---------- Função para ordenar tabela ----------
+        function sortTable(n) {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("tabela-relatorio");
+            switching = true;
+            dir = "asc";
+
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    if (!x || !y) continue;
+                    let xv = x.innerHTML.trim();
+                    let yv = y.innerHTML.trim();
+                    // remover markup HTML (se houver)
+                    xv = xv.replace(/<[^>]*>/g, "");
+                    yv = yv.replace(/<[^>]*>/g, "");
+
+                    if (dir == "asc") {
+                        if (isNaN(xv)) {
+                            if (xv.toLowerCase() > yv.toLowerCase()) {
+                                shouldSwitch = true;
+                                break;
+                            }
+                        } else {
+                            if (Number(xv) > Number(yv)) {
+                                shouldSwitch = true;
+                                break;
+                            }
+                        }
+                    } else if (dir == "desc") {
+                        if (isNaN(xv)) {
+                            if (xv.toLowerCase() < yv.toLowerCase()) {
+                                shouldSwitch = true;
+                                break;
+                            }
+                        } else {
+                            if (Number(xv) < Number(yv)) {
+                                shouldSwitch = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount++;
+                } else {
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+    </script>
+{% endblock %}

@@ -73,13 +73,13 @@ class Emprestimo(models.Model):
     material = models.ForeignKey(Material, on_delete=models.PROTECT)
 
     solicitante = models.ForeignKey(
-        "app.Guarda",
+        "guarda.Guarda",
         on_delete=models.PROTECT,
         related_name="emprestimos_solicitados",
     )
 
     retirante = models.ForeignKey(
-        "app.Guarda",
+        "guarda.Guarda",
         on_delete=models.PROTECT,
         related_name="emprestimos_retirados",
         blank=True,
@@ -87,7 +87,7 @@ class Emprestimo(models.Model):
     )
 
     responsavel_patrimonio = models.ForeignKey(
-        "app.Guarda",
+        "guarda.Guarda",
         on_delete=models.PROTECT,
         related_name="emprestimos_liberados",
         blank=True,
