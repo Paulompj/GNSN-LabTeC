@@ -3,6 +3,7 @@
 /media/
 
 # Python
+.venv/
 venv/
 __pycache__/
 *.pyc
