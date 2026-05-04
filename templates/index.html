@@ -6,8 +6,16 @@
 
 <style>
   /* ── Mobile-first base ── */
-  *, *::before, *::after { box-sizing: border-box; }
-  body { background: #f3f4f6; font-family: 'Inter', 'Segoe UI', sans-serif; }
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    background: #f3f4f6;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+  }
 
   .modules-wrapper {
     padding: 1rem;
@@ -19,7 +27,7 @@
   .welcome-card {
     background: #fff;
     border-radius: 14px;
-    box-shadow: 0 1px 6px rgba(0,0,0,.06);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, .06);
     padding: 1.25rem;
     margin-bottom: 1.25rem;
     display: flex;
@@ -28,39 +36,77 @@
     text-align: center;
     gap: 0.75rem;
   }
-  .welcome-logo { height: 72px; width: auto; }
-  .welcome-text h2 {
-    font-size: 1.3rem; font-weight: 700; color: #111827; margin: 0 0 0.3rem;
+
+  .welcome-logo {
+    height: 72px;
+    width: auto;
   }
-  .welcome-text p { font-size: 0.98rem; color: #5d5e61; margin: 0; line-height: 1.5; }
+
+  .welcome-text h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 0.3rem;
+  }
+
+  .welcome-text p {
+    font-size: 0.98rem;
+    color: #5d5e61;
+    margin: 0;
+    line-height: 1.5;
+  }
 
   /* tablet+ */
-  @media(min-width: 640px){
-    .modules-wrapper { padding: 1.5rem; }
+  @media(min-width: 640px) {
+    .modules-wrapper {
+      padding: 1.5rem;
+    }
+
     .welcome-card {
       flex-direction: row;
       text-align: left;
       gap: 1.5rem;
       padding: 1.5rem 2rem;
     }
-    .welcome-logo { height: 100px; flex-shrink: 0; }
-    .welcome-text h2 { font-size: 1.35rem; }
-    .welcome-text p  { font-size: 1rem; }
+
+    .welcome-logo {
+      height: 100px;
+      flex-shrink: 0;
+    }
+
+    .welcome-text h2 {
+      font-size: 1.35rem;
+    }
+
+    .welcome-text p {
+      font-size: 1rem;
+    }
   }
 
   /* desktop */
-  @media(min-width: 1024px){
-    .modules-wrapper { padding: 2rem 2rem; }
-    .welcome-logo { height: 140px; }
-    .welcome-text h2 { font-size: 1.35rem; }
+  @media(min-width: 1024px) {
+    .modules-wrapper {
+      padding: 2rem 2rem;
+    }
+
+    .welcome-logo {
+      height: 140px;
+    }
+
+    .welcome-text h2 {
+      font-size: 1.35rem;
+    }
   }
 
   /* ── Section label ── */
   .section-label {
     text-align: center;
-    font-size: 0.8rem; font-weight: 600;
-    text-transform: uppercase; letter-spacing: .1em;
-    color: #242424; margin-bottom: 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: #242424;
+    margin-bottom: 0.75rem;
   }
 
   /* ── Modules grid — mobile first: 1 col ── */
@@ -69,8 +115,19 @@
     grid-template-columns: 1fr;
     gap: 0.95rem;
   }
-  @media(min-width: 480px){ .modules-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media(min-width: 900px){ .modules-grid { grid-template-columns: repeat(3, 1fr); gap: 1rem; } }
+
+  @media(min-width: 480px) {
+    .modules-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media(min-width: 900px) {
+    .modules-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+  }
 
   /* ── Module card ── */
   .module-card {
@@ -82,93 +139,169 @@
     text-decoration: none;
     color: #fff;
     transition: transform .18s ease, box-shadow .18s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,.10);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .10);
     position: relative;
     overflow: hidden;
     -webkit-tap-highlight-color: transparent;
   }
+
   .module-card::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: rgba(255,255,255,0);
+    background: rgba(255, 255, 255, 0);
     transition: background .18s;
     border-radius: inherit;
   }
 
   /* hover apenas em dispositivos com ponteiro fino (mouse) */
-  @media(hover: hover) and (pointer: fine){
+  @media(hover: hover) and (pointer: fine) {
     .module-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 10px 24px rgba(0,0,0,.16);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, .16);
       color: #fff;
     }
-    .module-card:hover::after { background: rgba(255,255,255,.06); }
-    .module-card:hover .module-arrow { opacity: .9; transform: translateX(3px); }
+
+    .module-card:hover::after {
+      background: rgba(255, 255, 255, .06);
+    }
+
+    .module-card:hover .module-arrow {
+      opacity: .9;
+      transform: translateX(3px);
+    }
   }
 
   /* active (touch feedback) */
-  .module-card:active { transform: scale(.97); opacity: .9; }
+  .module-card:active {
+    transform: scale(.97);
+    opacity: .9;
+  }
 
   /* tamanho do card maior em telas maiores */
-  @media(min-width: 640px){
-    .module-card { padding: 1.6rem; border-radius: 14px; }
+  @media(min-width: 640px) {
+    .module-card {
+      padding: 1.6rem;
+      border-radius: 14px;
+    }
   }
 
   /* ── Ícone ── */
   .module-icon {
-    width: 44px; height: 44px;
+    width: 44px;
+    height: 44px;
     object-fit: contain;
     flex-shrink: 0;
-    filter: drop-shadow(0 2px 6px rgba(0,0,0,.2));
-    position: relative; z-index: 1;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .2));
+    position: relative;
+    z-index: 1;
   }
-  @media(min-width: 640px){ .module-icon { width: 52px; height: 52px; } }
-  @media(min-width: 900px){ .module-icon { width: 56px; height: 56px; } }
+
+  @media(min-width: 640px) {
+    .module-icon {
+      width: 52px;
+      height: 52px;
+    }
+  }
+
+  @media(min-width: 900px) {
+    .module-icon {
+      width: 56px;
+      height: 56px;
+    }
+  }
 
   /* ── Texto ── */
-  .module-info { position: relative; z-index: 1; flex: 1; min-width: 0; }
-  .module-title { font-size: 1.3rem; font-weight: 700; margin: 0 0 0.15rem; line-height: 1.2; }
-  .module-desc  { font-size: 1rem; opacity: .8; margin: 0; line-height: 1.4; }
-  @media(min-width: 640px){
-    .module-title { font-size: 1.3rem; }
-    .module-desc  { font-size: 0.9rem; }
+  .module-info {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .module-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0 0 0.15rem;
+    line-height: 1.2;
+  }
+
+  .module-desc {
+    font-size: 1rem;
+    opacity: .8;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  @media(min-width: 640px) {
+    .module-title {
+      font-size: 1.3rem;
+    }
+
+    .module-desc {
+      font-size: 0.9rem;
+    }
   }
 
   /* ── Seta ── */
   .module-arrow {
     margin-left: auto;
     flex-shrink: 0;
-    position: relative; z-index: 1;
+    position: relative;
+    z-index: 1;
     transition: opacity .18s, transform .18s;
   }
 
   /* ── Cores ── */
-  .mod-guarda     { background: linear-gradient(135deg, #1a174d 0%, #2d2a7a 100%); }
-  .mod-uniforme   { background: linear-gradient(135deg, #b87d00 0%, #f4b000 100%); }
-  .mod-patrimonio { background: linear-gradient(135deg, #3d5a1a 0%, #5f7f2e 100%); }
-  .mod-mirim      { background: linear-gradient(135deg, #0e7ab5 0%, #59b8ef 100%); }
-  .mod-juridico   { background: linear-gradient(135deg, #6b1f2b 0%, #a33040 100%); }
-  .mod-saude      { background: linear-gradient(135deg, #1a7a6e 0%, #2a9d8f 100%); }
+  .mod-guarda {
+    background: linear-gradient(135deg, #1a174d 0%, #2d2a7a 100%);
+  }
+
+  .mod-uniforme {
+    background: linear-gradient(135deg, #b87d00 0%, #f4b000 100%);
+  }
+
+  .mod-patrimonio {
+    background: linear-gradient(135deg, #3d5a1a 0%, #5f7f2e 100%);
+  }
+
+  .mod-mirim {
+    background: linear-gradient(135deg, #0e7ab5 0%, #59b8ef 100%);
+  }
+
+  .mod-juridico {
+    background: linear-gradient(135deg, #6b1f2b 0%, #a33040 100%);
+  }
+
+  .mod-saude {
+    background: linear-gradient(135deg, #1a7a6e 0%, #2a9d8f 100%);
+  }
 
   /* ── Em breve ── */
   .coming-badge {
     position: absolute;
-    top: 8px; right: 8px;
-    font-size: 0.55rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .08em;
-    background: rgba(0,0,0,.25);
+    top: 8px;
+    right: 8px;
+    font-size: 0.55rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    background: rgba(0, 0, 0, .25);
     color: rgb(255, 255, 255);
     padding: 2px 7px;
     border-radius: 9999px;
     z-index: 2;
   }
-  .mod-disabled { opacity: .3; pointer-events: none; }
+
+  .mod-disabled {
+    opacity: .3;
+    pointer-events: none;
+  }
 </style>
 
 <div class="modules-wrapper">
 
-  <!-- Welcome -->
+  <!-- Welcome 
   <div class="welcome-card">
     <img src="{% static 'img/brasao_guarda.png' %}" class="welcome-logo" alt="Brasão da Guarda">
     <div class="welcome-text">
@@ -177,34 +310,61 @@
     </div>
   </div>
 
+  <div class="welcome-card">
+  -->
+
+
+  {% if 'mirim' in request.path %}
+  <div class="welcome-card">
+    <img src="{% static 'img/VETOR-GMNSN.png' %}" class="welcome-logo" alt="Guarda Mirim">
+
+    <div class="welcome-text">
+      <h2>Bem-vindo ao Sistema da Guarda Mirim</h2>
+      <p>Gerencie cadastros, frequências e informações dos participantes da Guarda Mirim.</p>
+    </div>
+  </div>
+
+  {% else %}
+  <div class="welcome-card">
+    <img src="{% static 'img/brasao_guarda.png' %}" class="welcome-logo" alt="Guarda">
+
+    <div class="welcome-text">
+      <h2>Bem-vindo ao Sistema da Guarda</h2>
+      <p>Selecione um módulo abaixo para acessar as funcionalidades do sistema. Use a navegação no topo para acessar
+        recursos dentro de cada módulo.</p>
+    </div>
+  </div>
+  {% endif %}
+
   <!-- Módulos -->
+
   <div class="section-label">Módulos disponíveis</div>
 
   <div class="modules-grid">
 
     <!-- Guarda -->
-    <a href="{% url 'app:home' %}" class="module-card mod-guarda">
+    <a href="{% url 'guarda:home' %}" class="module-card mod-guarda">
       <img src="{% static 'img/guarda.png' %}" class="module-icon" alt="Guarda">
       <div class="module-info">
         <div class="module-title">Guarda</div>
         <div class="module-desc">Gestão de membros e uniformes.</div>
       </div>
-      <svg class="module-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="9 18 15 12 9 6"/>
+      <svg class="module-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6" />
       </svg>
     </a>
 
     <!-- Uniforme -->
-    <a href="{% url 'app:home' %}" class="module-card mod-uniforme">
+    <a href="{% url 'camisa:home' %}" class="module-card mod-uniforme">
       <img src="{% static 'img/uniforme.png' %}" class="module-icon" alt="Uniforme">
       <div class="module-info">
         <div class="module-title">Uniforme</div>
         <div class="module-desc">Controle da distribuição do uniforme.</div>
       </div>
-      <svg class="module-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="9 18 15 12 9 6"/>
+      <svg class="module-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6" />
       </svg>
     </a>
 
@@ -215,9 +375,9 @@
         <div class="module-title">Patrimônio</div>
         <div class="module-desc">Inventário, materiais e empréstimos.</div>
       </div>
-      <svg class="module-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="9 18 15 12 9 6"/>
+      <svg class="module-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6" />
       </svg>
     </a>
 
@@ -228,9 +388,9 @@
         <div class="module-title">Guarda Mirim</div>
         <div class="module-desc">Cadastro, frequências e informações.</div>
       </div>
-      <svg class="module-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="9 18 15 12 9 6"/>
+      <svg class="module-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6" />
       </svg>
     </a>
 
@@ -256,5 +416,5 @@
 
   </div>
 </div>
-
+</div>
 {% endblock %}

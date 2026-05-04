@@ -3,18 +3,31 @@
 {% block menu %}
 
 <style>
-    .gm-navbar {
+  .gm-navbar {
     background-color: #4B6729;
   }
-  @media(max-width: 991px){
+
+  @media(max-width: 991px) {
     .gm-nav-container {
       background: #4B6729;
     }
   }
+
   .gm-dropdown-menu {
     background: #4B6729;
   }
 </style>
+<!-- Dropdown Empréstimo -->
+<!--
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    
+                    {% if request.user|has_group:"super" or request.user|has_group:"Patrimonio_adm" or request.user|has_group:"Patrimonio_solicitante" %}
+                    <a class="nav-link" href="{% url 'patrimonio:emprestimo_list' %}">
+                        Empréstimos
+                    </a>
+                    {% endif %}  
+-->
 
 <nav class="gm-navbar">
 
@@ -41,7 +54,7 @@
       {% if request.user|has_group:"super" or request.user|has_group:"Patrimonio_adm" or request.user|has_group:"Patrimonio_solicitante" %}
       <a class="gm-nav-link" href="{% url 'patrimonio:emprestimo_list' %}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 7h18M3 12h18M3 17h18"/>
+          <path d="M3 7h18M3 12h18M3 17h18" />
         </svg>
         Empréstimos
       </a>
@@ -52,12 +65,12 @@
       <div class="gm-dropdown" id="ddGuarda">
         <button class="gm-nav-link" onclick="toggleDD('ddGuarda')">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/>
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
           </svg>
           Guarda
           <svg class="gm-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="6 9 12 15 18 9"/>
+            <polyline points="6 9 12 15 18 9" />
           </svg>
         </button>
         <div class="gm-dropdown-menu">
@@ -72,11 +85,11 @@
       <div class="gm-dropdown" id="ddCadastros">
         <button class="gm-nav-link" onclick="toggleDD('ddCadastros')">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
           </svg>
           Cadastros
           <svg class="gm-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="6 9 12 15 18 9"/>
+            <polyline points="6 9 12 15 18 9" />
           </svg>
         </button>
 
@@ -97,14 +110,13 @@
       <!-- Relatórios -->
       <div class="gm-dropdown" id="ddRelatorios">
         <button class="gm-nav-link" onclick="toggleDD('ddRelatorios')">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2">
-            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
-            </svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+          </svg>
           Relatórios
           <svg class="gm-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="6 9 12 15 18 9"/>
+            <polyline points="6 9 12 15 18 9" />
           </svg>
         </button>
 
@@ -123,10 +135,10 @@
       <div class="gm-dropdown" id="ddUser">
         <button class="gm-user-btn" onclick="toggleDD('ddUser')">
           <img src="{% if request.user.foto %}{{ request.user.foto }}{% else %}{% static 'img/perfil.png' %}{% endif %}"
-               class="gm-user-avatar">
+            class="gm-user-avatar">
           {{ request.user.nome }}
           <svg class="gm-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="6 9 12 15 18 9"/>
+            <polyline points="6 9 12 15 18 9" />
           </svg>
         </button>
 
@@ -144,22 +156,22 @@
 
 <!-- scripts iguais ao exemplo -->
 <script>
-function toggleDD(id) {
-  const el = document.getElementById(id);
-  const isOpen = el.classList.contains('open');
-  document.querySelectorAll('.gm-dropdown.open').forEach(d => d.classList.remove('open'));
-  if (!isOpen) el.classList.add('open');
-}
-
-document.addEventListener('click', function(e) {
-  if (!e.target.closest('.gm-dropdown')) {
+  function toggleDD(id) {
+    const el = document.getElementById(id);
+    const isOpen = el.classList.contains('open');
     document.querySelectorAll('.gm-dropdown.open').forEach(d => d.classList.remove('open'));
+    if (!isOpen) el.classList.add('open');
   }
-});
 
-document.getElementById('gmToggler').addEventListener('click', function() {
-  document.getElementById('gmNavContainer').classList.toggle('open');
-});
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.gm-dropdown')) {
+      document.querySelectorAll('.gm-dropdown.open').forEach(d => d.classList.remove('open'));
+    }
+  });
+
+  document.getElementById('gmToggler').addEventListener('click', function () {
+    document.getElementById('gmNavContainer').classList.toggle('open');
+  });
 </script>
 
 {% endblock %}

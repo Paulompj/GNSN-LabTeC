@@ -141,14 +141,14 @@
 
                                 <li>
                                     <a class="dropdown-item"
-                                       href="{% url 'app:updateguarda' guarda.idguarda %}">
+                                       href="{% url 'guarda:updateguarda' guarda.idguarda %}">
                                         Editar Dados
                                     </a>
                                 </li>
 
                                 <li>
                                     <a class="dropdown-item"
-                                       href="{% url 'app:createcamisa' guarda.idguarda %}">
+                                       href="{% url 'camisa:createcamisa' guarda.idguarda %}">
                                         Cadastrar Camisa
                                     </a>
                                 </li>
@@ -157,14 +157,14 @@
 
                                 <li>
                                     <a class="dropdown-item"
-                                       href="{% url 'app:permissoes' guarda.idguarda %}">
+                                       href="{% url 'guarda:permissoes' guarda.idguarda %}">
                                         Atribuir Permissões
                                     </a>
                                 </li>
 
                                 <li>
                                     <a class="dropdown-item"
-                                       href="{% url 'app:passwordguarda' guarda.idguarda %}">
+                                       href="{% url 'guarda:passwordguarda' guarda.idguarda %}">
                                         Definir Senha
                                     </a>
                                 </li>

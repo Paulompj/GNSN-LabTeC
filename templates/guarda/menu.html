@@ -1,0 +1,173 @@
+{% load static %}
+{% load mascara %}
+{% block menu %}
+
+<style>
+    .gm-navbar {
+        background-color: #1a174d;
+    }
+
+    @media(max-width: 991px) {
+        .gm-nav-container {
+            background: #1a174d;
+        }
+    }
+
+    .gm-dropdown-menu {
+        background: #1a174d;
+    }
+</style>
+
+<nav class="gm-navbar">
+
+    <!-- Brand -->
+    <a class="gm-brand" href="{% url 'guarda:home' %}">
+        <img src="{% static 'img/brasao_guarda.png' %}" alt="brasão">
+        <span class="gm-brand-text">Guarda</span>
+    </a>
+
+    <!-- Toggle -->
+    <button class="gm-toggler" id="gmToggler">
+        ☰
+    </button>
+
+    <div class="gm-nav-container" id="gmNavContainer">
+
+        <!-- LEFT -->
+        <div class="gm-nav-left">
+
+            <!-- GUARDA -->
+            {% if request.user|has_group:"super" or request.user|has_group:"Direção" %}
+            <div class="gm-dropdown" id="ddGuarda">
+                <button class="gm-nav-link" onclick="toggleDD('ddGuarda')">
+                    Guarda
+                </button>
+                <div class="gm-dropdown-menu">
+                    <a class="gm-dropdown-item" href="{% url 'guarda:createguarda' %}">Cadastrar</a>
+                    <a class="gm-dropdown-item" href="{% url 'guarda:readguarda' %}">Listar</a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- APOIO -->
+            {% if request.user|has_group:"super" or request.user|has_group:"Direção" or request.user|has_group:"Comissão" or request.user|has_group:"Entregador_geral" %}
+            <div class="gm-dropdown" id="ddApoio">
+                <button class="gm-nav-link" onclick="toggleDD('ddApoio')">
+                    Apoio
+                </button>
+                <div class="gm-dropdown-menu">
+                    <a class="gm-dropdown-item" href="{% url 'app:readapoio' %}">Entregar</a>
+                    <a class="gm-dropdown-item" href="{% url 'app:relatorio_apoio' %}">Relatório</a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- RELATÓRIOS -->
+            <div class="gm-dropdown" id="ddRelatorios">
+                <button class="gm-nav-link" onclick="toggleDD('ddRelatorios')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                    </svg>
+                    Relatórios
+                    <svg class="gm-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                </button>
+
+                <div class="gm-dropdown-menu">
+                    <a class="gm-dropdown-item" href="{% url 'app:monitoramento' %}">Monitoramento</a>
+
+                    <div class="gm-divider"></div>
+
+                    <div class="gm-dropdown-label">Guardas</div>
+                    <a class="gm-dropdown-item" href="{% url 'guarda:relatorio_geral' %}">Geral</a>
+                    <a class="gm-dropdown-item" href="{% url 'guarda:relatorio_entregas' %}">Entregas</a>
+                    <a class="gm-dropdown-item" href="{% url 'guarda:relatorio_por_equipe' %}">Equipes</a>
+
+                    <div class="gm-divider"></div>
+
+                    <a class="gm-dropdown-item" href="{% url 'app:relatorio_apoio' %}">Apoio</a>
+                </div>
+            </div>
+
+            <!-- IMPORTAR -->
+            {% if request.user|has_group:"super" %}
+            <div class="gm-dropdown" id="ddImportar">
+                <button class="gm-nav-link" onclick="toggleDD('ddImportar')">
+                    Importar
+                </button>
+
+                <div class="gm-dropdown-menu">
+                    <a class="gm-dropdown-item" href="{% url 'guarda:importaguardas' %}">Guardas</a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- OUTROS -->
+            {% if request.user|has_group:"super" or request.user|has_group:"Direção" %}
+            <div class="gm-dropdown" id="ddOutros">
+                <button class="gm-nav-link" onclick="toggleDD('ddOutros')">
+                    Outros
+                </button>
+
+                <div class="gm-dropdown-menu">
+                    <a class="gm-dropdown-item" href="{% url 'guarda:reconhecimento_facial' %}">
+                        Reconhecimento Facial
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="gm-nav-right">
+
+            {% if request.user.is_authenticated %}
+            <div class="gm-dropdown" id="ddUser">
+                <button class="gm-user-btn" onclick="toggleDD('ddUser')">
+                    <img src="{% if request.user.foto %}{{ request.user.foto }}{% else %}{% static 'img/perfil.png' %}{% endif %}"
+                        class="gm-user-avatar">
+                    {{ request.user.nome }}
+                </button>
+
+                <div class="gm-dropdown-menu" style="right:0; left:auto;">
+                    <a class="gm-dropdown-item" href="{% url 'app:password_change' %}">Alterar senha</a>
+
+                    <div class="gm-divider"></div>
+
+                    <a class="gm-dropdown-item" href="{% url 'app:logout' %}">Sair</a>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+</nav>
+
+<script>
+    function toggleDD(id) {
+        const el = document.getElementById(id);
+        const isOpen = el.classList.contains('open');
+
+        document.querySelectorAll('.gm-dropdown.open')
+            .forEach(d => d.classList.remove('open'));
+
+        if (!isOpen) el.classList.add('open');
+    }
+
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.gm-dropdown')) {
+            document.querySelectorAll('.gm-dropdown.open')
+                .forEach(d => d.classList.remove('open'));
+        }
+    });
+
+    document.getElementById('gmToggler').addEventListener('click', function () {
+        document.getElementById('gmNavContainer').classList.toggle('open');
+    });
+</script>
+
+{% endblock %}
