@@ -32,7 +32,7 @@ urlpatterns = [
     path("guardas/<int:pk>/editar/", views.guarda_update, name="guarda_update"),
     path("eventos/<int:pk>/editar/", views.evento_update, name="evento_update"),
     path('guarda/<int:pk>/consulta/', views.guarda_consulta, name='guarda_consulta'),
-
+    path('registrar-frequencia/', views.registrar_frequencia, name='registrar_frequencia'),
     path('cirios/', views.cirio_list, name='cirio_list'),
     path('cirios/novo/', views.cirio_form, name='cirio_create'),
     path('cirios/<int:pk>/', views.cirio_detail, name='cirio_detail'),

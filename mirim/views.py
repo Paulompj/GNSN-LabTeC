@@ -1,3 +1,5 @@
+from urllib import request
+
 from django.http import JsonResponse
 
 from .forms import CategoriaEventoForm, LocalForm, GuardaMirimForm, EventoForm, FrequenciaForm, CheckinMatriculaForm, CirioForm, RegraCirioFormSet, inlineformset_factory
@@ -12,8 +14,35 @@ from django.utils import timezone
 from django.conf import settings
 from datetime import date
 import math
-# Create your views here.
+# Create your views here.from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect
+from .models import GuardaMirim, Evento, Frequencia
 
+def registrar_frequencia(request):
+    if request.method == 'POST':
+        guarda_id = request.POST.get('mirim')
+        evento_id = request.POST.get('evento')
+        
+        # Se os dois campos forem selecionados, salva a presença no banco
+        if guarda_id and evento_id:
+            try:
+                guarda = GuardaMirim.objects.get(id=guarda_id)
+                evento = Evento.objects.get(id=evento_id)
+                
+                # get_or_create evita duplicar se o botão for clicado duas vezes
+                Frequencia.objects.get_or_create(guarda=guarda, evento=evento)
+            except (GuardaMirim.DoesNotExist, Evento.DoesNotExist):
+                pass
+                
+        return redirect(request.path)
+
+    # Puxa os dados reais para listar nos selects do seu HTML
+    context = {
+        'mirins': GuardaMirim.objects.filter(ativo=True),
+        'eventos': Evento.objects.all(),
+    }
+    return render(request, 'mirim/registrar_frequencia.html', context)
+    
 def group_required(*group_names):
     def decorator(view_func):
         def _wrapped_view(request, *args, **kwargs):
