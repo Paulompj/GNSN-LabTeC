@@ -130,7 +130,7 @@ DATABASES = {
 
 LOGIN_URL = "/gnsn/login/"
 
-AUTH_USER_MODEL = "guarda.Guarda"
+AUTH_USER_MODEL = "guarda.Usuario"
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

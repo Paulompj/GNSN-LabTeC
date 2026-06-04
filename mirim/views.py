@@ -1,7 +1,9 @@
 from django.http import JsonResponse
 
 from .forms import CategoriaEventoForm, LocalForm, GuardaMirimForm, EventoForm, FrequenciaForm, CheckinMatriculaForm, CirioForm, RegraCirioFormSet, inlineformset_factory
-from .models import CategoriaEvento, Local, GuardaMirim, Evento, Frequencia, Cirio, RegraCirio
+from .models import CategoriaEvento, Local, Evento, Frequencia, Cirio, RegraCirio
+from guarda.models import Guarda, Pessoa, Endereco, FichaSaude, ResponsavelGuarda
+from django.db import transaction
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
@@ -185,15 +187,53 @@ def local_create(request):
 
 @group_required('super','Mirim_adm')
 def guarda_list(request):
-    guardas = GuardaMirim.objects.all()
+    guardas = Guarda.objects.filter(tipo="Mirim")
     return render(request, "mirim/mirim_list.html", {"guardas": guardas})
 
 @group_required('super','Mirim_adm')
 def guarda_create(request):
     form = GuardaMirimForm(request.POST or None, request.FILES or None)
     if form.is_valid():
-        form.save()
-        messages.success(request, "Guarda cadastrado com sucesso.")
+        with transaction.atomic():
+            cd = form.cleaned_data
+            pessoa = Pessoa.objects.create(
+                nome=cd["nome"],
+                cpf=cd["cpf"],
+                data_nascimento=cd["data_nascimento"],
+                email=cd["email"],
+                foto=cd.get("foto")
+            )
+            
+            if cd.get("endereco"):
+                Endereco.objects.create(pessoa=pessoa, logradouro=cd["endereco"])
+                
+            guarda = Guarda.objects.create(
+                pessoa=pessoa,
+                matricula=cd["matricula"],
+                tipo="Mirim",
+                status="Ativo" if cd["ativo"] else "Inativo"
+            )
+            
+            FichaSaude.objects.create(
+                guarda=guarda,
+                alergias=cd["autismo_tdah_alergia"],
+                restricao_alimentar=cd["intolerancia_alimentar"],
+                doenca_cronica=cd["doenca_cronica"],
+                medicamento_continuo=cd["uso_medicamento_controlado"],
+                contato_emergencia=cd["observacoes_pais"]
+            )
+            
+            resp_pessoa = Pessoa.objects.create(
+                nome=cd["responsavel_nome"],
+                telefone=cd["responsavel_contato"]
+            )
+            ResponsavelGuarda.objects.create(
+                guarda=guarda,
+                pessoa=resp_pessoa,
+                parentesco=cd["parentesco_responsavel"]
+            )
+            
+        messages.success(request, "Guarda Mirim cadastrado com sucesso.")
         return redirect("mirim:guarda_list")
 
     return render(request, "mirim/mirim_form.html", {"form": form})
@@ -260,8 +300,8 @@ def checkin_evento(request, evento_id):
         matricula = form.cleaned_data["matricula"]
 
         try:
-            guarda = GuardaMirim.objects.get(matricula=matricula)
-        except GuardaMirim.DoesNotExist:
+            guarda = Guarda.objects.get(matricula=matricula, tipo="Mirim")
+        except Guarda.DoesNotExist:
             messages.error(request, "Guarda não encontrado.")
             return redirect("mirim:checkin_evento", evento_id=evento.id)
 
@@ -335,12 +375,59 @@ def evento_update(request, pk):
 
 @group_required('super','Mirim_adm')
 def guarda_update(request, pk):
-    guarda = get_object_or_404(GuardaMirim, pk=pk)
+    guarda = get_object_or_404(Guarda, pk=pk, tipo="Mirim")
     form = GuardaMirimForm(request.POST or None, request.FILES or None, instance=guarda)
 
     if form.is_valid():
-        form.save()
-        messages.success(request, "Guarda atualizado com sucesso.")
+        with transaction.atomic():
+            cd = form.cleaned_data
+            p = guarda.pessoa
+            p.nome = cd["nome"]
+            p.cpf = cd["cpf"]
+            p.data_nascimento = cd["data_nascimento"]
+            p.email = cd["email"]
+            if cd.get("foto"):
+                p.foto = cd["foto"]
+            p.save()
+            
+            if cd.get("endereco"):
+                if hasattr(p, "endereco_obj"):
+                    p.endereco_obj.logradouro = cd["endereco"]
+                    p.endereco_obj.save()
+                else:
+                    Endereco.objects.create(pessoa=p, logradouro=cd["endereco"])
+            
+            guarda.matricula = cd["matricula"]
+            guarda.status = "Ativo" if cd["ativo"] else "Inativo"
+            guarda.save()
+            
+            fs, created = FichaSaude.objects.get_or_create(guarda=guarda)
+            fs.alergias = cd["autismo_tdah_alergia"]
+            fs.restricao_alimentar = cd["intolerancia_alimentar"]
+            fs.doenca_cronica = cd["doenca_cronica"]
+            fs.medicamento_continuo = cd["uso_medicamento_controlado"]
+            fs.contato_emergencia = cd["observacoes_pais"]
+            fs.save()
+            
+            resp = guarda.responsaveis.first()
+            if resp:
+                resp.pessoa.nome = cd["responsavel_nome"]
+                resp.pessoa.telefone = cd["responsavel_contato"]
+                resp.pessoa.save()
+                resp.parentesco = cd["parentesco_responsavel"]
+                resp.save()
+            else:
+                resp_pessoa = Pessoa.objects.create(
+                    nome=cd["responsavel_nome"],
+                    telefone=cd["responsavel_contato"]
+                )
+                ResponsavelGuarda.objects.create(
+                    guarda=guarda,
+                    pessoa=resp_pessoa,
+                    parentesco=cd["parentesco_responsavel"]
+                )
+
+        messages.success(request, "Guarda Mirim atualizado com sucesso.")
         return redirect("mirim:guarda_list")
 
     return render(request, "mirim/mirim_form.html", {"form": form})
@@ -354,7 +441,7 @@ def delete_object(request):
     models_map = {
         "categoria": CategoriaEvento,
         "local": Local,
-        "mirim": GuardaMirim,
+        "mirim": Guarda,
         "evento": Evento,
     }
 
@@ -376,8 +463,8 @@ def mirim_consulta(request):
         cpf = request.POST.get("cpf")
 
         try:
-            guarda = GuardaMirim.objects.get(matricula=matricula, cpf=cpf)
-        except GuardaMirim.DoesNotExist:
+            guarda = Guarda.objects.get(matricula=matricula, pessoa__cpf=cpf, tipo="Mirim")
+        except Guarda.DoesNotExist:
             messages.error(request, "Dados inválidos.")
             return redirect("mirim:consulta")
 
@@ -415,7 +502,7 @@ def _dados_guarda_detail(guarda):
 
 @group_required('super','Mirim_adm')
 def guarda_detail(request, pk):
-    guarda = get_object_or_404(GuardaMirim, pk=pk)
+    guarda = get_object_or_404(Guarda, pk=pk, tipo="Mirim")
 
     ano = request.GET.get("ano")
 
@@ -542,7 +629,7 @@ def mirim_detail_consulta(request):
     if not guarda_id:
         return redirect("mirim:consulta")
 
-    guarda = get_object_or_404(GuardaMirim, id=guarda_id)
+    guarda = get_object_or_404(Guarda, id=guarda_id, tipo="Mirim")
 
     ano = request.GET.get("ano")
 
@@ -664,7 +751,7 @@ def mirim_detail_consulta(request):
 
 @login_required
 def guarda_consulta(request, pk):
-    guarda = get_object_or_404(GuardaMirim, pk=pk)
+    guarda = get_object_or_404(Guarda, pk=pk, tipo="Mirim")
     context = {
         "guarda": guarda,
     }

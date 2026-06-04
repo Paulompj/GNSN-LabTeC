@@ -2,7 +2,6 @@ from django.contrib import admin
 from .models import (
     CategoriaEvento,
     Local,
-    GuardaMirim,
     Evento,
     Frequencia,
     Cirio,
@@ -17,7 +16,6 @@ class CategoriaEventoAdmin(admin.ModelAdmin):
     search_fields = ("nome",)
     ordering = ("nome",)
 
-
 # ---------- Local ----------
 @admin.register(Local)
 class LocalAdmin(admin.ModelAdmin):
@@ -26,76 +24,12 @@ class LocalAdmin(admin.ModelAdmin):
     search_fields = ("nome",)
     ordering = ("nome",)
 
-
-# ---------- Frequência Inline ----------
-class FrequenciaInline(admin.TabularInline):
-    model = Frequencia
-    extra = 0
-    autocomplete_fields = ("evento",)
-    readonly_fields = ("data_registro",)
-
-
-# ---------- Guarda Mirim ----------
-@admin.register(GuardaMirim)
-class GuardaMirimAdmin(admin.ModelAdmin):
-    list_display = (
-        "nome",
-        "matricula",
-        "email",
-        "tamanho_camisa",
-        "total_presencas",
-        "status_aptidao",
-        "ativo",
-    )
-    list_filter = ("ativo", "tamanho_camisa", "parentesco_responsavel")
-    search_fields = ("nome", "matricula", "cpf", "email")
-    readonly_fields = ("criado_em",)
-    inlines = [FrequenciaInline]
-    ordering = ("nome",)
-
-    fieldsets = (
-        ("Dados Pessoais", {
-            "fields": (
-                "nome",
-                "cpf",
-                "matricula",
-                "email",
-                "data_nascimento",
-                "foto",
-            )
-        }),
-        ("Endereço", {
-            "fields": ("endereco",)
-        }),
-        ("Responsável", {
-            "fields": (
-                "responsavel_nome",
-                "responsavel_contato",
-                "parentesco_responsavel",
-            )
-        }),
-        ("Saúde / Necessidades", {
-            "fields": (
-                "autismo_tdah_alergia",
-                "intolerancia_alimentar",
-                "doenca_cronica",
-                "uso_medicamento_controlado",
-                "observacoes_pais",
-            )
-        }),
-        ("Outros", {
-            "fields": ("tamanho_camisa", "ativo", "criado_em")
-        }),
-    )
-
-
 # ---------- Evento ----------
 class FrequenciaEventoInline(admin.TabularInline):
     model = Frequencia
     extra = 0
-    autocomplete_fields = ("guarda",)
+    autocomplete_fields = () # Removido para evitar erro de ModelAdmin faltante do Guarda
     readonly_fields = ("data_registro",)
-
 
 @admin.register(Evento)
 class EventoAdmin(admin.ModelAdmin):
@@ -106,7 +40,6 @@ class EventoAdmin(admin.ModelAdmin):
     inlines = [FrequenciaEventoInline]
     ordering = ("-data", "-hora")
     date_hierarchy = "data"
-
 
 # ---------- Frequência ----------
 @admin.register(Frequencia)
@@ -124,24 +57,18 @@ class FrequenciaAdmin(admin.ModelAdmin):
         "evento__data",
     )
     search_fields = (
-        "guarda__nome",
+        "guarda__pessoa__nome",
         "guarda__matricula",
     )
-    autocomplete_fields = ("guarda", "evento")
+    autocomplete_fields = ("evento",) # Removido "guarda" para evitar erro de autocomplete s/ admin
     readonly_fields = ("data_registro",)
     ordering = ("-data_registro",)
-
-
-# =====================================================
-# 🔥 NOVOS ADMINS (CÍRIO)
-# =====================================================
 
 # ---------- Regras Inline ----------
 class RegraCirioInline(admin.TabularInline):
     model = RegraCirio
     extra = 1
     autocomplete_fields = ("categoria",)
-
 
 # ---------- Círio ----------
 @admin.register(Cirio)
@@ -151,9 +78,7 @@ class CirioAdmin(admin.ModelAdmin):
     search_fields = ("ano",)
     ordering = ("-ano",)
     inlines = [RegraCirioInline]
-
     date_hierarchy = "inicio"
-
 
 # ---------- Regra do Círio ----------
 @admin.register(RegraCirio)

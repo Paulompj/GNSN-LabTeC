@@ -356,11 +356,11 @@ def readcamisa(request):
     # =========================
     sort_map = {
         "matricula": "guarda__matricula",
-        "nome": "guarda__nome",
+        "nome": "guarda__pessoa__nome",
         "ano": "ano",
         "equipe": "equipe",
         "data": "data",
-        "entregador": "entregador__nome",
+        "entregador": "entregador__pessoa__nome",
         "tamanho": "tamcamisa",
     }
 
@@ -379,7 +379,7 @@ def readcamisa(request):
     # Filtro: busca geral
     # =========================
     if query:
-        filtros = Q(guarda__nome__icontains=query) | Q(
+        filtros = Q(guarda__pessoa__nome__icontains=query) | Q(
             guarda__matricula__icontains=query
         )
 
@@ -408,7 +408,7 @@ def readcamisa(request):
         camisas = camisas.filter(recebido=False, situacao=True)
 
     if entregador_nome:
-        camisas = camisas.filter(entregador__nome=entregador_nome)
+        camisas = camisas.filter(entregador__pessoa__nome=entregador_nome)
 
     # =========================
     # Ordenação
@@ -445,9 +445,9 @@ def readcamisa(request):
 
     entregadores_disponiveis = (
         Camisa.objects.filter(recebido=True)
-        .values_list("entregador__nome", flat=True)
+        .values_list("entregador__pessoa__nome", flat=True)
         .distinct()
-        .order_by("entregador__nome")
+        .order_by("entregador__pessoa__nome")
     )
 
     # =========================
@@ -527,7 +527,7 @@ def camisa_entregue(request):
     # Filtro de busca
     if query:
         camisas_qs = camisas_qs.filter(
-            Q(guarda__nome__icontains=query) | Q(guarda__matricula__icontains=query)
+            Q(guarda__pessoa__nome__icontains=query) | Q(guarda__matricula__icontains=query)
         )
 
     # Filtro por ano
@@ -540,10 +540,10 @@ def camisa_entregue(request):
 
     # Filtrar apenas casos em que o recebedor não é o próprio
     if terceiro_only:
-        camisas_qs = camisas_qs.exclude(recebedor=F("guarda__nome"))
+        camisas_qs = camisas_qs.exclude(recebedor=F("guarda__pessoa__nome"))
 
     # Ordenação padrão (opcional)
-    camisas_qs = camisas_qs.order_by("-ano", "guarda__nome")
+    camisas_qs = camisas_qs.order_by("-ano", "guarda__pessoa__nome")
 
     # Paginação
     paginator = Paginator(camisas_qs, per_page)
@@ -655,16 +655,29 @@ def importacamisas(request):
                 if not mat:
                     continue
 
+                from guarda.models import Guarda, Pessoa
+                
                 # Atualiza ou cria guarda
-                guarda, created = Guarda.objects.update_or_create(
-                    matricula=mat,
-                    defaults={
-                        "nome": nome if nome else "NOME NÃO INFORMADO",
-                        "turma": turma,
-                        "nascimento": None,
-                        "foto": foto if foto else None,
-                    },
-                )
+                guarda = Guarda.objects.filter(matricula=mat).first()
+                if guarda:
+                    guarda.pessoa.nome = nome if nome else "NOME NÃO INFORMADO"
+                    if foto:
+                        guarda.pessoa.foto = foto
+                    guarda.pessoa.save()
+                    created = False
+                else:
+                    pessoa = Pessoa.objects.create(
+                        nome=nome if nome else "NOME NÃO INFORMADO", 
+                        foto=foto if foto else None
+                    )
+                    guarda = Guarda.objects.create(
+                        matricula=mat, 
+                        pessoa=pessoa, 
+                        tipo="Mirim", 
+                        status="Ativo"
+                    )
+                    created = True
+                    
                 if created:
                     count_guarda += 1
 
