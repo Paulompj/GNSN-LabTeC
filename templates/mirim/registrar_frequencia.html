@@ -215,6 +215,7 @@
                         </button>
                     </form>
                 </div>
+                <!-- COlocado para facilitar a visualização, mas ao usuário, o card de jornada só pode aparecer após selecionar um mirim válido, mostrando quantas presenças faltam para o Círio. -->
                 <div id="card-jornada" class="info-card d-flex align-items-center gap-3 shadow-sm">
                     <div class="icon-box text-white">🏆</div>
                     <div>
@@ -244,7 +245,7 @@
             const val = this.value;
             const options = document.querySelectorAll('#lista-mirins option');
             let itemEncontrado = null;
-
+            // Itera sobre as opções do datalist para encontrar um item que corresponda ao valor digitado, permitindo que o sistema reconheça tanto o nome quanto a matrícula do mirim para atualizar as informações exibidas.
             for (let i = 0; i < options.length; i++) {
                 if (options[i].value === val) {
                     itemEncontrado = options[i];
@@ -261,7 +262,7 @@
                 const faltasCirio = itemEncontrado.getAttribute('data-faltas-cirio');
 
                 hiddenInput.value = idReal;
-
+                // Atualiza o header com as informações do mirim selecionado, incluindo nome, matrícula, graduação e foto. Também exibe o card de jornada mostrando quantas presenças faltam para o Círio, criando uma experiência interativa e informativa para o usuário durante o processo de registro de frequência.
                 document.getElementById('header-nome').innerText = nomeReal;
                 document.getElementById('header-matricula').innerText = `Mat. ${matricula} · Guarda Mirim`;
 
@@ -270,7 +271,7 @@
 
                 document.getElementById('texto-jornada').innerText = `Faltam ${faltasCirio} presenças para o Círio`;
                 document.getElementById('card-jornada').classList.remove('d-none');
-
+                // Exibe a foto do mirim se disponível, caso contrário, mostra a silhueta padrão
                 if (foto && foto.trim() !== '') {
                     imgEl.src = foto;
                     imgEl.classList.remove('d-none');
@@ -289,7 +290,7 @@
                 silhuetaEl.classList.remove('d-none');
             }
         });
-
+        // Antes de enviar o formulário, verifica se um mirim válido foi selecionado para evitar envios com dados inconsistentes
         document.querySelector('form').addEventListener('submit', function (e) {
             if (!hiddenInput.value) {
                 e.preventDefault();
