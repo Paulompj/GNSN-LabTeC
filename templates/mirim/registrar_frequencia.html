@@ -5,115 +5,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>GNSN - Registrar Frequência</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #F2F4F7;
+        }
+        /* Estilizações customizadas mantidas para garantir a identidade visual do header */
+        .custom-header {
+            background-color: #2D5A9E;
+            color: white;
+            padding-top: 2.5rem;
+            padding-bottom: 5rem;
+            border-bottom-left-radius: 2.5rem;
+            border-bottom-right-radius: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .header-bg-logo {
+            position: absolute;
+            inset: 0;
+            opacity: 0.15;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+        .header-bg-logo img {
+            width: 20rem;
+            transform: scale(1.5);
+        }
+        .avatar-container {
+            width: 6rem;
+            height: 6rem;
+            border-radius: 50%;
+            border: 4px solid #FFA500;
+            overflow: hidden;
+            background-color: #dee2e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #6c757d;
+            position: relative;
+        }
+        .custom-badge {
+            background-color: #FFA500;
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: 50rem;
+            font-size: 0.625rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .custom-card {
+            border-radius: 2rem;
+            border: none;
+            padding: 2rem;
+            background-color: white;
+        }
+        .custom-indicator {
+            width: 0.375rem;
+            height: 1.5rem;
+            background-color: #2D5A9E;
+            border-radius: 50rem;
+        }
+        .form-control-custom, .form-select-custom {
+            padding: 1rem;
+            background-color: #F8F9FA;
+            border: 1px solid #f1f3f5;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #495057;
+        }
+        .form-control-custom:focus, .form-select-custom:focus {
+            background-color: #F8F9FA;
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        .btn-custom {
+            background-color: #2D5A9E;
+            color: white;
+            padding: 1rem;
+            border-radius: 1rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            border: none;
+            width: 100%;
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-custom:active {
+            transform: scale(0.98);
+        }
+        .info-card {
+            background-color: white;
+            padding: 1.25rem;
+            border-radius: 1.5rem;
+            border: 1px solid #f1f3f5;
+        }
+        .icon-box {
+            width: 3rem;
+            height: 3rem;
+            background-color: #2D5A9E;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
         }
     </style>
 </head>
 
-<body class="bg-[#F2F4F7]">
-    <header
-        class="bg-[#2D5A9E] text-white pt-10 pb-20 rounded-b-[2.5rem] shadow-xl relative overflow-hidden text-center">
-        <div class="absolute inset-0 opacity-15 flex items-center justify-center pointer-events-none">
-            <img src="{% static 'img/brasao_guarda.png' %}" class="w-80 scale-150">
+<body>
+    <header class="custom-header text-center shadow-sm">
+        <div class="header-bg-logo">
+            <img src="{% static 'img/brasao_guarda.png' %}" alt="Brasão">
         </div>
 
-        <div class="relative z-10 flex flex-col items-center">
-            <div
-                class="w-24 h-24 rounded-full border-4 border-[#FFA500] overflow-hidden mb-3 shadow-md bg-gray-300 flex items-center justify-center text-gray-500 text-3xl font-bold relative">
-                <img id="header-foto" src="" alt="Foto do Mirim" class="w-full h-full object-cover hidden">
+        <div class="position-relative z-3 d-flex flex-column align-items-center">
+            <div class="avatar-container mb-3 shadow-sm">
+                <img id="header-foto" src="" alt="Foto do Mirim" class="w-100 h-100 object-fit-cover d-none">
                 <span id="header-silhueta">👤</span>
             </div>
 
-            <h2 id="header-nome" class="text-xl font-extrabold tracking-tight">Escolha um Mirim</h2>
-            <p id="header-matricula" class="text-xs opacity-80 mt-1 uppercase font-semibold">Mat. ---- · Guarda Mirim
-            </p>
+            <h2 id="header-nome" class="fw-bold h4 mb-1 text-white">Escolha um Mirim</h2>
+            <p id="header-matricula" class="text-uppercase fw-semibold small text-white-50 mb-2">Mat. ---- · Guarda Mirim</p>
 
-            <div id="header-badge"
-                class="mt-3 bg-[#FFA500] text-white px-4 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-sm uppercase hidden">
-                <span>⭐</span> <span id="header-graduacao">Aspirante</span>
+            <div class="d-flex justify-content-center">
+                <div id="header-badge" class="custom-badge d-flex align-items-center gap-1 shadow-sm">
+                    <span>⭐</span> <span id="header-graduacao">Aspirante</span>
+                </div>
             </div>
         </div>
     </header>
 
-    <main class="container mx-auto px-5 -mt-10 relative z-20">
-        <div class="max-w-md mx-auto space-y-4">
+    <main class="container position-relative z-3" style="margin-top: -2.5rem;">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-6 d-flex flex-column gap-3" style="max-width: 420px;">
 
-            <div class="bg-white rounded-[2rem] p-8 shadow-sm">
-                <div class="flex items-center gap-2 mb-6">
-                    <div class="w-1.5 h-6 bg-[#2D5A9E] rounded-full"></div>
-                    <h3 class="text-[#2D5A9E] font-extrabold text-sm uppercase tracking-wide">Registrar Presença</h3>
-                </div>
-
-                <form class="space-y-6" method="POST" action="">
-                    {% csrf_token %}
-
-                    <div class="space-y-1">
-                        <label class="text-[11px] font-bold text-gray-400 uppercase ml-1">Selecionar Mirim</label>
-                        <div class="relative">
-                            <input type="hidden" name="mirim" id="mirim-id-hidden">
-
-                            <input type="text" id="input-mirim-busca" list="lista-mirins"
-                                placeholder="Digite o nome ou matrícula..."
-                                class="w-full p-4 bg-[#F8F9FA] border border-gray-100 rounded-2xl text-sm font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-blue-400 transition-all">
-
-                            <datalist id="lista-mirins">
-                                {% for mirim in mirins %}
-                                <option value="{{ mirim.matricula }} - {{ mirim.nome }}" data-id="{{ mirim.id }}"
-                                    data-nome="{{ mirim.nome }}"
-                                    data-foto="{% if mirim.foto %}{{ mirim.foto.url }}{% endif %}"
-                                    data-matricula="{{ mirim.matricula }}"
-                                    data-graduacao="{{ mirim.graduacao|default:'Guarda Mirim' }}"
-                                    data-faltas-cirio="{{ mirim.faltas_para_cirio|default:'--' }}">
-                                </option>
-                                {% endfor %}
-                            </datalist>
-                        </div>
+                <div class="custom-card shadow-sm">
+                    <div class="d-flex align-items-center gap-2 mb-4">
+                        <div class="custom-indicator"></div>
+                        <h3 class="text-uppercase fw-bold small mb-0" style="color: #2D5A9E; font-size: 0.875rem; letter-spacing: 0.05em;">Registrar Presença</h3>
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="text-[11px] font-bold text-gray-400 uppercase ml-1">Evento / Missão</label>
-                        <div class="relative">
-                            <select name="evento"
-                                class="w-full p-4 bg-[#F8F9FA] border border-gray-100 rounded-2xl text-sm font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-blue-400 transition-all appearance-none">
+                    <form method="POST" action="{% url 'mirim:registrar_frequencia' %}">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label text-uppercase fw-bold text-muted small ms-1" style="font-size: 11px;">Selecionar Mirim</label>
+                            <div class="position-relative">
+                                <input type="hidden" name="mirim" id="mirim-id-hidden">
+
+                                <input type="text" id="input-mirim-busca" list="lista-mirins" autocomplete="off"
+                                    placeholder="Digite o nome ou matrícula..."
+                                    class="form-control form-control-custom">
+
+                                <datalist id="lista-mirins">
+                                    {% for mirim in mirins %}
+                                    <option value="{{ mirim.matricula }} - {{ mirim.nome }}" data-id="{{ mirim.id }}"
+                                        data-nome="{{ mirim.nome }}"
+                                        data-foto="{% if mirim.foto %}{{ mirim.foto.url }}{% endif %}"
+                                        data-matricula="{{ mirim.matricula }}"
+                                        data-graduacao="{{ mirim.graduacao|default:'Guarda Mirim' }}"
+                                        data-faltas-cirio="{{ mirim.faltas_para_cirio|default:'--' }}">
+                                    </option>
+                                    {% endfor %}
+                                </datalist>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label text-uppercase fw-bold text-muted small ms-1" style="font-size: 11px;">Evento / Missão</label>
+                            <select name="evento" required class="form-select form-select-custom">
                                 <option value="">Selecione a missão...</option>
                                 {% for evento in eventos %}
                                 <option value="{{ evento.id }}">{{ evento.nome }}</option>
                                 {% endfor %}
                             </select>
-                            <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">▼
-                            </div>
                         </div>
+
+                        <button type="submit" class="btn-custom shadow-lg">
+                            Confirmar Frequência
+                        </button>
+                    </form>
+                </div>
+
+                <div id="card-jornada" class="info-card d-flex align-items-center gap-3 shadow-sm">
+                    <div class="icon-box text-white">🏆</div>
+                    <div>
+                        <p class="fw-bold text-dark mb-0 h5" style="font-size: 1.1rem;">Jornada do Círio</p>
+                        <p id="texto-jornada" class="text-uppercase text-muted fw-bold small mb-0" style="font-size: 10px; letter-spacing: -0.02em;">
+                            Faltam 8 presenças para o Círio</p>
                     </div>
-
-                    <button type="submit"
-                        class="w-full bg-[#2D5A9E] text-white py-4 rounded-2xl font-black shadow-lg shadow-blue-900/20 active:scale-[0.98] transition-all uppercase text-xs tracking-[0.1em]">
-                        Confirmar Frequência
-                    </button>
-                </form>
-            </div>
-
-         
-            <div id="card-jornada"
-                class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 hidden">
-                <div class="w-12 h-12 bg-[#2D5A9E] rounded-2xl flex items-center justify-center text-white text-xl">🏆
                 </div>
-                <div>
-                    <p class="text-lg font-bold text-gray-800 leading-none">Jornada do Círio</p>
-                    <p id="texto-jornada" class="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-tighter">
-                        Faltam -- presenças para o Círio</p>
-                </div>
-            </div>
 
+            </div>
         </div>
     </main>
 
-    <footer class="mt-10 mb-8 text-center">
-        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">GNSN · Gestão 2026</p>
+    <footer class="mt-5 mb-4 text-center">
+        <p class="text-uppercase text-muted fw-bold" style="font-size: 10px; letter-spacing: 0.1em;">GNSN · Gestão 2026</p>
     </footer>
 
     <script>
@@ -135,7 +234,6 @@
             }
 
             if (itemEncontrado) {
-                // Captura as propriedades injetadas
                 const idReal = itemEncontrado.getAttribute('data-id');
                 const nomeReal = itemEncontrado.getAttribute('data-nome');
                 const foto = itemEncontrado.getAttribute('data-foto');
@@ -145,39 +243,35 @@
 
                 hiddenInput.value = idReal;
 
-                // Atualiza textos do Header
                 document.getElementById('header-nome').innerText = nomeReal;
                 document.getElementById('header-matricula').innerText = `Mat. ${matricula} · Guarda Mirim`;
 
-                // Manipula Badge de Graduação
                 document.getElementById('header-graduacao').innerText = graduacao;
-                document.getElementById('header-badge').classList.remove('hidden');
+                document.getElementById('header-badge').classList.remove('d-none');
 
-                // Manipula Card Informativo
                 document.getElementById('texto-jornada').innerText = `Faltam ${faltasCirio} presenças para o Círio`;
-                document.getElementById('card-jornada').classList.remove('hidden');
+                document.getElementById('card-jornada').classList.remove('d-none');
 
                 if (foto && foto.trim() !== '') {
                     imgEl.src = foto;
-                    imgEl.classList.remove('hidden');
-                    silhuetaEl.classList.add('hidden');
+                    imgEl.classList.remove('d-none');
+                    silhuetaEl.classList.add('d-none');
                 } else {
-                    imgEl.classList.add('hidden');
-                    silhuetaEl.classList.remove('hidden');
+                    imgEl.classList.add('d-none');
+                    silhuetaEl.classList.remove('d-none');
                 }
             } else {
-                // Reseta tudo de forma segura caso o campo seja limpo/inválido
+                // CORREÇÃO: O reset mantém a estrutura montada com os dados estáticos fictícios em vez de sumir com os blocos
                 hiddenInput.value = "";
                 document.getElementById('header-nome').innerText = "Escolha um Mirim";
                 document.getElementById('header-matricula').innerText = "Mat. ---- · Guarda Mirim";
-                document.getElementById('header-badge').classList.add('hidden');
-                document.getElementById('card-jornada').classList.add('hidden');
-                imgEl.classList.add('hidden');
-                silhuetaEl.classList.remove('hidden');
+                document.getElementById('header-graduacao').innerText = "Aspirante";
+                document.getElementById('texto-jornada').innerText = "Faltam -- presenças para o Círio";
+                imgEl.classList.add('d-none');
+                silhuetaEl.classList.remove('d-none');
             }
         });
 
-        // Trava Front-end comercial: impede envios acidentais com dados inválidos
         document.querySelector('form').addEventListener('submit', function (e) {
             if (!hiddenInput.value) {
                 e.preventDefault();
