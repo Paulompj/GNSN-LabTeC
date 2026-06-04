@@ -44,8 +44,9 @@ def face_locations(*args, **kwargs): return []
 "@
 Set-Content -Path ".\venv\Lib\site-packages\face_recognition\__init__.py" -Value $faceRecStub
 
-# 10. Cria as migrations dos aplicativos locais (guarda, camisa, app, mirim e patrimonio)
-python3 manage.py makemigrations guarda camisa app mirim patrimonio
+# 10. Cria as migrations dos aplicativos locais
+# Ordem segue as dependências entre apps (pessoa -> usuario/saude/guarda -> evento/cirio/patrimonio/camisa)
+python3 manage.py makemigrations pessoa usuario saude guarda evento cirio patrimonio camisa app
 
 # 11. Aplica as migrations para criar o banco de dados SQLite (banco padrão)
 python3 manage.py migrate

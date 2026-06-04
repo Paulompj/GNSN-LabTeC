@@ -63,11 +63,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "guarda",
-    "camisa",
     "app",
-    "mirim",
+    "pessoa",
+    "usuario",
+    "saude",
+    "guarda",
+    "evento",
+    "cirio",
     "patrimonio",
+    "camisa",
 ]
 
 MIDDLEWARE = [
@@ -130,7 +134,7 @@ DATABASES = {
 
 LOGIN_URL = "/gnsn/login/"
 
-AUTH_USER_MODEL = "guarda.Usuario"
+AUTH_USER_MODEL = "usuario.Usuario"
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
