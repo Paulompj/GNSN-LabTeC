@@ -4,6 +4,8 @@ Django==4.2.23
 dj-static==0.0.6
 sqlparse==0.5.3
 static3==0.7.0
+dotenv==0.9.9
+psycopg==3.3.4
 
 # Reconhecimento facial
 # ATENÇÃO (macOS 15 / Apple Silicon): dlib 20.x falha ao compilar por ausência de fp.h no SDK.
