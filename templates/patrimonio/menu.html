@@ -1,76 +1,177 @@
 {% load static %}
 {% load mascara %}
 {% block menu %}
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #5f7f2e;">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'patrimonio:home' %}">
-                <img src="{% static 'img/brasao_guarda.png' %}"
-                     class="img-fluid"
-                     style="max-height:32px;">
-                Patrimônio</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
 
+<style>
+  .gm-navbar {
+    background-color: #4B6729;
+  }
+
+  @media(max-width: 991px) {
+    .gm-nav-container {
+      background: #4B6729;
+    }
+  }
+
+  .gm-dropdown-menu {
+    background: #4B6729;
+  }
+</style>
+<!-- Dropdown Empréstimo -->
+<!--
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <!-- Dropdown Empréstimo -->
+                    
                     {% if request.user|has_group:"super" or request.user|has_group:"Patrimonio_adm" or request.user|has_group:"Patrimonio_solicitante" %}
                     <a class="nav-link" href="{% url 'patrimonio:emprestimo_list' %}">
                         Empréstimos
                     </a>
-                    {% endif %}
+                    {% endif %}  
+-->
 
-                    {% if request.user|has_group:"super" or request.user|has_group:"Patrimonio_adm" %}
-                        <!-- Dropdown Cadastros -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="outrosDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Cadastros
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="outrosDropdown">
-                                <li><a class="dropdown-item" href="{% url 'patrimonio:categoria_list' %}">Categoria</a></li>
-                                <li><a class="dropdown-item" href="{% url 'patrimonio:setor_list' %}">Setor</a></li>
-                                <li><a class="dropdown-item" href="{% url 'patrimonio:material_list' %}">Material</a></li>
-                                <li><a class="dropdown-item" href="{% url 'patrimonio:estoque_list' %}">Estoque</a></li>
-                            </ul>
-                        </li>
-                    {% endif %}
-                
-                    <!-- Dropdown Relatórios -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="relatorioDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Relatórios
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="relatorioDropdown">
-                            <li><a class="dropdown-item" href="{% url 'patrimonio:relatorio_validade' %}">Por Validade</a></li>
-                            <li><a class="dropdown-item" href="{% url 'patrimonio:relatorio_emprestimos_antigos' %}">Mais Antigos</a></li>
-                            <li><a class="dropdown-item" href="{% url 'patrimonio:relatorio_estoque' %}">Estoque</a></li>
-                        </ul>
-                    </li>
-                </ul>
+<nav class="gm-navbar">
 
-                <!-- Área do usuário logado -->
-                {% if request.user.is_authenticated %}
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button"
-                               data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="{% if request.user.foto %}{{ request.user.foto }}{% else %}{% static 'img/perfil.png' %}{% endif %}"
-                                     alt="Foto"
-                                     class="rounded-circle me-2"
-                                     style="width: 32px; height: 32px; object-fit: cover; border-radius: 50%;">
-                                {{ request.user.nome }}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                <li><a class="dropdown-item" href="{% url 'app:password_change' %}">Alterar Senha</a></li>
-                                <li><a class="dropdown-item" href="{% url 'app:logout' %}">Sair</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                {% endif %}
-            </div>
+  <!-- Brand -->
+  <a class="gm-brand" href="{% url 'mirim:home' %}">
+    <img src="{% static 'img/brasao_guarda.png' %}" alt="brasão">
+    <span class="gm-brand-text">Patrimônio</span>
+  </a>
+
+  <!-- Toggle mobile -->
+  <button class="gm-toggler" id="gmToggler" aria-label="Menu">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <line x1="3" y1="12" x2="21" y2="12" />
+      <line x1="3" y1="18" x2="21" y2="18" />
+    </svg>
+  </button>
+
+  <div class="gm-nav-container" id="gmNavContainer">
+    <div class="gm-nav-left">
+
+      <!-- Empréstimos -->
+      {% if request.user|has_group:"super" or request.user|has_group:"Patrimonio_adm" or request.user|has_group:"Patrimonio_solicitante" %}
+      <a class="gm-nav-link" href="{% url 'patrimonio:emprestimo_list' %}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 7h18M3 12h18M3 17h18" />
+        </svg>
+        Empréstimos
+      </a>
+      {% endif %}
+
+      <!-- Guarda -->
+      {% if request.user|has_group:"super" or request.user|has_group:"Direção" %}
+      <div class="gm-dropdown" id="ddGuarda">
+        <button class="gm-nav-link" onclick="toggleDD('ddGuarda')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+          </svg>
+          Guarda
+          <svg class="gm-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+        <div class="gm-dropdown-menu">
+          <a class="gm-dropdown-item" href="{% url 'app:createguarda' %}">Cadastrar</a>
+          <a class="gm-dropdown-item" href="{% url 'app:readguarda' %}">Listar</a>
         </div>
-    </nav>
-{% endblock %}
+      </div>
+      {% endif %}
 
+      <!-- Cadastros -->
+      {% if request.user|has_group:"super" or request.user|has_group:"Patrimonio_adm" %}
+      <div class="gm-dropdown" id="ddCadastros">
+        <button class="gm-nav-link" onclick="toggleDD('ddCadastros')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+          </svg>
+          Cadastros
+          <svg class="gm-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+
+        <div class="gm-dropdown-menu">
+          <div class="gm-dropdown-label">Estrutura</div>
+          <a class="gm-dropdown-item" href="{% url 'patrimonio:categoria_list' %}">Categoria</a>
+          <a class="gm-dropdown-item" href="{% url 'patrimonio:setor_list' %}">Setor</a>
+
+          <div class="gm-divider"></div>
+
+          <div class="gm-dropdown-label">Materiais</div>
+          <a class="gm-dropdown-item" href="{% url 'patrimonio:material_list' %}">Material</a>
+          <a class="gm-dropdown-item" href="{% url 'patrimonio:estoque_list' %}">Estoque</a>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Relatórios -->
+      <div class="gm-dropdown" id="ddRelatorios">
+        <button class="gm-nav-link" onclick="toggleDD('ddRelatorios')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+          </svg>
+          Relatórios
+          <svg class="gm-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+
+        <div class="gm-dropdown-menu">
+          <a class="gm-dropdown-item" href="{% url 'patrimonio:relatorio_validade' %}">Por validade</a>
+          <a class="gm-dropdown-item" href="{% url 'patrimonio:relatorio_emprestimos_antigos' %}">Mais antigos</a>
+          <a class="gm-dropdown-item" href="{% url 'patrimonio:relatorio_estoque' %}">Estoque</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Usuário -->
+    <div class="gm-nav-right">
+      {% if request.user.is_authenticated %}
+      <div class="gm-dropdown" id="ddUser">
+        <button class="gm-user-btn" onclick="toggleDD('ddUser')">
+          <img src="{% if request.user.foto %}{{ request.user.foto }}{% else %}{% static 'img/perfil.png' %}{% endif %}"
+            class="gm-user-avatar">
+          {{ request.user.nome }}
+          <svg class="gm-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+
+        <div class="gm-dropdown-menu" style="right:0;left:auto;">
+          <a class="gm-dropdown-item" href="{% url 'app:password_change' %}">Alterar senha</a>
+          <div class="gm-divider"></div>
+          <a class="gm-dropdown-item" href="{% url 'app:logout' %}">Sair</a>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</nav>
+
+<!-- scripts iguais ao exemplo -->
+<script>
+  function toggleDD(id) {
+    const el = document.getElementById(id);
+    const isOpen = el.classList.contains('open');
+    document.querySelectorAll('.gm-dropdown.open').forEach(d => d.classList.remove('open'));
+    if (!isOpen) el.classList.add('open');
+  }
+
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.gm-dropdown')) {
+      document.querySelectorAll('.gm-dropdown.open').forEach(d => d.classList.remove('open'));
+    }
+  });
+
+  document.getElementById('gmToggler').addEventListener('click', function () {
+    document.getElementById('gmNavContainer').classList.toggle('open');
+  });
+</script>
+
+{% endblock %}

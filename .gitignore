@@ -1,11 +1,7 @@
-/staticfiles/
-/mediafiles/
-/media/
-
 # Python
 .venv/
 venv/
-.venv/
+
 __pycache__/
 *.pyc
 db.sqlite3
@@ -13,3 +9,30 @@ db.sqlite3
 
 # Pycharm
 .idea/
+bd.v3.sqlite3
+DOCUMENTACAO_BANCO.md
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Django
+db.sqlite3
+/staticfiles/
+/mediafiles/
+/media/
+media/
+
+# IDEs
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Environment variables
+.env

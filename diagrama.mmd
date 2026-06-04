@@ -1,0 +1,315 @@
+erDiagram
+
+  PESSOA {
+    BIGINT id PK
+    VARCHAR nome
+    VARCHAR email UK
+    VARCHAR telefone
+    VARCHAR cpf UK
+    VARCHAR rg UK
+    VARCHAR estado_civil
+    VARCHAR genero
+    DATE data_nascimento
+    DATE criado_em
+    DATE atualizado_em
+  }
+
+  USUARIO {
+    BIGINT id PK
+    BIGINT pessoa_id FK
+    VARCHAR usuario UK
+    VARCHAR senha
+    TINYINT is_funcionario
+    TINYINT is_super_usuario
+    TINYINT is_ativo
+    TINYINT trocar_senha
+    DATE criado_em
+    DATE atualizado_em
+  }
+
+  ENDERECO {
+    BIGINT id PK
+    BIGINT pessoa_id FK
+    VARCHAR logradouro
+    VARCHAR complemento
+    VARCHAR cidade
+    VARCHAR bairro
+    VARCHAR cep
+    VARCHAR uf
+    VARCHAR numero
+    DATE criado_em
+    DATE atualizado_em
+  }
+
+  FICHA_SAUDE {
+    BIGINT id PK
+    BIGINT pessoa_id FK
+    TINYINT autismo
+    TINYINT tdah
+    TINYINT alzheimer
+    TINYINT demencia
+    TINYINT parkinson
+    TINYINT diabetes
+    TINYINT hipertensao
+    TINYINT problema_cardiaco
+    TINYINT problema_renal
+    TINYINT osteoporose
+    TINYINT artrite
+    TINYINT usa_cadeira_rodas
+    TINYINT usa_andador
+    TINYINT usa_bengala
+    TINYINT deficiencia_visual
+    TINYINT deficiencia_auditiva
+    TINYINT usa_protese
+    TINYINT depressao
+    TINYINT ansiedade
+    VARCHAR alergia
+    VARCHAR intolerancia_alimentar
+    VARCHAR doenca_cronica
+    VARCHAR uso_medicamento_controlado
+    VARCHAR plano_saude
+    VARCHAR tipo_sanguineo
+    VARCHAR contato_emergencia_nome
+    VARCHAR contato_emergencia_telefone
+    VARCHAR observacao
+    DATE criado_em
+    DATE atualizado_em
+  }
+
+  GUARDA {
+    BIGINT id PK
+    BIGINT pessoa_id FK
+    INT turma
+    ENUM tipo
+    ENUM ministerio
+    VARCHAR paroquia
+    VARCHAR matricula UK
+    VARCHAR tamanho_camisa
+    VARCHAR observacao
+    DATE data_ingresso
+    TINYINT is_ativo
+    DATE criado_em
+    DATE atualizado_em
+  }
+
+  STATUS_GUARDA {
+    VARCHAR nome
+    TINYINT is_temporario
+    DATE criado_em
+    DATE atualizado_em
+  }
+
+  GUARDA_STATUS {
+    BIGINT id PK
+    BIGINT guarda_id FK
+    BIGINT status_id FK
+    DATE data_inicio
+    DATE data_fim
+    VARCHAR motivo
+    DATE criado_em
+  }
+
+  SACRAMENTO {
+    BIGINT id PK
+    BIGINT guarda_id FK
+    TINYINT batismo
+    TINYINT primeira_eucaristia
+    TINYINT crisma
+    TINYINT ordem
+    DATE data_batismo
+    DATE data_primeira_eucaristia
+    DATE data_crisma
+  }
+
+  RESPONSAVEL_GUARDA {
+    BIGINT id PK
+    BIGINT guarda_id FK
+    BIGINT pessoa_id FK
+    ENUM parentesco
+  }
+
+  PADRINHO_GUARDA {
+    BIGINT id PK
+    BIGINT guarda_id FK
+    BIGINT padrinho_id FK
+  }
+
+  CATEGORIA_EVENTO {
+    BIGINT id PK
+    VARCHAR nome UK
+    TINYINT is_ativo
+    DATE criado_em
+    DATE atualizado_em
+  }
+
+  LOCAL {
+    BIGINT id PK
+    VARCHAR nome UK
+    TINYINT is_ativo
+    DATE criado_em
+    DATE atualizado_em
+  }
+
+  EVENTO {
+    BIGINT id PK
+    BIGINT categoria_id FK
+    BIGINT local_id FK
+    DATE data
+    DATETIME hora
+    TINYINT is_frequencia_autorizada
+    DATE criado_em
+    DATE atualizado_em
+  }
+
+  FREQUENCIA {
+    BIGINT id PK
+    BIGINT guarda_id FK
+    BIGINT evento_id FK
+    DATE data_registro
+    DATETIME hora_registro
+    TINYINT reconhecimento_facial
+    VARCHAR observacao
+  }
+
+  CIRIO {
+    BIGINT id PK
+    INT ano UK
+    TINYINT ativo
+    DATE inicio
+    DATE termino
+    DATE criado_em
+    DATE atualizado_em
+  }
+
+  CATEGORIA_CIRIO {
+    BIGINT id PK
+    VARCHAR nome
+    VARCHAR descricao
+  }
+
+  REGRA_CIRIO {
+    BIGINT id PK
+    BIGINT cirio_id FK
+    BIGINT categoria_id FK
+    BIGINT quantidade_necessaria
+  }
+
+  SETOR {
+    BIGINT id PK
+    VARCHAR nome
+    VARCHAR localizacao
+    TINYINT is_ativo
+    DATE criado_em
+    DATE atualizado_em
+  }
+
+  CATEGORIA_MATERIAL {
+    BIGINT id PK
+    VARCHAR nome UK
+    VARCHAR descricao
+  }
+
+  MATERIAL {
+    BIGINT id PK
+    BIGINT categoria_id FK
+    BIGINT setor_id FK
+    VARCHAR nome
+    VARCHAR numero_patrimonio UK
+    ENUM status
+    BIGINT qtd_disponivel
+    DATE data_cadastro
+    DATE criado_em
+    DATE atualizado_em
+  }
+
+  ESTOQUE {
+    BIGINT id PK
+    BIGINT material_id FK
+    BIGINT quantidade
+    DATE validade
+    VARCHAR local_provisorio
+    DATE criado_em
+    DATE atualizado_em
+  }
+
+  EMPRESTIMO {
+    BIGINT id PK
+    BIGINT material_id FK
+    BIGINT solicitante_id FK
+    BIGINT retirante_id FK
+    BIGINT responsavel_id FK
+    BIGINT quantidade
+    DATE data_solicitacao
+    DATE data_retirada
+    ENUM status
+    DATE criado_em
+    DATE atualizado_em
+  }
+
+  EQUIPE {
+    BIGINT id PK
+    VARCHAR nome UK
+    DATE criado_em
+    DATE atualizado_em
+  }
+
+  CAMISA {
+    BIGINT id PK
+    BIGINT equipe_id FK
+    BIGINT guarda_id FK
+    BIGINT entregador_id FK
+    BIGINT criador_id FK
+    INT ano
+    ENUM tamanho_camisa
+    TINYINT situacao
+    TINYINT recebido
+    VARCHAR recebedor
+    DATE criado_em
+    DATE atualizado_em
+  }
+
+  CAMISA_LOG {
+    BIGINT id PK
+    BIGINT camisa_id FK
+    BIGINT usuario_id FK
+    ENUM tamanho_antigo
+    ENUM tamanho_novo
+    TINYINT situacao_antiga
+    TINYINT situacao_nova
+    VARCHAR justificativa
+    DATE data_alteracao
+  }
+
+  PESSOA ||--o| USUARIO : "one_to_one"
+  PESSOA ||--o| ENDERECO : "one_to_one"
+  PESSOA ||--o| FICHA_SAUDE : "one_to_one"
+  PESSOA ||--o{ GUARDA : "one_to_many"
+  PESSOA ||--o{ RESPONSAVEL_GUARDA : "one_to_many"
+
+  GUARDA ||--o| SACRAMENTO : "one_to_one"
+  GUARDA ||--o{ RESPONSAVEL_GUARDA : "one_to_many"
+  GUARDA ||--o{ PADRINHO_GUARDA : "guarda"
+  GUARDA ||--o{ PADRINHO_GUARDA : "padrinho"
+  GUARDA ||--o{ FREQUENCIA : "one_to_many"
+  GUARDA ||--o{ EMPRESTIMO : "one_to_many"
+  GUARDA ||--o{ CAMISA : "one_to_many"
+  GUARDA ||--o{ CAMISA : "one_to_many"
+  GUARDA ||--o{ CAMISA_LOG : "one_to_many"
+  GUARDA ||--o{ GUARDA_STATUS : "one_to_many"
+  GUARDA_STATUS }o--|| STATUS_GUARDA : "many_to_one"
+
+  EVENTO ||--o{ FREQUENCIA : "one_to_many"
+  CATEGORIA_EVENTO ||--o{ EVENTO : "one_to_many"
+  LOCAL ||--o{ EVENTO : "one_to_many"
+
+  CIRIO ||--o{ REGRA_CIRIO : "one_to_many"
+  CATEGORIA_CIRIO ||--o{ REGRA_CIRIO : "one_to_many"
+
+  CATEGORIA_MATERIAL ||--o{ MATERIAL : "one_to_many"
+  SETOR ||--o{ MATERIAL : "one_to_many"
+  MATERIAL ||--o{ ESTOQUE : "one_to_many"
+  MATERIAL ||--o{ EMPRESTIMO : "one_to_many"
+
+  EQUIPE ||--o{ CAMISA : "one_to_many"
+  CAMISA ||--o{ CAMISA_LOG : "one_to_many"
+  USUARIO ||--o{ CAMISA_LOG : "one_to_many"

@@ -44,16 +44,21 @@ def face_locations(*args, **kwargs): return []
 "@
 Set-Content -Path ".\venv\Lib\site-packages\face_recognition\__init__.py" -Value $faceRecStub
 
-# 10. Cria as migrations dos aplicativos locais (guarda, camisa, app, mirim e patrimonio)
-python3 manage.py makemigrations guarda camisa app mirim patrimonio
+# 10. Cria as migrations dos aplicativos locais
+# Ordem segue as dependências entre apps (pessoa -> usuario/saude/guarda -> evento/cirio/patrimonio/camisa)
+python3 manage.py makemigrations pessoa usuario saude guarda evento cirio patrimonio camisa app
 
-# 11. Aplica as migrations para criar o banco de dados SQLite
+# 11. Aplica as migrations para criar o banco de dados SQLite (banco padrão)
 python3 manage.py migrate
 
 # 12. Cria Super User antes de iniciar
 python3 manage.py createsuperuser
 
-# 13. Inicia o servidor local
+# 13. Crie um SEGUNDO sqlite com a NOVA modelagem do banco de dados (Opcional/Experimental)
+# Isso vai ler o arquivo criar_banco_modelagem.sql e gerar um arquivo bd.sqlite3 independente
+python3 executar_sql.py
+
+# 14. Inicia o servidor local
 python3 manage.py runserver
 ```
 
