@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth.decorators import login_required
+from guarda.models import Guarda
 
 # Create your views here.
 @login_required
@@ -225,7 +226,11 @@ def emprestimo_list(request):
     )
 
     if not is_patrimonio_adm:
-        emprestimos = emprestimos.filter(solicitante=request.user)
+        try:
+            guarda_user = Guarda.objects.get(matricula=request.user.matricula)
+            emprestimos = emprestimos.filter(solicitante=guarda_user)
+        except Guarda.DoesNotExist:
+            emprestimos = Emprestimo.objects.none()
 
     return render(request, "patrimonio/emprestimo_list.html", {
         "emprestimos": emprestimos,
@@ -246,7 +251,12 @@ def emprestimo_form(request, pk=None):
 
             #solicitante obrigatório = guarda logado (se não for adm)
             if not is_adm:
-                emprestimo.solicitante = request.user
+                try:
+                    guarda_user = Guarda.objects.get(matricula=request.user.matricula)
+                    emprestimo.solicitante = guarda_user
+                except Guarda.DoesNotExist:
+                    messages.error(request, "Usuário logado não possui cadastro de Guarda.")
+                    return redirect("patrimonio:emprestimo_list")
 
             #validação de estoque apenas na criação
             if not instance:
@@ -265,7 +275,11 @@ def emprestimo_form(request, pk=None):
 
         # esconder solicitante se não for ADM
         if not is_adm:
-            form.fields["solicitante"].initial = request.user
+            try:
+                guarda_user = Guarda.objects.get(matricula=request.user.matricula)
+                form.fields["solicitante"].initial = guarda_user
+            except Guarda.DoesNotExist:
+                pass
             form.fields["solicitante"].disabled = True
             form.fields["retirante"].required = False
 
@@ -305,7 +319,11 @@ def emprestimo_aprovar(request, pk):
 
     material.qtd_disponivel -= emprestimo.quantidade
     emprestimo.status = "aprovado"
-    emprestimo.responsavel_patrimonio = request.user
+    try:
+        guarda_resp = Guarda.objects.get(matricula=request.user.matricula)
+        emprestimo.responsavel_patrimonio = guarda_resp
+    except Guarda.DoesNotExist:
+        pass
     emprestimo.data_retirada = timezone.now()
     emprestimo.save()
     material.save()
@@ -344,7 +362,11 @@ def emprestimo_retirar(request, pk):
     if request.method == "POST":
         # atualizar status
         emprestimo.status = "retirado"
-        emprestimo.retirante = request.user
+        try:
+            guarda_ret = Guarda.objects.get(matricula=request.user.matricula)
+            emprestimo.retirante = guarda_ret
+        except Guarda.DoesNotExist:
+            pass
         emprestimo.data_retirada = timezone.now()
         emprestimo.save()
 
@@ -362,9 +384,14 @@ def emprestimo_termo(request, pk):
         messages.warning(request, "Somente itens retirados podem ter termo de posse.")
         return redirect("patrimonio:emprestimo_list")
 
+    try:
+        entregador = Guarda.objects.get(matricula=request.user.matricula)
+    except Guarda.DoesNotExist:
+        entregador = None
+
     return render(request, "patrimonio/emprestimo_termo.html", {
         "emprestimo": emprestimo,
-        "entregador": request.user
+        "entregador": entregador
     })
 
 @login_required
