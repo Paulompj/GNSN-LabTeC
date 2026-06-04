@@ -134,7 +134,7 @@
                 <img id="header-foto" src="" alt="Foto do Mirim" class="w-100 h-100 object-fit-cover d-none">
                 <span id="header-silhueta">👤</span>
             </div>
-
+<!-- O header é projetado para mostrar os detalhes do mirim selecionado, incluindo foto, nome, matrícula e graduação. Ele começa com um estado padrão e é atualizado dinamicamente quando o usuário seleciona um mirim na busca, garantindo uma experiência visualmente rica e informativa durante o processo de registro de frequência. -->
             <h2 id="header-nome" class="fw-bold h4 mb-1 text-white">Escolha um Mirim</h2>
             <p id="header-matricula" class="text-uppercase fw-semibold small text-white-50 mb-2">Mat. ---- · Guarda Mirim</p>
 
@@ -167,7 +167,6 @@
                                 <input type="text" id="input-mirim-busca" list="lista-mirins" autocomplete="off"
                                     placeholder="Digite o nome ou matrícula..."
                                     class="form-control form-control-custom">
-
                                 <datalist id="lista-mirins">
                                     {% for mirim in mirins %}
                                     <option value="{{ mirim.matricula }} - {{ mirim.nome }}" data-id="{{ mirim.id }}"
@@ -196,9 +195,7 @@
                             Confirmar Frequência
                         </button>
                     </form>
-                </div>
-
-                <div id="card-jornada" class="info-card d-flex align-items-center gap-3 shadow-sm">
+                </div> <div id="card-jornada" class="info-card d-flex align-items-center gap-3 shadow-sm">
                     <div class="icon-box text-white">🏆</div>
                     <div>
                         <p class="fw-bold text-dark mb-0 h5" style="font-size: 1.1rem;">Jornada do Círio</p>
@@ -207,9 +204,7 @@
                     </div>
                 </div>
 
-            </div>
-        </div>
-    </main>
+            </div> </div> </main>
 
     <footer class="mt-5 mb-4 text-center">
         <p class="text-uppercase text-muted fw-bold" style="font-size: 10px; letter-spacing: 0.1em;">GNSN · Gestão 2026</p>
@@ -220,7 +215,7 @@
         const hiddenInput = document.getElementById('mirim-id-hidden');
         const imgEl = document.getElementById('header-foto');
         const silhuetaEl = document.getElementById('header-silhueta');
-
+// Quando o usuário digitar ou selecionar um mirim, atualiza os detalhes no header e o valor do input hidden para submissão do formulário
         inputBusca.addEventListener('input', function () {
             const val = this.value;
             const options = document.querySelectorAll('#lista-mirins option');
@@ -232,7 +227,7 @@
                     break;
                 }
             }
-
+// Se um item correspondente for encontrado, preenche os detalhes; caso contrário, reseta para o estado inicial
             if (itemEncontrado) {
                 const idReal = itemEncontrado.getAttribute('data-id');
                 const nomeReal = itemEncontrado.getAttribute('data-nome');
@@ -261,7 +256,6 @@
                     silhuetaEl.classList.remove('d-none');
                 }
             } else {
-                // CORREÇÃO: O reset mantém a estrutura montada com os dados estáticos fictícios em vez de sumir com os blocos
                 hiddenInput.value = "";
                 document.getElementById('header-nome').innerText = "Escolha um Mirim";
                 document.getElementById('header-matricula').innerText = "Mat. ---- · Guarda Mirim";
