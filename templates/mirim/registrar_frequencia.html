@@ -23,16 +23,19 @@
         </div>
 
         <div class="relative z-10 flex flex-col items-center">
-            <div class="w-24 h-24 rounded-full border-4 border-[#FFA500] overflow-hidden mb-3 shadow-md bg-gray-300 flex items-center justify-center text-gray-500 text-3xl font-bold relative">
+            <div
+                class="w-24 h-24 rounded-full border-4 border-[#FFA500] overflow-hidden mb-3 shadow-md bg-gray-300 flex items-center justify-center text-gray-500 text-3xl font-bold relative">
                 <img id="header-foto" src="" alt="Foto do Mirim" class="w-full h-full object-cover hidden">
                 <span id="header-silhueta">👤</span>
             </div>
 
             <h2 id="header-nome" class="text-xl font-extrabold tracking-tight">Escolha um Mirim</h2>
-            <p id="header-matricula" class="text-xs opacity-80 mt-1 uppercase font-semibold">Mat. ---- · Guarda Mirim</p>
+            <p id="header-matricula" class="text-xs opacity-80 mt-1 uppercase font-semibold">Mat. ---- · Guarda Mirim
+            </p>
 
-            <div class="mt-3 bg-[#FFA500] text-white px-4 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-sm uppercase">
-                <span>⭐</span> Aspirante do Círio
+            <div id="header-badge"
+                class="mt-3 bg-[#FFA500] text-white px-4 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-sm uppercase hidden">
+                <span>⭐</span> <span id="header-graduacao">Aspirante</span>
             </div>
         </div>
     </header>
@@ -45,25 +48,27 @@
                     <div class="w-1.5 h-6 bg-[#2D5A9E] rounded-full"></div>
                     <h3 class="text-[#2D5A9E] font-extrabold text-sm uppercase tracking-wide">Registrar Presença</h3>
                 </div>
-                
+
                 <form class="space-y-6" method="POST" action="">
                     {% csrf_token %}
-                    
+
                     <div class="space-y-1">
                         <label class="text-[11px] font-bold text-gray-400 uppercase ml-1">Selecionar Mirim</label>
                         <div class="relative">
                             <input type="hidden" name="mirim" id="mirim-id-hidden">
-                            
-                            <input type="text" id="input-mirim-busca" list="lista-mirins" placeholder="Digite o nome ou matrícula..."
+
+                            <input type="text" id="input-mirim-busca" list="lista-mirins"
+                                placeholder="Digite o nome ou matrícula..."
                                 class="w-full p-4 bg-[#F8F9FA] border border-gray-100 rounded-2xl text-sm font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-blue-400 transition-all">
-                            
+
                             <datalist id="lista-mirins">
                                 {% for mirim in mirins %}
-                                <option value="{{ mirim.nome }}" 
-                                        data-id="{{ mirim.id }}"
-                                        data-foto="{% if mirim.foto %}{{ mirim.foto.url }}{% else %}https://i.pravatar.cc/300{% endif %}" 
-                                        data-matricula="{{ mirim.matricula }}">
-                                    Mat. {{ mirim.matricula }}
+                                <option value="{{ mirim.matricula }} - {{ mirim.nome }}" data-id="{{ mirim.id }}"
+                                    data-nome="{{ mirim.nome }}"
+                                    data-foto="{% if mirim.foto %}{{ mirim.foto.url }}{% endif %}"
+                                    data-matricula="{{ mirim.matricula }}"
+                                    data-graduacao="{{ mirim.graduacao|default:'Guarda Mirim' }}"
+                                    data-faltas-cirio="{{ mirim.faltas_para_cirio|default:'--' }}">
                                 </option>
                                 {% endfor %}
                             </datalist>
@@ -80,7 +85,8 @@
                                 <option value="{{ evento.id }}">{{ evento.nome }}</option>
                                 {% endfor %}
                             </select>
-                            <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">▼</div>
+                            <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">▼
+                            </div>
                         </div>
                     </div>
 
@@ -91,11 +97,15 @@
                 </form>
             </div>
 
-            <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4">
-                <div class="w-12 h-12 bg-[#2D5A9E] rounded-2xl flex items-center justify-center text-white text-xl">🏆</div>
+         
+            <div id="card-jornada"
+                class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4 hidden">
+                <div class="w-12 h-12 bg-[#2D5A9E] rounded-2xl flex items-center justify-center text-white text-xl">🏆
+                </div>
                 <div>
                     <p class="text-lg font-bold text-gray-800 leading-none">Jornada do Círio</p>
-                    <p class="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-tighter">Faltam 8 presenças para o Círio</p>
+                    <p id="texto-jornada" class="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-tighter">
+                        Faltam -- presenças para o Círio</p>
                 </div>
             </div>
 
@@ -107,12 +117,16 @@
     </footer>
 
     <script>
-        document.getElementById('input-mirim-busca').addEventListener('input', function() {
+        const inputBusca = document.getElementById('input-mirim-busca');
+        const hiddenInput = document.getElementById('mirim-id-hidden');
+        const imgEl = document.getElementById('header-foto');
+        const silhuetaEl = document.getElementById('header-silhueta');
+
+        inputBusca.addEventListener('input', function () {
             const val = this.value;
             const options = document.querySelectorAll('#lista-mirins option');
             let itemEncontrado = null;
 
-            // Percorre a lista oculta para ver se o que o usuário escreveu bate com um registro
             for (let i = 0; i < options.length; i++) {
                 if (options[i].value === val) {
                     itemEncontrado = options[i];
@@ -120,24 +134,30 @@
                 }
             }
 
-            const imgEl = document.getElementById('header-foto');
-            const silhuetaEl = document.getElementById('header-silhueta');
-            const hiddenInput = document.getElementById('mirim-id-hidden');
-
             if (itemEncontrado) {
-                // Pega os metadados injetados pelo Django
+                // Captura as propriedades injetadas
                 const idReal = itemEncontrado.getAttribute('data-id');
+                const nomeReal = itemEncontrado.getAttribute('data-nome');
                 const foto = itemEncontrado.getAttribute('data-foto');
                 const matricula = itemEncontrado.getAttribute('data-matricula');
+                const graduacao = itemEncontrado.getAttribute('data-graduacao');
+                const faltasCirio = itemEncontrado.getAttribute('data-faltas-cirio');
 
-                // Seta o ID no input escondido pro formulário enviar certo pro Django
                 hiddenInput.value = idReal;
 
-                // Atualiza o cabeçalho dinamicamente
-                document.getElementById('header-nome').innerText = val;
+                // Atualiza textos do Header
+                document.getElementById('header-nome').innerText = nomeReal;
                 document.getElementById('header-matricula').innerText = `Mat. ${matricula} · Guarda Mirim`;
-                
-                if (foto && !foto.includes("pravatar")) {
+
+                // Manipula Badge de Graduação
+                document.getElementById('header-graduacao').innerText = graduacao;
+                document.getElementById('header-badge').classList.remove('hidden');
+
+                // Manipula Card Informativo
+                document.getElementById('texto-jornada').innerText = `Faltam ${faltasCirio} presenças para o Círio`;
+                document.getElementById('card-jornada').classList.remove('hidden');
+
+                if (foto && foto.trim() !== '') {
                     imgEl.src = foto;
                     imgEl.classList.remove('hidden');
                     silhuetaEl.classList.add('hidden');
@@ -146,12 +166,23 @@
                     silhuetaEl.classList.remove('hidden');
                 }
             } else {
-                // Se o campo for apagado ou inválido, limpa tudo
+                // Reseta tudo de forma segura caso o campo seja limpo/inválido
                 hiddenInput.value = "";
                 document.getElementById('header-nome').innerText = "Escolha um Mirim";
                 document.getElementById('header-matricula').innerText = "Mat. ---- · Guarda Mirim";
+                document.getElementById('header-badge').classList.add('hidden');
+                document.getElementById('card-jornada').classList.add('hidden');
                 imgEl.classList.add('hidden');
                 silhuetaEl.classList.remove('hidden');
+            }
+        });
+
+        // Trava Front-end comercial: impede envios acidentais com dados inválidos
+        document.querySelector('form').addEventListener('submit', function (e) {
+            if (!hiddenInput.value) {
+                e.preventDefault();
+                alert('Por favor, selecione um Mirim válido listado nas opções.');
+                inputBusca.focus();
             }
         });
     </script>
