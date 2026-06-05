@@ -5,7 +5,7 @@
     <div class="container mt-4">
         <div class="d-flex justify-content-between mb-3">
             <h3>Guardas</h3>
-            <a href="{% url 'mirim:guarda_create' %}" class="btn btn-primary">Novo Guarda</a>
+            <a href="{% url 'guarda:guarda_create' %}" class="btn btn-primary">Novo Guarda</a>
         </div>
 
         <div class="table-responsive">
@@ -28,9 +28,9 @@
                         <td>{{ g.total_presencas }}</td>
                         <td>{{ g.status_aptidao }}</td>
                         <td class="text-end">
-                            <a href="{% url 'mirim:guarda_detail' g.pk %}" class="btn btn-sm btn-primary">Frequência</a>
-                            <a href="{% url 'mirim:guarda_consulta' g.pk %}" class="btn btn-sm btn-info text-white">Detalhes</a>
-                            <a href="{% url 'mirim:guarda_update' g.id %}" class="btn btn-sm btn-warning">Editar</a>
+                            <a href="{% url 'guarda:guarda_detail' g.pk %}" class="btn btn-sm btn-primary">Frequência</a>
+                            <a href="{% url 'guarda:guarda_consulta' g.pk %}" class="btn btn-sm btn-info text-white">Detalhes</a>
+                            <a href="{% url 'guarda:guarda_update' g.id %}" class="btn btn-sm btn-warning">Editar</a>
                             <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-model="guarda" data-pk="{{ g.id }}">Excluir</button>
                         </td>
                     </tr>

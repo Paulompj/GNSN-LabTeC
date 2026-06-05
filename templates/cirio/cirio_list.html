@@ -6,7 +6,7 @@
 
         <div class="d-flex justify-content-between mb-3">
             <h3>Círios</h3>
-            <a href="{% url 'mirim:cirio_create' %}" class="btn btn-primary">
+            <a href="{% url 'cirio:cirio_create' %}" class="btn btn-primary">
                 + Novo Círio
             </a>
         </div>
@@ -36,10 +36,10 @@
                         </td>
 
                         <td>
-                            <a href="{% url 'mirim:cirio_detail' c.id %}" class="btn btn-sm btn-info text-white">Ver</a>
-                            <a href="{% url 'mirim:cirio_update' c.id %}" class="btn btn-sm btn-warning">Editar</a>
+                            <a href="{% url 'cirio:cirio_detail' c.id %}" class="btn btn-sm btn-info text-white">Ver</a>
+                            <a href="{% url 'cirio:cirio_update' c.id %}" class="btn btn-sm btn-warning">Editar</a>
 
-                            <form action="{% url 'mirim:cirio_delete' c.id %}" method="post" class="d-inline">
+                            <form action="{% url 'cirio:cirio_delete' c.id %}" method="post" class="d-inline">
                                 {% csrf_token %}
                                 <button class="btn btn-sm btn-danger"
                                         onclick="return confirm('Deseja excluir este Círio?')">

@@ -1,0 +1,392 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Relatório
+{% endblock %}
+
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório de Frequência</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/relatorio.css' %}">
+{% endblock %}
+
+{% block topbar_action %}
+<button class="export-btn" id="exportBtn" onclick="exportar()" disabled>
+
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 1v8M4 6l3 3 3-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+            stroke-linejoin="round" />
+
+        <path d="M2 10v2h10v-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+    </svg>
+
+    <span>Exportar</span>
+</button>
+{% endblock %}
+
+{% block body %}
+<!-- HERO -->
+<div class="hero-strip">
+    <div class="hero-label">Relatório</div>
+    <div class="hero-title">Frequência do efetivo</div>
+    <div class="hero-stats">
+        <div class="stat-box">
+            <div class="stat-val" id="heroTotal">—</div>
+            <div class="stat-label">Guardas analisados</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-val green" id="heroMedia">—</div>
+            <div class="stat-label">Média geral</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-val blue" id="heroEventos">—</div>
+            <div class="stat-label">Eventos no período</div>
+        </div>
+    </div>
+</div>
+
+<!-- FILTER CARD -->
+<div class="filter-card">
+    <div class="filter-card-title">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M1 2h10M3 6h6M5 10h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+        </svg>
+        Filtros
+    </div>
+    <div class="filter-grid">
+        <div class="filter-field">
+            <label class="filter-label">Data início</label>
+            <input class="filter-input" type="date" id="dataInicio">
+        </div>
+        <div class="filter-field">
+            <label class="filter-label">Data fim</label>
+            <input class="filter-input" type="date" id="dataFim">
+        </div>
+        <div class="filter-field">
+            <label class="filter-label">Ministério</label>
+            <select class="filter-select" id="filtroMinisterio">
+                <option value="">Todos</option>
+                <option value="nazare">N.S. Nazaré</option>
+                <option value="andre">Santo André</option>
+            </select>
+        </div>
+        <div class="filter-field">
+            <label class="filter-label">Status</label>
+            <select class="filter-select" id="filtroStatus">
+                <option value="">Todos</option>
+                <option value="ativo">Ativos</option>
+                <option value="inativo">Inativos</option>
+                <option value="licenca">Licença</option>
+            </select>
+        </div>
+        <div class="filter-field filter-full">
+            <label class="filter-label">Guarda específico</label>
+            <select class="filter-select" id="filtroGuarda">
+                <option value="">Todos os guardas</option>
+                <option value="1">Ana Paula Figueiredo</option>
+                <option value="2">Bruno Tavares Lima</option>
+                <option value="3">Carla Mendes Souza</option>
+                <option value="4">Diego Costa Ramos</option>
+                <option value="5">Elaine Rodrigues</option>
+                <option value="6">Felipe Araújo Neto</option>
+                <option value="7">Gabriela Moraes</option>
+                <option value="8">Henrique Pinheiro</option>
+            </select>
+        </div>
+    </div>
+    <button class="apply-btn" id="applyBtn" onclick="gerarRelatorio()">
+        <span class="btn-txt">Gerar relatório</span>
+        <div class="spinner-sm"></div>
+    </button>
+</div>
+
+<!-- RESULT (hidden initially) -->
+<div id="resultSection" style="display:none">
+
+    <!-- SUMMARY CARDS -->
+    <div class="section-label">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <rect x="1" y="1" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.3" />
+            <path d="M4 6h4M4 4h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+        </svg>
+        Resumo
+        <div class="section-line"></div>
+    </div>
+    <div class="summary-row">
+        <div class="summary-card accent">
+            <div class="s-val amber" id="sumPresentes">—</div>
+            <div class="s-lbl">Presenças registradas</div>
+        </div>
+        <div class="summary-card blue">
+            <div class="s-val blue" id="sumMedia">—</div>
+            <div class="s-lbl">Média de frequência</div>
+        </div>
+        <div class="summary-card">
+            <div class="s-val" id="sumRegulares">—</div>
+            <div class="s-lbl">Acima de 75%</div>
+        </div>
+        <div class="summary-card">
+            <div class="s-val" id="sumIrregulares">—</div>
+            <div class="s-lbl">Abaixo de 50%</div>
+        </div>
+    </div>
+
+    <!-- CHART -->
+    <div class="section-label">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M1 9l3-3 2.5 2.5L9 5l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"
+                stroke-linejoin="round" />
+            <rect x="1" y="1" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.3" />
+        </svg>
+        Presença por mês
+        <div class="section-line"></div>
+    </div>
+    <div style="padding:0 16px">
+        <div class="chart-section">
+            <div class="chart-title">Evolução mensal de frequência</div>
+            <div class="chart-sub">Percentual médio de presença no período</div>
+            <div class="chart-bars" id="chartBars"></div>
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <div class="legend-dot" style="background:var(--green)"></div>≥ 75%
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background:var(--yellow)"></div>50–74%
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background:var(--red)"></div>
+                    < 50%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLE -->
+        <div class="section-label">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <rect x="1" y="1" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.3" />
+                <path d="M1 4h10M4 4v7" stroke="currentColor" stroke-width="1.3" />
+            </svg>
+            Por guarda
+            <div class="section-line"></div>
+        </div>
+        <div class="table-wrap">
+            <div class="table-header">
+                <span>Guarda</span>
+                <span>%</span>
+                <span>Prog.</span>
+            </div>
+            <div id="tableBody"></div>
+        </div>
+
+    </div>
+
+    <!-- EMPTY -->
+    <div class="empty-state" id="emptyState">
+        <div class="empty-icon">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <rect x="3" y="3" width="16" height="16" rx="3" stroke="#9ca3af" stroke-width="1.4" />
+                <path d="M7 11h8M7 7h5M7 15h3" stroke="#9ca3af" stroke-width="1.4" stroke-linecap="round" />
+            </svg>
+        </div>
+        <p class="empty-title">Nenhum resultado</p>
+        <p class="empty-sub">Ajuste os filtros e gere o relatório</p>
+    </div>
+    <!-- TOAST -->
+    <div class="toast" id="toast">
+        <div class="toast-icon">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M2 6l3 3 5-5" stroke="#111827" stroke-width="1.8" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+        </div>
+        <span id="toastMsg">Relatório gerado!</span>
+    </div>
+
+    <script>
+        const guardas = [
+            { id: 1, nome: 'Ana Paula Figueiredo', matricula: '2024-0001', ministerio: 'nazare', status: 'ativo', presencas: 18, total: 20 },
+            { id: 2, nome: 'Bruno Tavares Lima', matricula: '2024-0002', ministerio: 'nazare', status: 'ativo', presencas: 14, total: 20 },
+            { id: 3, nome: 'Carla Mendes Souza', matricula: '2023-0047', ministerio: 'andre', status: 'ativo', presencas: 19, total: 20 },
+            { id: 4, nome: 'Diego Costa Ramos', matricula: '2023-0012', ministerio: 'nazare', status: 'licenca', presencas: 8, total: 20 },
+            { id: 5, nome: 'Elaine Rodrigues', matricula: '2024-0018', ministerio: 'andre', status: 'ativo', presencas: 16, total: 20 },
+            { id: 6, nome: 'Felipe Araújo Neto', matricula: '2022-0033', ministerio: 'nazare', status: 'inativo', presencas: 4, total: 20 },
+            { id: 7, nome: 'Gabriela Moraes', matricula: '2024-0025', ministerio: 'andre', status: 'ativo', presencas: 20, total: 20 },
+            { id: 8, nome: 'Henrique Pinheiro', matricula: '2023-0055', ministerio: 'nazare', status: 'ativo', presencas: 11, total: 20 },
+        ];
+
+        const meses = [
+            { label: 'Jan', pct: 72 },
+            { label: 'Fev', pct: 68 },
+            { label: 'Mar', pct: 81 },
+            { label: 'Abr', pct: 76 },
+            { label: 'Mai', pct: 85 },
+            { label: 'Jun', pct: 79 },
+        ];
+
+        let resultData = [];
+
+        // preenche datas default
+        const hoje = new Date();
+        const primeiroDia = new Date(hoje.getFullYear(), hoje.getMonth() - 5, 1);
+        document.getElementById('dataInicio').value = primeiroDia.toISOString().split('T')[0];
+        document.getElementById('dataFim').value = hoje.toISOString().split('T')[0];
+
+        function pctClass(p) {
+            if (p >= 75) return 'pct-high';
+            if (p >= 50) return 'pct-mid';
+            return 'pct-low';
+        }
+        function fillClass(p) {
+            if (p >= 75) return 'fill-high';
+            if (p >= 50) return 'fill-mid';
+            return 'fill-low';
+        }
+        function barColor(p) {
+            if (p >= 75) return 'var(--green)';
+            if (p >= 50) return 'var(--yellow)';
+            return 'var(--red)';
+        }
+
+        function gerarRelatorio() {
+            const btn = document.getElementById('applyBtn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            setTimeout(() => {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+
+                const filtMinisterio = document.getElementById('filtroMinisterio').value;
+                const filtStatus = document.getElementById('filtroStatus').value;
+                const filtGuarda = document.getElementById('filtroGuarda').value;
+
+                resultData = guardas.filter(g => {
+                    if (filtMinisterio && g.ministerio !== filtMinisterio) return false;
+                    if (filtStatus && g.status !== filtStatus) return false;
+                    if (filtGuarda && String(g.id) !== filtGuarda) return false;
+                    return true;
+                });
+
+                if (!resultData.length) {
+                    document.getElementById('resultSection').style.display = 'none';
+                    document.getElementById('emptyState').classList.add('show');
+                    document.getElementById('exportBtn').disabled = true;
+                    updateHero(0, 0, 0);
+                    return;
+                }
+
+                document.getElementById('emptyState').classList.remove('show');
+                document.getElementById('resultSection').style.display = 'block';
+                document.getElementById('exportBtn').disabled = false;
+
+                renderSummary(resultData);
+                renderChart();
+                renderTable(resultData);
+                updateHero(resultData.length, calcMedia(resultData), 20);
+                showToast('Relatório gerado com sucesso!');
+            }, 900);
+        }
+
+        function calcMedia(data) {
+            const total = data.reduce((s, g) => s + Math.round(g.presencas / g.total * 100), 0);
+            return Math.round(total / data.length);
+        }
+
+        function updateHero(total, media, eventos) {
+            document.getElementById('heroTotal').textContent = total || '—';
+            document.getElementById('heroMedia').textContent = total ? media + '%' : '—';
+            document.getElementById('heroEventos').textContent = total ? eventos : '—';
+        }
+
+        function renderSummary(data) {
+            const totalPresencas = data.reduce((s, g) => s + g.presencas, 0);
+            const media = calcMedia(data);
+            const regulares = data.filter(g => Math.round(g.presencas / g.total * 100) >= 75).length;
+            const irregulares = data.filter(g => Math.round(g.presencas / g.total * 100) < 50).length;
+            document.getElementById('sumPresentes').textContent = totalPresencas;
+            document.getElementById('sumMedia').textContent = media + '%';
+            document.getElementById('sumRegulares').textContent = regulares;
+            document.getElementById('sumIrregulares').textContent = irregulares;
+        }
+
+        function renderChart() {
+            const bars = document.getElementById('chartBars');
+            const max = Math.max(...meses.map(m => m.pct));
+            bars.innerHTML = meses.map(m => {
+                const h = Math.round((m.pct / max) * 76);
+                const col = barColor(m.pct);
+                return `
+    <div class="bar-col">
+      <div class="bar-body" style="height:${h}px;background:${col};width:100%" data-tip="${m.pct}%"></div>
+      <span class="bar-month">${m.label}</span>
+    </div>`;
+            }).join('');
+        }
+
+        function renderTable(data) {
+            const sorted = [...data].sort((a, b) => {
+                const pa = Math.round(a.presencas / a.total * 100);
+                const pb = Math.round(b.presencas / b.total * 100);
+                return pb - pa;
+            });
+
+            document.getElementById('tableBody').innerHTML = sorted.map((g, i) => {
+                const pct = Math.round(g.presencas / g.total * 100);
+                return `
+    <div class="table-row" style="animation:fadeUp .2s ease ${i * 30}ms both" onclick="alert('Ver detalhe de ${g.nome}')">
+      <div>
+        <div class="row-name">${g.nome}</div>
+        <div class="row-matricula">${g.matricula} · ${g.presencas}/${g.total} eventos</div>
+      </div>
+      <div class="row-pct">
+        <span class="pct-pill ${pctClass(pct)}">${pct}%</span>
+      </div>
+      <div class="row-bar">
+        <div class="bar-track">
+          <div class="bar-fill ${fillClass(pct)}" style="width:${pct}%"></div>
+        </div>
+      </div>
+    </div>`;
+            }).join('');
+        }
+
+        function exportar() {
+            if (!resultData.length) return;
+
+            const linhas = [
+                'Nome,Matrícula,Presenças,Total,Percentual',
+                ...resultData.map(g => {
+                    const pct = Math.round(g.presencas / g.total * 100);
+                    return `"${g.nome}",${g.matricula},${g.presencas},${g.total},${pct}%`;
+                })
+            ];
+
+            const blob = new Blob([linhas.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'relatorio-frequencia.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('CSV exportado!');
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2800);
+        }
+
+        // anim fadeUp inline
+        const style = document.createElement('style');
+        style.textContent = '@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}';
+        document.head.appendChild(style);
+    </script>
+    {% endblock %}

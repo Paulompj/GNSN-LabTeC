@@ -2,7 +2,7 @@
 Popula o banco com os grupos de permissão do sistema e atribui o grupo
 'super' ao primeiro superusuário encontrado.
 
-Uso: python setup_grupos.py
+Uso: python scripts/setup_grupos.py
 """
 
 import os
@@ -11,8 +11,10 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "GNSN.settings")
 django.setup()
 
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from guarda.models import Guarda
+
+Usuario = get_user_model()
 
 GRUPOS = [
     "super",
@@ -21,7 +23,6 @@ GRUPOS = [
     "Entregador_geral",
     "Patrimonio_adm",
     "Patrimonio_solicitante",
-    "Mirim_adm",
 ]
 
 
@@ -36,7 +37,7 @@ def criar_grupos():
 def atribuir_super_ao_superuser():
     print("\n── Atribuindo grupo 'super' ao primeiro superusuário ──")
     superuser = (
-        Guarda.objects.filter(is_superuser=True).order_by("pk").first()
+        Usuario.objects.filter(is_superuser=True).order_by("pk").first()
     )
 
     if superuser is None:
@@ -44,12 +45,13 @@ def atribuir_super_ao_superuser():
         print("       python manage.py createsuperuser")
         return
 
+    nome = superuser.pessoa.nome if superuser.pessoa_id else superuser.usuario
     grupo_super = Group.objects.get(name="super")
     if superuser.groups.filter(name="super").exists():
-        print(f"  ⏭️  {superuser.nome} (matrícula {superuser.matricula}) já possui o grupo 'super'")
+        print(f"  ⏭️  {nome} (usuário {superuser.usuario}) já possui o grupo 'super'")
     else:
         superuser.groups.add(grupo_super)
-        print(f"  ✅ Grupo 'super' atribuído a {superuser.nome} (matrícula {superuser.matricula})")
+        print(f"  ✅ Grupo 'super' atribuído a {nome} (usuário {superuser.usuario})")
 
 
 if __name__ == "__main__":

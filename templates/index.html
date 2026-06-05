@@ -356,7 +356,7 @@
     </a>
 
     <!-- Uniforme -->
-    <a href="{% url 'camisa:home' %}" class="module-card mod-uniforme">
+    <a href="{% url 'camisa:home' as safe_url %}{{ safe_url|default:'#' }}" class="module-card mod-uniforme">
       <img src="{% static 'img/uniforme.png' %}" class="module-icon" alt="Uniforme">
       <div class="module-info">
         <div class="module-title">Uniforme</div>
@@ -369,7 +369,7 @@
     </a>
 
     <!-- Patrimônio -->
-    <a href="{% url 'patrimonio:home' %}" class="module-card mod-patrimonio">
+    <a href="{% url 'patrimonio:home' as safe_url %}{{ safe_url|default:'#' }}" class="module-card mod-patrimonio">
       <img src="{% static 'img/patrimonio.png' %}" class="module-icon" alt="Patrimônio">
       <div class="module-info">
         <div class="module-title">Patrimônio</div>
@@ -382,7 +382,7 @@
     </a>
 
     <!-- Guarda Mirim -->
-    <a href="{% url 'mirim:home' %}" class="module-card mod-mirim">
+    <a href="{% url 'guarda:mirim_home' as safe_url %}{{ safe_url|default:'#' }}" class="module-card mod-mirim">
       <img src="{% static 'img/guarda-mirim.png' %}" class="module-icon" alt="Guarda Mirim">
       <div class="module-info">
         <div class="module-title">Guarda Mirim</div>

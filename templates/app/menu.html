@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 {% load static %}
 {% load mascara %}
 {% block menu %}
@@ -31,11 +30,11 @@
 
                     {% if request.user|has_group:"super" or request.user|has_group:"Direção" or request.user|has_group:"Comissão" or request.user|has_group:"Entregador_geral" %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="guardaDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Guarda Mirim
+                        <a class="nav-link dropdown-toggle" href="{% url 'guarda:home' %}" id="guardaDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            xxxe Mirim
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="guardaDropdown">
-                            <li><a class="dropdown-item" href="{% url 'app:readapoio' %}">Entregar</a></li>
+                            <li><a class="dropdown-item" href="{% url 'guarda:readapoio' %}">Entregar</a></li>
                             <li><a class="dropdown-item" href="{% url 'app:relatorio_apoio' %}">Relatório</a></li>
                         </ul>
                     </li>
@@ -211,5 +210,3 @@
     </nav>
     
 {% endblock %} {% endcomment %}
-=======
->>>>>>> D/new-modeling

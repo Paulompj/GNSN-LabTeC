@@ -1,11 +1,11 @@
 {% extends "menu.html" %}
-{% block title %}Categorias{% endblock %}
+{% block title %}Locais{% endblock %}
 
 {% block body %}
     <div class="container mt-4">
         <div class="d-flex justify-content-between mb-3">
-            <h3>Categorias de Evento</h3>
-            <a href="{% url 'mirim:categoria_create' %}" class="btn btn-primary">Nova Categoria</a>
+            <h3>Locais</h3>
+            <a href="{% url 'evento:local_create' %}" class="btn btn-primary">Novo Local</a>
         </div>
 
         <div class="table-responsive">
@@ -19,26 +19,26 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for categoria in categorias %}
+                {% for local in locais %}
                     <tr>
-                        <td>{{ categoria.nome }}</td>
+                        <td>{{ local.nome }}</td>
                         <td>
-                            {% if categoria.ativo %}
-                                <span class="badge bg-success">Ativa</span>
+                            {% if local.ativo %}
+                                <span class="badge bg-success">Ativo</span>
                             {% else %}
-                                <span class="badge bg-secondary">Inativa</span>
+                                <span class="badge bg-secondary">Inativo</span>
                             {% endif %}
                         </td>
-                        <td>{{ categoria.criado_em|date:"d/m/Y H:i" }}</td>
+                        <td>{{ local.criado_em|date:"d/m/Y H:i" }}</td>
                         <td class="text-end">
-                            <a href="{% url 'mirim:categoria_update' categoria.id %}"
+                            <a href="{% url 'evento:local_update' local.id %}"
                                class="btn btn-sm btn-warning">Editar</a>
 
                             <button class="btn btn-sm btn-danger"
                                     data-bs-toggle="modal"
                                     data-bs-target="#deleteModal"
-                                    data-model="categoria"
-                                    data-pk="{{ categoria.id }}">
+                                    data-model="local"
+                                    data-pk="{{ local.id }}">
                                 Excluir
                             </button>
                         </td>
@@ -46,7 +46,7 @@
                 {% empty %}
                     <tr>
                         <td colspan="3" class="text-center">
-                            Nenhuma categoria cadastrada.
+                            Nenhum local cadastrado.
                         </td>
                     </tr>
                 {% endfor %}

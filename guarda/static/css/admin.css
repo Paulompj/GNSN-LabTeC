@@ -1,0 +1,584 @@
+/* =========================================================
+   GUARDA MIRIM • ADMIN DASHBOARD
+========================================================= */
+
+:root {
+    --amber: #EF9F27;
+    --amber-light: #FEF3DC;
+
+    --blue: #185FA5;
+    --mirim: #0c3967;
+    --blue-light: #E8F1FB;
+
+    --dark: #111827;
+    --gray: #6b7280;
+    --gray-light: #9ca3af;
+
+    --bg: #f3f4f6;
+    --white: #ffffff;
+
+    --border: #e5e7eb;
+
+    --green: #059669;
+    --green-bg: #d1fae5;
+
+    --red: #dc2626;
+    --red-bg: #fee2e2;
+
+    --yellow: #d97706;
+    --yellow-bg: #fef3c7;
+}
+
+/* =========================================================
+   RESET
+========================================================= */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--dark);
+    min-height: 100vh;
+    padding-bottom: 110px;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+
+/* ── TOPBAR ── */
+.topbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.back-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--gray);
+    transition: background .15s, color .15s;
+}
+
+.back-btn:hover {
+    background: var(--bg);
+    color: var(--dark);
+}
+
+.page-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.add-btn {
+    height: 34px;
+    padding: 0 14px;
+    background: var(--blue);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: opacity .15s, transform .1s;
+}
+
+.add-btn:hover {
+    opacity: .88;
+}
+
+.add-btn:active {
+    transform: scale(.97);
+}
+
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+.add-btn {
+    height: 34px;
+    padding: 0 14px;
+
+    background: var(--blue);
+    color: var(--white);
+
+    border: none;
+    border-radius: 8px;
+
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    transition:
+        opacity .15s,
+        transform .1s;
+}
+
+.add-btn:hover {
+    opacity: .88;
+}
+
+.add-btn:active {
+    transform: scale(.97);
+}
+
+/* =========================================================
+   WRAP
+========================================================= */
+
+.dashboard-wrap {
+    width: 100%;
+    padding-bottom: 110px;
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero-strip {
+    background: var(--mirim);
+    padding: 20px 16px 22px;
+
+    position: relative;
+    overflow: hidden;
+
+    animation: slideUp .25s ease both;
+}
+
+.hero-strip::before {
+    content: '';
+
+    position: absolute;
+    top: -20px;
+    right: -20px;
+
+    width: 120px;
+    height: 120px;
+
+    border-radius: 50%;
+    background: rgba(239, 159, 39, .12);
+}
+
+.hero-strip::after {
+    content: '';
+
+    position: absolute;
+    bottom: -30px;
+    right: 40px;
+
+    width: 80px;
+    height: 80px;
+
+    border-radius: 50%;
+    background: rgba(24, 95, 165, .10);
+}
+
+.hero-label {
+    font-size: 11px;
+    font-weight: 500;
+
+    color: var(--amber);
+
+    text-transform: uppercase;
+    letter-spacing: .08em;
+
+    margin-bottom: 8px;
+}
+
+.hero-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.1;
+}
+
+.hero-sub {
+    margin-top: 8px;
+
+    font-size: 14px;
+    color: rgba(255,255,255,.75);
+
+    max-width: 500px;
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    padding: 18px;
+}
+
+.stat-card {
+    background-color: var(--blue);
+    color: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 22px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow:
+        0 4px 20px rgba(15, 23, 42, .04);
+    transition:
+        transform .15s,
+        border-color .15s,
+        box-shadow .15s;
+    animation: fadeUp .22s ease both;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+
+    border-color: var(--blue);
+
+    box-shadow:
+        0 10px 30px rgba(24,95,165,.08);
+}
+
+.stat-icon {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--blue-light);
+
+    color: var(--blue);
+
+    font-size: 20px;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+
+    color: var(--dark);
+
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: var(--gray);
+}
+
+/* =========================================================
+   SECTION
+========================================================= */
+
+.section {
+    padding: 0 18px;
+    margin-top: 10px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+
+    color: var(--dark);
+
+    margin-bottom: 14px;
+}
+
+/* =========================================================
+   ALERTS
+========================================================= */
+
+.alert-card {
+    background: var(--white);
+
+    border: 1.5px solid var(--border);
+    border-radius: 22px;
+
+    padding: 16px;
+
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+
+    margin-bottom: 12px;
+
+    animation: fadeUp .22s ease both;
+}
+
+.alert-icon {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--yellow-bg);
+
+    color: var(--yellow);
+
+    flex-shrink: 0;
+
+    font-size: 20px;
+}
+
+.alert-title {
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.alert-sub {
+    margin-top: 4px;
+
+    font-size: 13px;
+    line-height: 1.5;
+
+    color: var(--gray);
+}
+
+/* =========================================================
+   RANK
+========================================================= */
+
+.rank-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.rank-card {
+    background: var(--white);
+
+    border: 1.5px solid var(--border);
+    border-radius: 22px;
+
+    padding: 14px 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    box-shadow:
+        0 4px 20px rgba(15,23,42,.03);
+
+    transition:
+        border-color .15s,
+        transform .15s;
+}
+
+.rank-card:hover {
+    border-color: var(--blue);
+    transform: translateY(-2px);
+}
+
+.rank-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.rank-avatar {
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    background: var(--blue-light);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--blue);
+
+    font-weight: 700;
+}
+
+.rank-name {
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.rank-sub {
+    font-size: 13px;
+    color: var(--gray);
+}
+
+.rank-pct {
+    background: var(--green-bg);
+    color: var(--green);
+
+    padding: 8px 12px;
+    border-radius: 999px;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* =========================================================
+   EVENTOS
+========================================================= */
+
+.event-list-mini {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.event-mini {
+    background: var(--white);
+
+    border: 1.5px solid var(--border);
+    border-radius: 22px;
+
+    padding: 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    transition:
+        border-color .15s,
+        transform .15s;
+}
+
+.event-mini:hover {
+    border-color: var(--blue);
+    transform: translateY(-2px);
+}
+
+.event-mini-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.event-mini-name {
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.event-mini-sub {
+    font-size: 13px;
+    color: var(--gray);
+}
+
+.event-mini-count {
+    background: var(--blue-light);
+    color: var(--blue);
+
+    padding: 8px 12px;
+    border-radius: 999px;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* =========================================================
+   ANIMATIONS
+========================================================= */
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 640px) {
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .hero-title {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 420px) {
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-title {
+        font-size: 21px;
+    }
+
+    .stat-value {
+        font-size: 24px;
+    }
+}
