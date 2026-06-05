@@ -5,7 +5,7 @@
     <div class="container mt-4">
         <h3>Detalhes da Camisa</h3>
 
-        <form method="POST" enctype="multipart/form-data" action="{% url 'app:entregar_camisa' %}">
+        <form method="POST" enctype="multipart/form-data" action="{% url 'camisa:entregar_camisa' %}">
             {% csrf_token %}
             <input type="hidden" name="guarda_id" value="{{ guarda.idguarda }}">
             <input type="hidden" name="camisa_id" value="{{ camisa.id }}">

@@ -164,7 +164,7 @@
                         <td>{{ camisa.tamcamisa }}</td>
                         <td>
                             <a href="#" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#modal{{ camisa.id }}">Visualizar</a>
-                            <a href="{% url 'app:changecamisa' camisa.id %}" class="btn btn-warning btn-sm">Alterar</a>
+                            <a href="{% url 'camisa:changecamisa' camisa.id %}" class="btn btn-warning btn-sm">Alterar</a>
                         </td>
                     </tr>
 

@@ -17,16 +17,18 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models.functions import TruncDate
 from django.core.paginator import Paginator
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import render
 
 
-from .forms import GuardaForm, GuardaGroupForm
+from .forms import GuardaForm, UsuarioGroupForm
 
 # from app.faiss_index import face_index
 from camisa.models import Camisa
 from .models import Guarda
+from usuario.models import Usuario
 
 
 def group_required(*group_names):
@@ -51,10 +53,10 @@ def home(request):
 
 
 @group_required("super", "Direção")
-def createguarda(request, idguarda=None):
+def createguarda(request, guarda_pk=None):
     return render(request, "index.html")
-    # if idguarda:
-    #     guarda = get_object_or_404(Guarda, idguarda=idguarda)
+    # if guarda_pk:
+    #     guarda = get_object_or_404(Guarda, pk=guarda_pk)
     #     form = GuardaForm(request.POST or None, request.FILES or None, instance=guarda)
     # else:
     #     form = GuardaForm(request.POST or None, request.FILES or None)
@@ -80,144 +82,147 @@ def createguarda(request, idguarda=None):
 
 @group_required("super", "Direção")
 def readguarda(request):
-    return render(request, "index.html")
-    # search = request.GET.get("search", "")
-    # per_page = request.GET.get("per_page", 10)
-    # sort = request.GET.get("sort", "nome")
-    # direction = request.GET.get("direction", "asc")
+    search = request.GET.get("search", "")
+    per_page = request.GET.get("per_page", 10)
+    sort = request.GET.get("sort", "nome")
+    direction = request.GET.get("direction", "asc")
 
-    # try:
-    #     per_page = int(per_page)
-    #     if per_page <= 0:
-    #         per_page = 10
-    # except (ValueError, TypeError):
-    #     per_page = 10
+    try:
+        per_page = int(per_page)
+        if per_page <= 0:
+            per_page = 10
+    except (ValueError, TypeError):
+        per_page = 10
 
-    # # Subquery para a camisa mais recente
-    # camisas_recents = Camisa.objects.filter(guarda=OuterRef("pk")).order_by("-ano")
+    camisas_recentes = Camisa.objects.filter(guarda=OuterRef("pk")).order_by(
+        "-ano", "-pk"
+    )
 
-    # # Queryset base
-    # guardas_qs = Guarda.objects.all().annotate(
-    #     equipe_recente=Subquery(camisas_recents.values("equipe")[:1]),
-    #     tamcamisa_recente=Subquery(camisas_recents.values("tamcamisa")[:1]),
-    # )
+    guardas_qs = (
+        Guarda.objects.select_related("pessoa", "pessoa__usuario", "pessoa__endereco")
+        .prefetch_related("pessoa__usuario__groups", "padrinhos__padrinho__pessoa")
+        .annotate(
+            equipe_recente=Subquery(camisas_recentes.values("equipe__nome")[:1]),
+            tamanho_camisa_recente=Subquery(
+                camisas_recentes.values("tamanho_camisa")[:1]
+            ),
+        )
+        .order_by("pessoa__nome")
+    )
 
-    # # Filtro de busca
-    # if search:
-    #     guardas_qs = guardas_qs.filter(
-    #         Q(nome__icontains=search)
-    #         | Q(matricula__icontains=search)
-    #         | Q(cpf__icontains=search)
-    #     )
+    if search:
+        guardas_qs = guardas_qs.filter(
+            Q(pessoa__nome__icontains=search)
+            | Q(matricula__icontains=search)
+        )
 
-    # # Converte para lista para manipular permissões
-    # guardas_list = list(guardas_qs)
+    guardas_list = list(guardas_qs)
 
-    # for g in guardas_list:
-    #     grupos = list(g.groups.values_list("name", flat=True))
-    #     g.grupos = grupos
-    #     g.first_group_name = grupos[0] if grupos else ""
+    for guarda in guardas_list:
+        try:
+            usuario = guarda.pessoa.usuario
+        except ObjectDoesNotExist:
+            guarda.permissoes_nomes = []
+        else:
+            guarda.permissoes_nomes = [
+                grupo.name for grupo in usuario.groups.all()
+            ]
 
-    # # Ordenação
-    # valid_sorts = {
-    #     "matricula": lambda x: x.matricula or "",
-    #     "nome": lambda x: x.nome or "",
-    #     "cpf": lambda x: x.cpf or "",
-    #     "equipe_recente": lambda x: x.equipe_recente or "",
-    #     "tamcamisa_recente": lambda x: x.tamcamisa_recente or "",
-    #     "grupos": lambda x: x.first_group_name,
-    # }
-    # sort_func = valid_sorts.get(sort, valid_sorts["nome"])
-    # reverse = direction == "desc"
-    # guardas_list.sort(key=sort_func, reverse=reverse)
+    def first_group_name(guarda):
+        return guarda.permissoes_nomes[0] if guarda.permissoes_nomes else ""
 
-    # # Paginação
-    # paginator = Paginator(guardas_list, per_page)
-    # page_number = request.GET.get("page")
-    # guardas_page = paginator.get_page(page_number)
+    valid_sorts = {
+        "matricula": lambda g: g.matricula or "",
+        "nome": lambda g: g.nome or "",
+        "cpf": lambda g: g.cpf or "",
+        "equipe_recente": lambda g: g.equipe_recente or "",
+        "tamanho_camisa_recente": lambda g: g.tamanho_camisa_recente or "",
+        "permissoes": first_group_name,
+    }
+    sort_func = valid_sorts.get(sort, valid_sorts["nome"])
+    guardas_list.sort(key=sort_func, reverse=direction == "desc")
 
-    # return render(
-    #     request,
-    #     "guarda/readguarda.html",
-    #     {
-    #         "guardas": guardas_page,
-    #         "request": request,
-    #         "sort": sort,
-    #         "direction": direction,
-    #     },
-    # )
+    paginator = Paginator(guardas_list, per_page)
+    page_number = request.GET.get("page")
+    guardas_page = paginator.get_page(page_number)
 
-
-@group_required("super", "Direção")
-def passwordguarda(request, idguarda):
-    return render(request, "index.html")
-    # guarda = get_object_or_404(Guarda, idguarda=idguarda)
-
-    # if request.method == "POST":
-    #     senha = request.POST.get("senha")
-    #     confirmar_senha = request.POST.get("confirmar_senha")
-
-    #     # Validação básica
-    #     if not senha or not confirmar_senha:
-    #         messages.error(request, "Preencha ambos os campos de senha.")
-    #     elif senha != confirmar_senha:
-    #         messages.error(request, "As senhas não coincidem.")
-    #     else:
-    #         # Validação da senha forte
-    #         if len(senha) < 8:
-    #             messages.error(request, "A senha deve ter pelo menos 8 caracteres.")
-    #         elif not re.search(r"[A-Z]", senha):
-    #             messages.error(
-    #                 request, "A senha deve conter pelo menos uma letra maiúscula."
-    #             )
-    #         elif not re.search(r"[a-z]", senha):
-    #             messages.error(
-    #                 request, "A senha deve conter pelo menos uma letra minúscula."
-    #             )
-    #         elif not re.search(r"[0-9]", senha):
-    #             messages.error(request, "A senha deve conter pelo menos um número.")
-    #         elif not re.search(r"[!@#$%^&*(),.?\":{}|<>]", senha):
-    #             messages.error(
-    #                 request, "A senha deve conter pelo menos um caractere especial."
-    #             )
-    #         else:
-    #             # Tudo ok, salvar senha
-    #             guarda.set_password(senha)
-    #             guarda.must_change_password = True
-    #             guarda.save()
-    #             messages.success(
-    #                 request, f"Senha cadastrada com sucesso para {guarda.nome}!"
-    #             )
-    #             return redirect("guarda:readguarda")
-
-    # return render(request, "guarda/passwordguarda.html", {"guarda": guarda})
+    return render(
+        request,
+        "guarda/readguarda.html",
+        {
+            "guardas": guardas_page,
+            "request": request,
+            "sort": sort,
+            "direction": direction,
+            "per_page": per_page,
+        },
+    )
 
 
 @group_required("super", "Direção")
-def permissoes(request, idguarda):
-    return render(request, "index.html")
-    # guarda = get_object_or_404(Guarda, idguarda=idguarda)
+def passwordguarda(request, guarda_pk):
+    guarda = get_object_or_404(Guarda.objects.select_related("pessoa"), pk=guarda_pk)
+    usuario = Usuario.objects.filter(pessoa=guarda.pessoa).first()
 
-    # if request.method == "POST":
-    #     form = GuardaGroupForm(request.POST, instance=guarda)
-    #     if form.is_valid():
-    #         if request.POST.get("reset_senha"):
-    #             guarda.set_password("Guarda2025@")
-    #             guarda.must_change_password = True
-    #             guarda.save()
-    #             form.save()
-    #             messages.success(
-    #                 request,
-    #                 f"Permissões atualizadas para {guarda.nome} e Senha resetada para: Guarda2025@",
-    #             )
-    #         else:
-    #             form.save()
-    #             messages.success(request, f"Permissões atualizadas para {guarda.nome}.")
-    #         return redirect("guarda:readguarda")  # ou outra página de listagem
-    # else:
-    #     form = GuardaGroupForm(instance=guarda)
+    if usuario is None:
+        messages.error(request, f"O guarda {guarda.nome} não possui usuário vinculado.")
+        return redirect("guarda:readguarda")
 
-    # return render(request, "guarda/permissoes.html", {"form": form, "guarda": guarda})
+    if request.method == "POST":
+        senha = request.POST.get("senha")
+        confirmar_senha = request.POST.get("confirmar_senha")
+
+        if not senha or not confirmar_senha:
+            messages.error(request, "Preencha ambos os campos de senha.")
+        elif senha != confirmar_senha:
+            messages.error(request, "As senhas não coincidem.")
+        elif len(senha) < 8:
+            messages.error(request, "A senha deve ter pelo menos 8 caracteres.")
+        elif not re.search(r"[A-Z]", senha):
+            messages.error(
+                request, "A senha deve conter pelo menos uma letra maiúscula."
+            )
+        elif not re.search(r"[a-z]", senha):
+            messages.error(
+                request, "A senha deve conter pelo menos uma letra minúscula."
+            )
+        elif not re.search(r"[0-9]", senha):
+            messages.error(request, "A senha deve conter pelo menos um número.")
+        elif not re.search(r"[!@#$%^&*(),.?\":{}|<>]", senha):
+            messages.error(
+                request, "A senha deve conter pelo menos um caractere especial."
+            )
+        else:
+            usuario.set_password(senha)
+            usuario.trocar_senha = True
+            usuario.save()
+            messages.success(
+                request, f"Senha cadastrada com sucesso para {guarda.nome}!"
+            )
+            return redirect("guarda:readguarda")
+
+    return render(request, "guarda/passwordguarda.html", {"guarda": guarda})
+
+
+@group_required("super", "Direção")
+def permissoes(request, guarda_pk):
+    guarda = get_object_or_404(Guarda.objects.select_related("pessoa"), pk=guarda_pk)
+    usuario = Usuario.objects.filter(pessoa=guarda.pessoa).first()
+
+    if usuario is None:
+        messages.error(request, f"O guarda {guarda.nome} não possui usuário vinculado.")
+        return redirect("guarda:readguarda")
+
+    if request.method == "POST":
+        form = UsuarioGroupForm(request.POST, instance=usuario)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Permissões atualizadas para {guarda.nome}.")
+            return redirect("guarda:readguarda")
+    else:
+        form = UsuarioGroupForm(instance=usuario)
+
+    return render(request, "guarda/permissoes.html", {"form": form, "guarda": guarda})
 
 
 @group_required("super")

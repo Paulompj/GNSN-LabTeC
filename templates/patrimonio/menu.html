@@ -32,7 +32,7 @@
 <nav class="gm-navbar">
 
   <!-- Brand -->
-  <a class="gm-brand" href="{% url 'evento:home' %}">
+  <a class="gm-brand" href="{% url 'patrimonio:home' %}">
     <img src="{% static 'img/brasao_guarda.png' %}" alt="brasão">
     <span class="gm-brand-text">Patrimônio</span>
   </a>
@@ -74,8 +74,8 @@
           </svg>
         </button>
         <div class="gm-dropdown-menu">
-          <a class="gm-dropdown-item" href="{% url 'app:createguarda' %}">Cadastrar</a>
-          <a class="gm-dropdown-item" href="{% url 'app:readguarda' %}">Listar</a>
+          <a class="gm-dropdown-item" href="{% url 'guarda:createguarda' %}">Cadastrar</a>
+          <a class="gm-dropdown-item" href="{% url 'guarda:readguarda' %}">Listar</a>
         </div>
       </div>
       {% endif %}

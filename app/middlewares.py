@@ -9,7 +9,7 @@ class ForcePasswordChangeMiddleware:
     def __call__(self, request):
         if (
                 request.user.is_authenticated
-                and getattr(request.user, "must_change_password", False)
+                and getattr(request.user, "trocar_senha", False)
                 and request.path not in [reverse("app:password_change"), reverse("app:logout")]
         ):
             return redirect("app:password_change")
