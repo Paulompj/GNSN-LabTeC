@@ -1,6 +1,7 @@
 from django.forms import ModelForm
 from django import forms
 from django.contrib.auth.models import Group
+from usuario.models import Usuario
 from .models import Guarda
 
 
@@ -45,5 +46,5 @@ class GuardaGroupForm(forms.ModelForm):
     )
 
     class Meta:
-        model = Guarda
+        model = Usuario
         fields = ["groups"]
