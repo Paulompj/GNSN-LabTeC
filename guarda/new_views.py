@@ -6,6 +6,7 @@ from django.http import HttpResponse
 def home(request):
     return render(request, "index.html")
 
+
 def mirim_home(request):
     return render(request, "index.html")
 
@@ -40,6 +41,7 @@ def admin(request):
 
 def cadastroGuarda(request):
     return render(request, "guarda/cadastroGuarda.html")
+
 
 def delete_object(request):
     # TODO: Implement generic delete logic
