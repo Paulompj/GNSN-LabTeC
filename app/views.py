@@ -457,7 +457,7 @@ def force_change_password(request):
         if form.is_valid():
             senha = form.cleaned_data["new_password1"]
             user.set_password(senha)
-            user.must_change_password = False
+            user.trocar_senha = False
             user.save()
             update_session_auth_hash(request, user)  # mantém o login
             messages.success(request, "Senha alterada com sucesso!")
