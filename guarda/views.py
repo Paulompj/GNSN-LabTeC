@@ -22,11 +22,12 @@ from django.http import JsonResponse
 from django.shortcuts import render
 
 
-from .forms import GuardaForm, GuardaGroupForm
+from .forms import GuardaForm, UsuarioGroupForm
 
 # from app.faiss_index import face_index
 from camisa.models import Camisa
 from .models import Guarda
+from usuario.models import Usuario
 
 
 def group_required(*group_names):
@@ -195,29 +196,23 @@ def passwordguarda(request, idguarda):
 
 @group_required("super", "Direção")
 def permissoes(request, idguarda):
-    return render(request, "index.html")
-    # guarda = get_object_or_404(Guarda, idguarda=idguarda)
+    guarda = get_object_or_404(Guarda.objects.select_related("pessoa"), pk=idguarda)
+    usuario = Usuario.objects.filter(pessoa=guarda.pessoa).first()
 
-    # if request.method == "POST":
-    #     form = GuardaGroupForm(request.POST, instance=guarda)
-    #     if form.is_valid():
-    #         if request.POST.get("reset_senha"):
-    #             guarda.set_password("Guarda2025@")
-    #             guarda.must_change_password = True
-    #             guarda.save()
-    #             form.save()
-    #             messages.success(
-    #                 request,
-    #                 f"Permissões atualizadas para {guarda.nome} e Senha resetada para: Guarda2025@",
-    #             )
-    #         else:
-    #             form.save()
-    #             messages.success(request, f"Permissões atualizadas para {guarda.nome}.")
-    #         return redirect("guarda:readguarda")  # ou outra página de listagem
-    # else:
-    #     form = GuardaGroupForm(instance=guarda)
+    if usuario is None:
+        messages.error(request, f"O guarda {guarda.nome} não possui usuário vinculado.")
+        return redirect("guarda:readguarda")
 
-    # return render(request, "guarda/permissoes.html", {"form": form, "guarda": guarda})
+    if request.method == "POST":
+        form = UsuarioGroupForm(request.POST, instance=usuario)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Permissões atualizadas para {guarda.nome}.")
+            return redirect("guarda:readguarda")
+    else:
+        form = UsuarioGroupForm(instance=usuario)
+
+    return render(request, "guarda/permissoes.html", {"form": form, "guarda": guarda})
 
 
 @group_required("super")

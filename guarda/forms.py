@@ -2,7 +2,6 @@ from django.forms import ModelForm
 from django import forms
 from django.contrib.auth.models import Group
 from usuario.models import Usuario
-from .models import Guarda
 
 
 class GuardaForm(forms.Form):
@@ -37,7 +36,7 @@ class GuardaForm(forms.Form):
             self.fields["matricula"].widget.attrs["disabled"] = "disabled"
 
 
-class GuardaGroupForm(forms.ModelForm):
+class UsuarioGroupForm(forms.ModelForm):
     groups = forms.ModelMultipleChoiceField(
         queryset=Group.objects.exclude(name="super"),
         required=False,
