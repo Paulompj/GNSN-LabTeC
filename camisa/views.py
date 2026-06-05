@@ -111,7 +111,7 @@ def findcamisa(request):
         else:
             request.session["guarda_id"] = guarda.idguarda
             request.session["camisa_id"] = camisa.id
-            return redirect("app:takecamisa")
+            return redirect("camisa:takecamisa")
 
     return render(
         request,
@@ -150,7 +150,7 @@ def takecamisa(request):
     guarda_id = request.session.pop("guarda_id", None)
     camisa_id = request.session.pop("camisa_id", None)
     if not guarda_id or not camisa_id:
-        return redirect("app:findcamisa")  # se não houver dados
+        return redirect("camisa:findcamisa")  # se não houver dados
     # buscar objetos no banco
     guarda = Guarda.objects.get(idguarda=guarda_id)
     print(camisa_id)
@@ -182,7 +182,7 @@ def entregar_camisa(request):
                 messages.error(
                     request, "Informe o nome do recebedor ou marque 'É o próprio'."
                 )
-                return redirect("app:takecamisa")
+                return redirect("camisa:takecamisa")
 
             # Exigir procuração se não for o próprio
             # if not procuracao:
@@ -205,9 +205,9 @@ def entregar_camisa(request):
             request,
             f"A camisa do guarda {guarda.nome} foi entregue com sucesso para {recebedor}!",
         )
-        return redirect("app:takecamisa")
+        return redirect("camisa:takecamisa")
 
-    return redirect("app:takecamisa")
+    return redirect("camisa:takecamisa")
 
 
 @group_required("super", "Direção")
@@ -290,7 +290,7 @@ def changecamisa(request, idcamisa):
                 request,
                 "Nenhuma alteração detectada (tamanho, situação e equipe iguais aos atuais).",
             )
-            return redirect("app:changecamisa", idcamisa=idcamisa)
+            return redirect("camisa:changecamisa", idcamisa=idcamisa)
 
         usuario = request.user if request.user.is_authenticated else None
 
@@ -320,7 +320,7 @@ def changecamisa(request, idcamisa):
             request,
             f"Tamanho, situação e equipe da camisa do guarda {camisa.guarda.nome} atualizados com sucesso!",
         )
-        return redirect("app:readcamisa")
+        return redirect("camisa:readcamisa")
 
     return render(
         request,
@@ -499,7 +499,7 @@ def deletar_camisas_por_ano(request):
                 messages.error(request, "Ano inválido.")
         else:
             messages.error(request, "Informe um ano.")
-        return redirect("app:deletar_camisas_por_ano")
+        return redirect("camisa:deletar_camisas_por_ano")
 
     return render(request, "camisa/deletar_por_ano.html", {"anos": anos})
 
@@ -588,7 +588,7 @@ def createcamisa(request, guarda_id):
 
             camisa.save()
             messages.success(request, "Camisa cadastrada com sucesso.")
-            return redirect("app:readcamisa")
+            return redirect("camisa:readcamisa")
 
         else:
             # 🔴 Tratamento de erro de validação do form
@@ -617,13 +617,13 @@ def importacamisas(request):
 
         if not ano or len(ano) != 4 or not ano.isdigit():
             messages.error(request, "Digite um ano válido com 4 dígitos (ex: 2025).")
-            return redirect("app:importacamisas")
+            return redirect("camisa:importacamisas")
 
         ano_int = int(ano)  # transforma "025" em 2025, "024" em 2024...
 
         if not arquivo:
             messages.error(request, "Selecione um arquivo XLSX para importar.")
-            return redirect("app:importacamisas")
+            return redirect("camisa:importacamisas")
 
         try:
             wb = openpyxl.load_workbook(arquivo)
@@ -708,11 +708,11 @@ def importacamisas(request):
                 request,
                 f"Importação concluída: {count_guarda} guardas criados/atualizados, {count_camisa} camisas inseridas.",
             )
-            return redirect("app:importacamisas")
+            return redirect("camisa:importacamisas")
 
         except Exception as e:
             messages.error(request, f"Erro ao processar o arquivo: {str(e)}")
-            return redirect("app:importacamisas")
+            return redirect("camisa:importacamisas")
 
     return render(request, "camisa/importacamisas.html")
 
