@@ -22,7 +22,7 @@
   <ul class="navbar-nav me-auto mb-2 mb-lg-0">
     <!-- Dropdown Dashboard -->
     {% if request.user.is_authenticated %}
-    <a class="nav-link" href="{% url 'mirim:dashboard' %}">
+    <a class="nav-link" href="{% url 'guarda:dashboard' %}">
       Painel
     </a>
     {% endif %}
@@ -31,7 +31,7 @@
 <nav class="gm-navbar">
 
   <!-- Brand -->
-  <a class="gm-brand" href="{% url 'mirim:home' %}">
+  <a class="gm-brand" href="{% url 'evento:home' %}">
     <img src="{% static 'img/VETOR-GMNSN.png' %}" alt="brasão">
     <span class="gm-brand-text">Guarda Mirim</span>
   </a>
@@ -52,7 +52,7 @@
 
       <!-- Painel (sempre visível para autenticados) -->
       {% if request.user.is_authenticated %}
-      <a class="gm-nav-link" href="{% url 'mirim:dashboard' %}">
+      <a class="gm-nav-link" href="{% url 'guarda:dashboard' %}">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="3" width="7" height="7" />
@@ -81,8 +81,8 @@
           </svg>
         </button>
         <div class="gm-dropdown-menu">
-          <a class="gm-dropdown-item" href="{% url 'mirim:guarda_list' %}">Listar guardas</a>
-          <a class="gm-dropdown-item" href="{% url 'mirim:frequencia_create' %}">Lançar frequência</a>
+          <a class="gm-dropdown-item" href="{% url 'guarda:guarda_list' %}">Listar guardas</a>
+          <a class="gm-dropdown-item" href="{% url 'evento:frequencia_create' %}">Lançar frequência</a>
         </div>
       </div>
       {% endif %}
@@ -106,12 +106,12 @@
         </button>
         <div class="gm-dropdown-menu">
           <div class="gm-dropdown-label">Estrutura</div>
-          <a class="gm-dropdown-item" href="{% url 'mirim:categoria_list' %}">Categoria</a>
-          <a class="gm-dropdown-item" href="{% url 'mirim:local_list' %}">Local</a>
+          <a class="gm-dropdown-item" href="{% url 'evento:categoria_list' %}">Categoria</a>
+          <a class="gm-dropdown-item" href="{% url 'evento:local_list' %}">Local</a>
           <div class="gm-divider"></div>
           <div class="gm-dropdown-label">Eventos</div>
-          <a class="gm-dropdown-item" href="{% url 'mirim:evento_list' %}">Evento</a>
-          <a class="gm-dropdown-item" href="{% url 'mirim:cirio_list' %}">Círio</a>
+          <a class="gm-dropdown-item" href="{% url 'evento:evento_list' %}">Evento</a>
+          <a class="gm-dropdown-item" href="{% url 'cirio:cirio_list' %}">Círio</a>
         </div>
       </div>
       {% endif %}
@@ -196,7 +196,7 @@
       const btn = event.relatedTarget;
       document.getElementById("deleteModel").value = btn.getAttribute("data-model");
       document.getElementById("deletePk").value = btn.getAttribute("data-pk");
-      document.getElementById("deleteForm").action = "{% url 'mirim:delete_object' %}";
+      document.getElementById("deleteForm").action = "{% url 'guarda:delete_object' %}";
     });
   });
 </script>

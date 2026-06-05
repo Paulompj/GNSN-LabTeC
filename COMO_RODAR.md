@@ -54,11 +54,7 @@ python3 manage.py migrate
 # 12. Cria Super User antes de iniciar
 python3 manage.py createsuperuser
 
-# 13. Crie um SEGUNDO sqlite com a NOVA modelagem do banco de dados (Opcional/Experimental)
-# Isso vai ler o arquivo criar_banco_modelagem.sql e gerar um arquivo bd.sqlite3 independente
-python3 executar_sql.py
-
-# 14. Inicia o servidor local
+# 13. Inicia o servidor local
 python3 manage.py runserver
 ```
 

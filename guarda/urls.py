@@ -13,7 +13,31 @@ from .views import (
     reconhecimento_facial,
 )
 
+from .new_views import (
+    dashboard,
+    frequencia,
+    listaGuarda,
+    cadastroEvento,
+    eventos,
+    relatorio,
+    admin,
+    cadastroGuarda,
+)
+
 app_name = "guarda"
+
+new_urlpatterns = [
+    path("home/", home, name="home"),
+    path("dashboard/", dashboard, name="dashboard"),
+    path("frequencia/", frequencia, name="frequencia"),
+    path("guardas/", listaGuarda, name="guardas"),
+    path("cadastro-evento/", cadastroEvento, name="cadastro_evento"),
+    path("eventos/", eventos, name="eventos"),
+    path("relatorio/", relatorio, name="relatorio"),
+    path("admin/", admin, name="admin"),
+    path("cadastro-guarda/", cadastroGuarda, name="cadastro_guarda"),
+]
+
 
 urlpatterns = [
     path("", home, name="home"),
@@ -28,3 +52,5 @@ urlpatterns = [
     path("relatorio/por-equipe/", relatorio_por_equipe, name="relatorio_por_equipe"),
     path("reconhecimento/", reconhecimento_facial, name="reconhecimento_facial"),
 ]
+
+urlpatterns.extend(new_urlpatterns)

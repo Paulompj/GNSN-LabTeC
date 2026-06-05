@@ -5,7 +5,7 @@
     <div class="container mt-4">
         <div class="d-flex justify-content-between mb-3">
             <h3>Eventos</h3>
-            <a href="{% url 'mirim:evento_create' %}" class="btn btn-primary">Novo Evento</a>
+            <a href="{% url 'evento:evento_create' %}" class="btn btn-primary">Novo Evento</a>
         </div>
 
         <div class="table-responsive">
@@ -27,8 +27,8 @@
                         <td>{{ e.data }}</td>
                         <td>{{ e.hora }}</td>
                         <td class="text-end">
-                            <a href="{% url 'mirim:checkin_evento' e.id %}"class="btn btn-sm btn-success">Lançar Frequência</a>
-                            <a href="{% url 'mirim:evento_update' e.id %}"
+                            <a href="{% url 'evento:checkin_evento' e.id %}"class="btn btn-sm btn-success">Lançar Frequência</a>
+                            <a href="{% url 'evento:evento_update' e.id %}"
                                class="btn btn-sm btn-warning">Editar</a>
 
                             <button class="btn btn-sm btn-danger"

@@ -1,0 +1,434 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Perfil Mirim
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block topbar_action %}
+<button class="export-btn" id="exportBtn" onclick="gerarCarteira()">
+  <i class="ti ti-qrcode" style="font-size:18px;"></i>
+  QRCode
+</button>
+{% endblock %}
+
+{% block body %}
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+<!-- MODAL CARTEIRINHA Incompleto -->
+<div class="modal" id="modalCarteira">
+
+  <div class="modal-content">
+
+    <div class="card-top">
+
+      <div class="card-photo">
+        <img src="{% static 'img/lucas_andre1.png' %}" alt="Foto do guarda">
+      </div>
+
+      <div class="guard-name">
+        Lucas Andre Oliveira Pinheiro
+      </div>
+
+      <div class="guard-sub">
+        Matrícula 3517 · Guarda Mirim
+      </div>
+
+    </div>
+
+    <div class="card-body-qr">
+
+      <div id="qrcode"></div>
+
+      <div class="card-footer-info">
+        Apresente este QR Code para validar presença nos eventos.
+      </div>
+
+      <button class="close" type="button" onclick="fecharCarteira()">
+        <i class="ti ti-x"></i>
+        Fechar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div class="wrap">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-avatar">
+      <img src="{% static 'img/lucas_andre1.png' %}" alt="Foto do guarda">
+    </div>
+    <p class="hero-name">Lucas Andre Oliveira Pinheiro</p>
+    <p class="hero-sub">Matrícula. 3517 &middot; Guarda Mirim</p>
+
+
+  </div>
+
+  <div class="body">
+
+    <!-- Jornada para o Círio 2026 -->
+    <div class="card-base cirio-card">
+      <div class="cirio-header">
+        <i class="ti ti-map-2 cirio-icon" aria-hidden="true"></i>
+        <div>
+          <div class="cirio-title">Jornada para o Círio 2026</div>
+          <p class="cirio-sub">Complete 25 presenças em missas para participar!</p>
+        </div>
+      </div>
+
+      <div class="progress-header">
+        <span class="progress-count">17 de 25 presenças</span>
+        <span class="progress-pct">68%</span>
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-fill" style="width:68%;"></div>
+      </div>
+
+      <!-- Legenda da barra -->
+      <div class="progress-label-row">
+        <span><span class="dot-red"></span> Inapto</span>
+        <span><span class="dot-green"></span> Apto</span>
+      </div>
+
+      <p class="cirio-footer">
+        Faltam <strong>8 presenças</strong> para o Círio 2026!
+      </p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="icon-card">
+          <i class="ti ti-calendar-check stat-icon" style="color:#85B7EB;" aria-hidden="true"></i>
+        </div>
+        <div class="stat-text">
+          <div class="stat-value azul">22</div>
+          <div class="stat-label" style="color: #6b7280;">Presenças totais</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="icon-card">
+          <svg width="30px" height="30px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+            <g id="SVGRepo_iconCarrier">
+              <path
+                d="M12.0002 8L8.79795 9.5611C8.14576 9.87904 7.81967 10.038 7.58124 10.278C7.37041 10.4903 7.20988 10.7471 7.11148 11.0297C7.0002 11.3492 7.0002 11.7119 7.0002 12.4375V21H17.0002V12.4375C17.0002 11.7119 17.0002 11.3492 16.8889 11.0297C16.7905 10.7471 16.63 10.4903 16.4192 10.278C16.1807 10.038 15.8546 9.87904 15.2024 9.5611L12.0002 8ZM12.0002 8V3M14.0002 5H10.0002M7.0002 13L4.76897 14.1156C4.12683 14.4366 3.80576 14.5971 3.57118 14.8366C3.36374 15.0484 3.20598 15.3037 3.10931 15.5839C3 15.9009 3 16.2598 3 16.9778V21H21V16.9777C21 16.2598 21 15.9008 20.8907 15.5839C20.794 15.3037 20.6363 15.0484 20.4289 14.8366C20.1943 14.5971 19.8732 14.4366 19.2311 14.1155L17.0002 13M14.0002 21V17C14.0002 15.8954 13.1048 15 12.0002 15C10.8956 15 10.0002 15.8954 10.0002 17V21H14.0002Z"
+                stroke="#85B7EB" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path>
+            </g>
+          </svg>
+        </div>
+        <div class="stat-text">
+          <div class="stat-value azul">17</div>
+          <div class="stat-label" style="color: #6b7280;">Missas</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="icon-card">
+          <svg width="30px" height="30px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+            <g id="SVGRepo_iconCarrier">
+              <path
+                d="M7 7.6589C6.36815 7.18374 6 6.61337 6 6C6 4.34315 8.68629 3 12 3C15.3137 3 18 4.34315 18 6C18 6.61337 17.6318 7.18374 17 7.6589M21 21H17.5M21 21L19.8842 18.7683C19.7434 18.4869 19.6731 18.3461 19.6156 18.2055C19.2935 17.4168 19.2316 16.5459 19.439 15.7195C19.4759 15.5722 19.5257 15.423 19.6252 15.1244L19.9211 14.2368C20.3884 12.8347 19.1238 11.4691 17.69 11.8275C17.2341 11.9415 16.8037 12.1402 16.4213 12.4134L13.3007 14.6509M21 21H17M3 21H6.5M3 21L4.11583 18.7683C4.25657 18.4869 4.32695 18.3461 4.38437 18.2055C4.7065 17.4168 4.76839 16.5459 4.56104 15.7195C4.52408 15.5722 4.47432 15.423 4.3748 15.1244L4.07893 14.2368C3.61157 12.8347 4.87622 11.4691 6.31001 11.8275C6.76593 11.9415 7.19633 12.1402 7.57875 12.4134L10.6993 14.6509M3 21H7M13.3007 14.6509C13.7125 15.0824 14.1347 15.8424 14.7973 17.0351L17 21M13.3007 14.6509C13.145 14.4877 12.9907 14.3714 12.8255 14.2966C12.3009 14.0588 11.6991 14.0588 11.1745 14.2966C11.0093 14.3714 10.855 14.4877 10.6993 14.6509M10.6993 14.6509C10.2875 15.0824 9.86531 15.8424 9.2027 17.0351L7 21M17 21H7M14 9C14 10.1046 13.1046 11 12 11C10.8954 11 10 10.1046 10 9C10 7.89543 10.8954 7 12 7C13.1046 7 14 7.89543 14 9Z"
+                stroke="#85B7EB" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path>
+            </g>
+          </svg>
+        </div>
+        <div class="stat-text">
+          <div class="stat-value azul">5</div>
+          <div class="stat-label" style="color: #6b7280;">Adorações</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nível 
+    <div class="card-base">
+      <div class="nivel-header">
+        <span class="nivel-title">Nível atual</span>
+        <span class="nivel-badge">
+          <i class="ti ti-shield" style="font-size:12px;vertical-align:-1px;" aria-hidden="true"></i>
+          Aspirante
+        </span>
+      </div>
+      <div class="xp-track">
+        <div class="xp-fill" style="width:68%;"></div>
+      </div>
+      <div class="xp-labels">
+        <span>340 XP</span>
+        <span>Próximo: Guarda &middot; 500 XP</span>
+      </div>
+    </div>-->
+
+    <!-- Conquistas 
+    <p class="section-title">Conquistas</p>
+    <div class="badges-grid">
+      <div class="badge-item earned">
+        <i class="ti ti-calendar-check badge-icon" style="color:#378ADD;" aria-hidden="true"></i>
+        <span class="badge-name">1ª presença</span>
+      </div>
+      <div class="badge-item earned">
+        <i class="ti ti-star badge-icon" style="color:#378ADD;" aria-hidden="true"></i>
+        <span class="badge-name">10 presenças</span>
+      </div>
+      <div class="badge-item">
+        <i class="ti ti-map-2 badge-icon" aria-hidden="true"></i>
+        <span class="badge-name">No Círio</span>
+      </div>
+      <div class="badge-item">
+        <i class="ti ti-trophy badge-icon" aria-hidden="true"></i>
+        <span class="badge-name">25 presenças</span>
+      </div>
+      <div class="badge-item">
+        <i class="ti ti-shield badge-icon" aria-hidden="true"></i>
+        <span class="badge-name">Guarda</span>
+      </div>
+      <div class="badge-item">
+        <i class="ti ti-crown badge-icon" aria-hidden="true"></i>
+        <span class="badge-name">Veterano</span>
+      </div>
+      <div class="badge-item">
+        <i class="ti ti-heart badge-icon" aria-hidden="true"></i>
+        <span class="badge-name">Devoto</span>
+      </div>
+    </div>-->
+
+    <!-- Eventos: busca + filtros -->
+    <p class="section-title">Histórico de eventos</p>
+
+    <div class="eventos-header">
+      <div class="search-box">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input type="text" id="searchInput" placeholder="Buscar evento..." autocomplete="off">
+        <button class="clear-btn" id="clearBtn" aria-label="Limpar busca">
+          <i class="ti ti-x"></i>
+        </button>
+      </div>
+
+      <div class="filter-tags">
+        <button class="filter-tag all active" data-cat="all">
+          <i class="ti ti-layout-list" style="font-size:12px;"></i> Todos
+        </button>
+        <button class="filter-tag missa" data-cat="missa">
+          <i class="ti ti-building-church" style="font-size:12px;"></i> Missa
+        </button>
+        <button class="filter-tag ensaio" data-cat="ensaio">
+          <i class="ti ti-music" style="font-size:12px;"></i> Ensaio
+        </button>
+        <button class="filter-tag reuniao" data-cat="reuniao">
+          <i class="ti ti-users" style="font-size:12px;"></i> Reunião
+        </button>
+        <button class="filter-tag cirio" data-cat="cirio">
+          <i class="ti ti-map-2" style="font-size:12px;"></i> Círio
+        </button>
+      </div>
+    </div>
+
+    <div class="card-base" style="padding: 0.5rem 1.25rem;">
+      <div class="events-list" id="eventsList">
+
+        <div class="event-row" data-cat="missa" data-name="missa solene">
+          <div class="event-dot dot-amber"></div>
+          <div class="event-info">
+            <div class="event-name">Missa solene</div>
+            <div class="event-date">12 Abr &middot; 09:00 &middot; Basílica de Nazaré</div>
+          </div>
+          <span class="event-cat cat-missa">Missa</span>
+          <span class="event-pres pres-fut">Agendado</span>
+        </div>
+
+        <div class="event-row" data-cat="ensaio" data-name="ensaio geral">
+          <div class="event-dot dot-blue"></div>
+          <div class="event-info">
+            <div class="event-name">Ensaio geral</div>
+            <div class="event-date">09 Abr &middot; 19:00 &middot; Sede</div>
+          </div>
+          <span class="event-cat cat-ensaio">Ensaio</span>
+          <span class="event-pres pres-sim">Presente</span>
+        </div>
+
+        <div class="event-row" data-cat="reuniao" data-name="reunião de formação">
+          <div class="event-dot dot-blue"></div>
+          <div class="event-info">
+            <div class="event-name">Reunião de formação</div>
+            <div class="event-date">07 Abr &middot; 18:00 &middot; Sede</div>
+          </div>
+          <span class="event-cat cat-reuniao">Reunião</span>
+          <span class="event-pres pres-sim">Presente</span>
+        </div>
+
+        <div class="event-row" data-cat="ensaio" data-name="ensaio formação mirim">
+          <div class="event-dot dot-blue"></div>
+          <div class="event-info">
+            <div class="event-name">Ensaio formação mirim</div>
+            <div class="event-date">03 Abr &middot; 17:00 &middot; Sede</div>
+          </div>
+          <span class="event-cat cat-ensaio">Ensaio</span>
+          <span class="event-pres pres-sim">Presente</span>
+        </div>
+
+        <div class="event-row" data-cat="missa" data-name="missa dominical">
+          <div class="event-dot dot-gray"></div>
+          <div class="event-info">
+            <div class="event-name">Missa dominical</div>
+            <div class="event-date">30 Mar &middot; 09:00 &middot; Basílica de Nazaré</div>
+          </div>
+          <span class="event-cat cat-missa">Missa</span>
+          <span class="event-pres pres-nao">Ausente</span>
+        </div>
+
+        <div class="event-row" data-cat="reuniao" data-name="reunião de coordenação">
+          <div class="event-dot dot-blue"></div>
+          <div class="event-info">
+            <div class="event-name">Reunião de coordenação</div>
+            <div class="event-date">28 Mar &middot; 18:00 &middot; Sede</div>
+          </div>
+          <span class="event-cat cat-reuniao">Reunião</span>
+          <span class="event-pres pres-sim">Presente</span>
+        </div>
+
+        <div class="event-row" data-cat="cirio" data-name="ensaio do círio">
+          <div class="event-dot dot-blue"></div>
+          <div class="event-info">
+            <div class="event-name">Ensaio do Círio</div>
+            <div class="event-date">20 Mar &middot; 07:00 &middot; Av. Nazaré</div>
+          </div>
+          <span class="event-cat cat-cirio">Círio</span>
+          <span class="event-pres pres-sim">Presente</span>
+        </div>
+
+      </div>
+      <p class="no-results" id="noResults">
+        <i class="ti ti-search-off" style="font-size:24px;display:block;margin-bottom:6px;"></i>
+        Nenhum evento encontrado.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const searchInput = document.getElementById('searchInput');
+  const clearBtn = document.getElementById('clearBtn');
+  const noResults = document.getElementById('noResults');
+  const rows = document.querySelectorAll('.event-row');
+  const filterBtns = document.querySelectorAll('.filter-tag');
+
+  let activeFilter = 'all';
+  let searchTerm = '';
+
+  function applyFilters() {
+    let visible = 0;
+    rows.forEach(row => {
+      const cat = row.dataset.cat;
+      const name = row.dataset.name;
+      const matchCat = activeFilter === 'all' || cat === activeFilter;
+      const matchSearch = name.includes(searchTerm.toLowerCase().trim());
+      if (matchCat && matchSearch) {
+        row.classList.remove('hidden');
+        visible++;
+      } else {
+        row.classList.add('hidden');
+      }
+    });
+    noResults.style.display = visible === 0 ? 'block' : 'none';
+  }
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.cat;
+      applyFilters();
+    });
+  });
+
+  searchInput.addEventListener('input', () => {
+    searchTerm = searchInput.value;
+    clearBtn.style.display = searchTerm ? 'block' : 'none';
+    applyFilters();
+  });
+
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    searchTerm = '';
+    clearBtn.style.display = 'none';
+    applyFilters();
+    searchInput.focus();
+  });
+  /* GERAR CARTEIRA */
+  function gerarCarteira() {
+
+    const modal = document.getElementById("modalCarteira");
+
+    /* abre modal */
+    modal.style.display = "flex";
+
+    /* trava scroll da página */
+    document.body.style.overflow = "hidden";
+
+    const dadosGuarda = {
+      nome: "Lucas Andre Oliveira Pinheiro",
+      matricula: "3517",
+      tipo: "Guarda Mirim",
+      observação: "Aspirante",
+      status: "Ativo"
+    };
+
+    const qr = document.getElementById("qrcode");
+
+    qr.innerHTML = "";
+
+    QRCode.toCanvas(
+      JSON.stringify(dadosGuarda),
+      { width: 220 },
+
+      function (error, canvas) {
+
+        if (error) {
+          console.error(error);
+          return;
+        }
+
+        qr.appendChild(canvas);
+      }
+    );
+  }
+
+  /* FECHAR */
+  function fecharCarteira() {
+
+    const modal = document.getElementById("modalCarteira");
+
+    modal.style.display = "none";
+
+    /* libera scroll novamente */
+    document.body.style.overflow = "auto";
+  }
+
+  /* FECHAR AO CLICAR FORA */
+  window.addEventListener("click", function (event) {
+
+    const modal = document.getElementById("modalCarteira");
+
+    if (event.target === modal) {
+      fecharCarteira();
+    }
+
+  });
+
+
+
+</script>
+
+{% endblock %}
