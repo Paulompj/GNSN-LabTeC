@@ -173,7 +173,7 @@
                             style="color: #2D5A9E; font-size: 0.875rem; letter-spacing: 0.05em;">Registrar Presença</h3>
                     </div>
 
-                    <form method="POST" action="{% url 'evento:registrar_frequencia' %}">
+                    <form method="POST" action="{% url 'guarda:frequencia' %}">
                         {% csrf_token %}
 
                         <div class="mb-3">

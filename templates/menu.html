@@ -3,7 +3,11 @@
 {% load mascara %}
 
 {% block menu %}
-    {% include request.resolver_match.app_name|add:"/menu.html" %}
+    {% if 'mirim' in request.path %}
+        {% include "guarda/menu_legacy.html" %}
+    {% else %}
+        {% include request.resolver_match.app_name|add:"/menu.html" %}
+    {% endif %}
 
     <!-- Mensagens do Django -->
     {% if messages %}

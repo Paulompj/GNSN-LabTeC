@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block topbar_action %}
-<a href="{% url 'evento:cadastro_evento' %}" style="text-decoration: none;" class="add-btn">
+<a href="{% url 'guarda:cadastro_evento' %}" style="text-decoration: none;" class="add-btn">
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
     <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
   </svg>
@@ -59,7 +59,7 @@
 
   {% if eventos %}
   {% for evento in eventos %}
-  <a class="event-card" href="{% url 'evento:detalhe_evento' evento.id %}" data-categoria="{{ evento.categoria.nome }}"
+  <a class="event-card" href="#" data-categoria="{{ evento.categoria.nome }}"
     style="animation-delay: {{ forloop.counter0 }} 0ms">
 
     {# DATE BADGE #}

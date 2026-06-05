@@ -22,12 +22,15 @@ from .new_views import (
     relatorio,
     admin,
     cadastroGuarda,
+    mirim_home,
+    delete_object,
 )
 
 app_name = "guarda"
 
 new_urlpatterns = [
     path("home/", home, name="home"),
+    path("mirim/home/", mirim_home, name="mirim_home"),
     path("dashboard/", dashboard, name="dashboard"),
     path("frequencia/", frequencia, name="frequencia"),
     path("guardas/", listaGuarda, name="guardas"),
@@ -36,6 +39,7 @@ new_urlpatterns = [
     path("relatorio/", relatorio, name="relatorio"),
     path("admin/", admin, name="admin"),
     path("cadastro-guarda/", cadastroGuarda, name="cadastro_guarda"),
+    path("delete-object/", delete_object, name="delete_object"),
 ]
 
 

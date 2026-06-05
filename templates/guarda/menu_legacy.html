@@ -31,7 +31,7 @@
 <nav class="gm-navbar">
 
   <!-- Brand -->
-  <a class="gm-brand" href="{% url 'evento:home' %}">
+  <a class="gm-brand" href="{% url 'guarda:mirim_home' %}">
     <img src="{% static 'img/VETOR-GMNSN.png' %}" alt="brasão">
     <span class="gm-brand-text">Guarda Mirim</span>
   </a>
@@ -65,7 +65,6 @@
       {% endif %}
 
       <!-- Dropdown Guarda -->
-      {% if request.user.is_superuser or request.user|has_group:"super" or request.user|has_group:"Mirim_adm" %}
       <div class="gm-dropdown" id="ddGuarda">
         <button class="gm-nav-link" onclick="toggleDD('ddGuarda')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -81,14 +80,12 @@
           </svg>
         </button>
         <div class="gm-dropdown-menu">
-          <a class="gm-dropdown-item" href="{% url 'guarda:guarda_list' %}">Listar guardas</a>
-          <a class="gm-dropdown-item" href="{% url 'evento:frequencia_create' %}">Lançar frequência</a>
+          <a class="gm-dropdown-item" href="{% url 'guarda:guardas' %}">Listar guardas</a>
+          <a class="gm-dropdown-item" href="{% url 'guarda:frequencia' %}">Lançar frequência</a>
         </div>
       </div>
-      {% endif %}
 
       <!-- Dropdown Cadastros -->
-      {% if request.user.is_superuser or request.user|has_group:"super" or request.user|has_group:"Mirim_adm" %}
       <div class="gm-dropdown" id="ddCadastros">
         <button class="gm-nav-link" onclick="toggleDD('ddCadastros')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -106,15 +103,14 @@
         </button>
         <div class="gm-dropdown-menu">
           <div class="gm-dropdown-label">Estrutura</div>
-          <a class="gm-dropdown-item" href="{% url 'evento:categoria_list' %}">Categoria</a>
-          <a class="gm-dropdown-item" href="{% url 'evento:local_list' %}">Local</a>
+          <a class="gm-dropdown-item" href="#">Categoria</a>
+          <a class="gm-dropdown-item" href="#">Local</a>
           <div class="gm-divider"></div>
           <div class="gm-dropdown-label">Eventos</div>
-          <a class="gm-dropdown-item" href="{% url 'evento:evento_list' %}">Evento</a>
-          <a class="gm-dropdown-item" href="{% url 'cirio:cirio_list' %}">Círio</a>
+          <a class="gm-dropdown-item" href="{% url 'guarda:eventos' %}">Evento</a>
+          <a class="gm-dropdown-item" href="{% url 'guarda:cadastro_evento' %}">Cadastrar Evento</a>
         </div>
       </div>
-      {% endif %}
 
     </div>
 
