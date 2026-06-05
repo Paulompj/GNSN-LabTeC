@@ -60,9 +60,15 @@
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="importarDropdown">
                                 <li><a class="dropdown-item" href="{% url 'guarda:importaguardas' %}">Guardas</a></li>
-                                <li><a class="dropdown-item" href="{% url 'camisa:importacamisas' %}">Camisas</a></li>
+                                {% url 'camisa:importacamisas' as importacamisas_url %}
+                                {% if importacamisas_url %}
+                                    <li><a class="dropdown-item" href="{{ importacamisas_url }}">Camisas</a></li>
+                                {% endif %}
                                 <li><a class="dropdown-item" href="{% url 'app:importarapoio' %}">Apoio</a></li>
-                                <li><a class="dropdown-item" href="{% url 'camisa:deletar_camisas_por_ano' %}">Deletar Camisas</a></li>
+                                {% url 'camisa:deletar_camisas_por_ano' as deletar_camisas_url %}
+                                {% if deletar_camisas_url %}
+                                    <li><a class="dropdown-item" href="{{ deletar_camisas_url }}">Deletar Camisas</a></li>
+                                {% endif %}
                             </ul>
                         </li>
                     {% endif %}
