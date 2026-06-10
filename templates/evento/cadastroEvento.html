@@ -42,12 +42,9 @@ Cadastrar evento
     </div>
     <select class="select" id="categoria_id" onchange="onFieldChange()">
       <option value="">Selecione a categoria…</option>
-      <option value="1">Missa</option>
-      <option value="2">Ensaio</option>
-      <option value="3">Reunião</option>
-      <option value="4">Círio</option>
-      <option value="5">Treino</option>
-      <option value="6">Formação</option>
+      {% for categoria in categorias %}
+        <option value="{{ categoria.pk }}">{{ categoria.nome }}</option>
+      {% endfor %}
     </select>
     <div class="field-error" id="err-categoria">Selecione uma categoria</div>
   </div>
@@ -60,11 +57,9 @@ Cadastrar evento
     <div class="input-wrap">
       <select class="select" id="local_id" onchange="onFieldChange()">
         <option value="">Selecione o local…</option>
-        <option value="1">Igreja da Sé</option>
-        <option value="2">Igreja de Nazaré</option>
-        <option value="3">Sede da Guarda</option>
-        <option value="4">Praça Santuário</option>
-        <option value="5">Auditório Paroquial</option>
+        {% for local in locais %}
+          <option value="{{ local.pk }}">{{ local.nome }}</option>
+        {% endfor %}
       </select>
     </div>
     <div class="field-error" id="err-local">Selecione um local</div>
@@ -200,11 +195,15 @@ Cadastrar evento
   <span id="toastMsg">Evento cadastrado com sucesso!</span>
 </div>
 
+{{ categorias_por_id|json_script:"categorias-por-id" }}
+{{ locais_por_id|json_script:"locais-por-id" }}
+{% csrf_token %}
+
 <script>
 let facialOn = false;
 
-const cats  = { 1:'Missa', 2:'Ensaio', 3:'Reunião', 4:'Círio', 5:'Treino', 6:'Formação' };
-const locs  = { 1:'Igreja da Sé', 2:'Igreja de Nazaré', 3:'Sede da Guarda', 4:'Praça Santuário', 5:'Auditório Paroquial' };
+const cats = JSON.parse(document.getElementById('categorias-por-id').textContent);
+const locs = JSON.parse(document.getElementById('locais-por-id').textContent);
 
 function toggleFacial() {
   facialOn = !facialOn;
@@ -255,7 +254,7 @@ function validate() {
   return ok;
 }
 
-function submitForm() {
+async function submitForm() {
   if (!validate()) {
     showToast('Preencha os campos obrigatórios', true);
     return;
@@ -264,23 +263,38 @@ function submitForm() {
   btn.classList.add('loading');
   btn.disabled = true;
 
-  const payload = {
-    categoria_id: parseInt(document.getElementById('categoria_id').value),
-    local_id:     parseInt(document.getElementById('local_id').value),
-    data:         document.getElementById('data').value,
-    hora:         document.getElementById('hora').value + ':00',
-    reconhecimento_facial: facialOn ? 1 : 0,
-    observacao:   document.getElementById('observacao').value || null,
-  };
+  const dadosEvento = new URLSearchParams({
+    categoria_id: document.getElementById('categoria_id').value,
+    local_id: document.getElementById('local_id').value,
+    data: document.getElementById('data').value,
+    hora: document.getElementById('hora').value,
+  });
 
-  console.log('POST /eventos', payload);
+  try {
+    const resposta = await fetch(window.location.href, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      body: dadosEvento,
+    });
+    const contentType = resposta.headers.get('content-type') || '';
+    const resultado = contentType.includes('application/json') ? await resposta.json() : {};
 
-  setTimeout(() => {
+    if (!resposta.ok || !resultado.ok) {
+      throw new Error(resultado.error || 'Não foi possível cadastrar o evento.');
+    }
+
+    showToast(resultado.message || 'Evento cadastrado com sucesso!', false);
+    setTimeout(() => {
+      window.location.href = resultado.redirect_url;
+    }, 900);
+  } catch (erro) {
     btn.classList.remove('loading');
     btn.disabled = false;
-    showToast('Evento cadastrado com sucesso!', false);
-    setTimeout(resetForm, 1800);
-  }, 1200);
+    showToast(erro.message, true);
+  }
 }
 
 function resetForm() {

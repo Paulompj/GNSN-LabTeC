@@ -23,7 +23,7 @@
                     <tr>
                         <td>{{ local.nome }}</td>
                         <td>
-                            {% if local.ativo %}
+                            {% if local.is_ativo %}
                                 <span class="badge bg-success">Ativo</span>
                             {% else %}
                                 <span class="badge bg-secondary">Inativo</span>
@@ -34,18 +34,20 @@
                             <a href="{% url 'evento:local_update' local.id %}"
                                class="btn btn-sm btn-warning">Editar</a>
 
-                            <button class="btn btn-sm btn-danger"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#deleteModal"
-                                    data-model="local"
-                                    data-pk="{{ local.id }}">
-                                Excluir
-                            </button>
+                            <form method="post"
+                                  action="{% url 'evento:local_delete' local.id %}"
+                                  class="d-inline"
+                                  onsubmit="return confirm('Excluir este local?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    Excluir
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="3" class="text-center">
+                        <td colspan="4" class="text-center">
                             Nenhum local cadastrado.
                         </td>
                     </tr>
