@@ -23,7 +23,7 @@
                     <tr>
                         <td>{{ categoria.nome }}</td>
                         <td>
-                            {% if categoria.ativo %}
+                            {% if categoria.is_ativo %}
                                 <span class="badge bg-success">Ativa</span>
                             {% else %}
                                 <span class="badge bg-secondary">Inativa</span>
@@ -34,18 +34,20 @@
                             <a href="{% url 'evento:categoria_update' categoria.id %}"
                                class="btn btn-sm btn-warning">Editar</a>
 
-                            <button class="btn btn-sm btn-danger"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#deleteModal"
-                                    data-model="categoria"
-                                    data-pk="{{ categoria.id }}">
-                                Excluir
-                            </button>
+                            <form method="post"
+                                  action="{% url 'evento:categoria_delete' categoria.id %}"
+                                  class="d-inline"
+                                  onsubmit="return confirm('Excluir esta categoria?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    Excluir
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="3" class="text-center">
+                        <td colspan="4" class="text-center">
                             Nenhuma categoria cadastrada.
                         </td>
                     </tr>
