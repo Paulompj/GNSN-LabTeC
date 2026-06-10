@@ -1,7 +1,8 @@
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.shortcuts import render
 
+from evento.models import Evento
 from .models import Guarda
 
 
@@ -76,7 +77,12 @@ def cadastroEvento(request):
 
 
 def eventos(request):
-    return render(request, "evento/eventos.html")
+    eventos = (
+        Evento.objects.select_related("categoria", "local")
+        .annotate(total_presencas=Count("frequencias"))
+        .order_by("-data", "-hora")
+    )
+    return render(request, "evento/eventos.html", {"eventos": eventos})
 
 
 def relatorio(request):
