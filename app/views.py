@@ -1,5 +1,6 @@
 import json
-import faiss
+
+# import faiss
 import openpyxl
 import numpy as np
 
@@ -7,12 +8,14 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q, Sum
 from django.utils import timezone
 
 from .forms import ForceChangePasswordForm
-from camisa.models import Camisa, CamisaGuardaApoio
-from guarda.models import Guarda, GuardaApoio
+from camisa.models import Camisa
+from guarda.models import Guarda
+from pessoa.models import Pessoa
 
 
 @login_required
@@ -152,23 +155,54 @@ def importar_apoio(request):
     return render(request, "importarapoio.html")
 
 
+def _resolver_username(identificador):
+    """Resolve o campo de login (Usuario.usuario) a partir de um identificador
+    que pode ser a matrícula do Guarda ou o e-mail da Pessoa."""
+    if not identificador:
+        return None
+    identificador = identificador.strip()
+
+    if "@" in identificador:
+        # e-mail da Pessoa -> Usuario vinculado
+        try:
+            pessoa = Pessoa.objects.select_related("usuario").get(
+                email__iexact=identificador
+            )
+            return pessoa.usuario.usuario
+        except ObjectDoesNotExist:
+            return None
+
+    # matrícula do Guarda -> Pessoa -> Usuario vinculado
+    try:
+        guarda = Guarda.objects.select_related("pessoa__usuario").get(
+            matricula=identificador
+        )
+        return guarda.pessoa.usuario.usuario
+    except ObjectDoesNotExist:
+        return None
+
+
 def login_guarda(request):
     if request.user.is_authenticated:
         return redirect("app:home")
     if request.method == "POST":
-        matricula = request.POST.get("matricula")
+        identificador = request.POST.get("username")
         senha = request.POST.get("senha")
-        print(matricula)
-        print(int(matricula))
-        print(senha)
 
-        user = authenticate(request, matricula=int(matricula), password=senha)
-        print(user)
+        # O usuário pode informar a matrícula do guarda ou o e-mail da pessoa;
+        # ambos são resolvidos para o campo de login (USERNAME_FIELD = "usuario").
+        username = _resolver_username(identificador)
+        user = (
+            authenticate(request, usuario=username, password=senha)
+            if username
+            else None
+        )
+
         if user is not None:
             login(request, user)
             return redirect("app:home")  # página após login
-        else:
-            messages.warning(request, "Matrícula ou senha incorretos.")
+
+        messages.warning(request, "Usuário ou senha incorretos.")
     return render(request, "login.html")
 
 
@@ -423,7 +457,7 @@ def force_change_password(request):
         if form.is_valid():
             senha = form.cleaned_data["new_password1"]
             user.set_password(senha)
-            user.must_change_password = False
+            user.trocar_senha = False
             user.save()
             update_session_auth_hash(request, user)  # mantém o login
             messages.success(request, "Senha alterada com sucesso!")
@@ -518,25 +552,25 @@ def monitoramento(request):
     return render(request, "monitoramento.html", context)
 
 
-def carregar_faiss_index():
-    """
-    Carrega todos os encodings do banco de dados e cria um índice FAISS na RAM.
-    """
-    guardas = Guarda.objects.exclude(encoding__isnull=True)
-    if not guardas:
-        return None, [], []
+# def carregar_faiss_index():
+#     """
+#     Carrega todos os encodings do banco de dados e cria um índice FAISS na RAM.
+#     """
+#     guardas = Guarda.objects.exclude(encoding__isnull=True)
+#     if not guardas:
+#         return None, [], []
 
-    encodings = []
-    ids = []
-    for g in guardas:
-        try:
-            enc = np.frombuffer(g.encoding, dtype=np.float64)
-            encodings.append(enc)
-            ids.append(g.idguarda)
-        except Exception:
-            continue
+#     encodings = []
+#     ids = []
+#     for g in guardas:
+#         try:
+#             enc = np.frombuffer(g.encoding, dtype=np.float64)
+#             encodings.append(enc)
+#             ids.append(g.idguarda)
+#         except Exception:
+#             continue
 
-    encodings = np.array(encodings).astype("float32")
-    index = faiss.IndexFlatL2(encodings.shape[1])  # busca por distância euclidiana
-    index.add(encodings)
-    return index, ids, encodings
+#     encodings = np.array(encodings).astype("float32")
+#     index = faiss.IndexFlatL2(encodings.shape[1])  # busca por distância euclidiana
+#     index.add(encodings)
+#     return index, ids, encodings

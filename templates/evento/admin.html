@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/admin.css' %}">
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+{% endblock %}
+
+{% block topbar_action %}
+<a href="{% url 'guarda:cadastro_evento' %}" class="add-btn" style="text-decoration:none;">
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+    <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+  </svg>
+  Novo evento
+</a>
+{% endblock %}
+
+{% block body %}
+<div class="dashboard-wrap">
+
+  <!-- HERO -->
+  <div class="hero-strip">
+
+    <div class="hero-label">
+      Painel administrativo
+    </div>
+
+    <div class="hero-title">
+      Dashboard da Guarda Mirim
+    </div>
+
+    <div class="hero-sub">
+      Controle geral de frequência, eventos e desempenho dos guardas
+    </div>
+
+  </div>
+
+  <!-- STATS -->
+<div class="stats-grid">
+
+  <div class="stat-card">
+    <div class="card-icon">
+      <i class="ti ti-users"></i>
+    </div>
+
+    <div class="card-value">
+      124
+    </div>
+
+    <div class="card-label">
+      Guardas ativos
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="card-icon">
+      <i class="ti ti-calendar-event"></i>
+    </div>
+
+    <div class="card-value">
+      18
+    </div>
+
+    <div class="card-label">
+      Eventos do mês
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="card-icon">
+      <i class="ti ti-chart-bar"></i>
+    </div>
+
+    <div class="card-value">
+      78%
+    </div>
+
+    <div class="card-label">
+      Frequência média
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="card-icon">
+      <i class="ti ti-alert-circle"></i>
+    </div>
+
+    <div class="card-value">
+      12
+    </div>
+
+    <div class="card-label">
+      Em risco
+    </div>
+  </div>
+
+</div>
+
+  <!-- ALERTAS -->
+  <div class="section">
+
+    <div class="section-title">
+      Alertas importantes
+    </div>
+
+    <div class="alert-card">
+
+      <div class="alert-icon">
+        <i class="ti ti-alert-triangle"></i>
+      </div>
+
+      <div>
+        <div class="alert-title">
+          Guardas com baixa frequência
+        </div>
+
+        <div class="alert-sub">
+          12 guardas estão abaixo de 50% de presença nos últimos eventos.
+        </div>
+      </div>
+
+    </div>
+
+    <div class="alert-card">
+
+      <div class="alert-icon">
+        <i class="ti ti-calendar-time"></i>
+      </div>
+
+      <div>
+        <div class="alert-title">
+          Próximo evento importante
+        </div>
+
+        <div class="alert-sub">
+          Missa Solene — Domingo às 09:00 na Basílica de Nazaré.
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- TOP GUARDAS -->
+  <div class="section">
+
+    <div class="section-title">
+      Destaques de frequência
+    </div>
+
+    <div class="rank-list">
+
+      <div class="rank-card">
+
+        <div class="rank-left">
+
+          <div class="rank-avatar">
+            LP
+          </div>
+
+          <div>
+            <div class="rank-name">
+              Lucas Pinheiro
+            </div>
+
+            <div class="rank-sub">
+              22 presenças registradas
+            </div>
+          </div>
+
+        </div>
+
+        <div class="rank-pct">
+          98%
+        </div>
+
+      </div>
+
+      <div class="rank-card">
+
+        <div class="rank-left">
+
+          <div class="rank-avatar">
+            AM
+          </div>
+
+          <div>
+            <div class="rank-name">
+              Ana Moraes
+            </div>
+
+            <div class="rank-sub">
+              20 presenças registradas
+            </div>
+          </div>
+
+        </div>
+
+        <div class="rank-pct">
+          95%
+        </div>
+
+      </div>
+
+      <div class="rank-card">
+
+        <div class="rank-left">
+
+          <div class="rank-avatar">
+            FC
+          </div>
+
+          <div>
+            <div class="rank-name">
+              Felipe Costa
+            </div>
+
+            <div class="rank-sub">
+              18 presenças registradas
+            </div>
+          </div>
+
+        </div>
+
+        <div class="rank-pct">
+          91%
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- EVENTOS -->
+  <div class="section">
+
+    <div class="section-title">
+      Eventos recentes
+    </div>
+
+    <div class="event-list-mini">
+
+      <div class="event-mini">
+
+        <div class="event-mini-left">
+          <div class="event-mini-name">
+            Missa Solene
+          </div>
+
+          <div class="event-mini-sub">
+            Basílica de Nazaré · Ontem
+          </div>
+        </div>
+
+        <div class="event-mini-count">
+          87 pres.
+        </div>
+
+      </div>
+
+      <div class="event-mini">
+
+        <div class="event-mini-left">
+          <div class="event-mini-name">
+            Ensaio Geral
+          </div>
+
+          <div class="event-mini-sub">
+            Sede · Sexta-feira
+          </div>
+        </div>
+
+        <div class="event-mini-count">
+          64 pres.
+        </div>
+
+      </div>
+
+      <div class="event-mini">
+
+        <div class="event-mini-left">
+          <div class="event-mini-name">
+            Reunião de formação
+          </div>
+
+          <div class="event-mini-sub">
+            Auditório · Quinta-feira
+          </div>
+        </div>
+
+        <div class="event-mini-count">
+          59 pres.
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,329 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Cadastrar evento
+{% endblock %}
+
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastrar Evento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/cadastroEvento.css' %}">
+{% endblock %}
+
+{% block body %}
+<!-- HERO STRIP -->
+<div class="hero-strip" style="background-color: #0c3967;">
+  <div class="hero-label">Novo registro</div>
+  <div class="hero-title">Cadastro de evento</div>
+  <div class="hero-desc">Preencha os dados para criar um novo evento no sistema</div>
+</div>
+
+<!-- FORM -->
+<div class="form-body">
+
+  <!-- IDENTIFICAÇÃO -->
+  <div class="section-label">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+      <rect x="1" y="1" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.3"/>
+      <path d="M4 6.5h5M4 4.5h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+    </svg>
+    Identificação
+    <div class="section-line"></div>
+  </div>
+
+  <!-- Categoria -->
+  <div class="field" id="field-categoria">
+    <div class="field-label">
+      <span>Categoria<span class="req">*</span></span>
+    </div>
+    <select class="select" id="categoria_id" onchange="onFieldChange()">
+      <option value="">Selecione a categoria…</option>
+      {% for categoria in categorias %}
+        <option value="{{ categoria.pk }}">{{ categoria.nome }}</option>
+      {% endfor %}
+    </select>
+    <div class="field-error" id="err-categoria">Selecione uma categoria</div>
+  </div>
+
+  <!-- Local -->
+  <div class="field" id="field-local">
+    <div class="field-label">
+      <span>Local<span class="req">*</span></span>
+    </div>
+    <div class="input-wrap">
+      <select class="select" id="local_id" onchange="onFieldChange()">
+        <option value="">Selecione o local…</option>
+        {% for local in locais %}
+          <option value="{{ local.pk }}">{{ local.nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field-error" id="err-local">Selecione um local</div>
+  </div>
+
+  <!-- DATA E HORA -->
+  <div class="section-label">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+      <rect x="1" y="2" width="11" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/>
+      <path d="M1 5h11M4 1v2M9 1v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+    </svg>
+    Data e hora
+    <div class="section-line"></div>
+  </div>
+
+  <div class="dt-row">
+    <!-- Data -->
+    <div class="field" id="field-data">
+      <div class="field-label"><span>Data<span class="req">*</span></span></div>
+      <div class="input-wrap">
+        <span class="input-icon">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <rect x="1" y="2" width="11" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M1 5h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <input class="input" type="date" id="data" onchange="onFieldChange()">
+      </div>
+      <div class="field-error" id="err-data">Informe a data</div>
+    </div>
+
+    <!-- Hora -->
+    <div class="field" id="field-hora">
+      <div class="field-label"><span>Hora<span class="req">*</span></span></div>
+      <div class="input-wrap">
+        <span class="input-icon">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M6.5 3.5v3l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <input class="input" type="time" id="hora" onchange="onFieldChange()">
+      </div>
+      <div class="field-error" id="err-hora">Informe o horário</div>
+    </div>
+  </div>
+
+  <!-- CONFIGURAÇÕES -->
+  <div class="section-label">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+      <circle cx="6.5" cy="6.5" r="2" stroke="currentColor" stroke-width="1.3"/>
+      <path d="M6.5 1v1.5M6.5 10.5V12M1 6.5h1.5M10.5 6.5H12M2.4 2.4l1.1 1.1M9.5 9.5l1.1 1.1M9.5 3.5l-1.1 1.1M3.5 9.5l-1.1 1.1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+    </svg>
+    Configurações
+    <div class="section-line"></div>
+  </div>
+
+  <!-- Reconhecimento facial -->
+  <div class="field">
+    <div class="toggle-row" onclick="toggleFacial()" id="facialRow">
+      <div class="toggle-info">
+        <div class="toggle-title">Reconhecimento facial</div>
+        <div class="toggle-sub">Habilitar check-in automático por câmera</div>
+      </div>
+      <div class="toggle-track" id="facialTrack">
+        <div class="toggle-thumb"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Observação -->
+  <div class="field">
+    <div class="field-label">
+      <span>Observação</span>
+      <small>opcional</small>
+    </div>
+    <textarea class="input" id="observacao" placeholder="Informações adicionais sobre o evento…" oninput="onFieldChange()"></textarea>
+    <div class="field-hint">Máximo 500 caracteres. <span id="charCount">0</span>/500</div>
+  </div>
+
+  <!-- PREVIEW CARD -->
+  <div class="summary-card" id="summaryCard">
+    <div class="summary-title">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="display:inline;margin-right:4px;vertical-align:middle">
+        <circle cx="5" cy="5" r="4" stroke="#EF9F27" stroke-width="1.2"/>
+        <path d="M5 3v2.5l1.5 1" stroke="#EF9F27" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Prévia do evento
+    </div>
+    <div class="summary-grid">
+      <div class="summary-item">
+        <div class="summary-key">Categoria</div>
+        <div class="summary-val" id="prev-categoria">—</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-key">Local</div>
+        <div class="summary-val" id="prev-local">—</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-key">Data</div>
+        <div class="summary-val mono" id="prev-data">—</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-key">Hora</div>
+        <div class="summary-val mono" id="prev-hora">—</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ACTIONS -->
+<div class="actions">
+  <button class="btn-primary" id="submitBtn" onclick="submitForm()">
+    <span class="btn-text">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="vertical-align:middle">
+        <path d="M3 8l4 4 6-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Salvar evento
+    </span>
+    <div class="spinner"></div>
+  </button>
+  <button class="btn-secondary" style="margin-bottom: 50px;" onclick="resetForm()">Limpar campos</button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-icon">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <path d="M2.5 7l3.5 3.5 5.5-6" stroke="#111827" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <span id="toastMsg">Evento cadastrado com sucesso!</span>
+</div>
+
+{{ categorias_por_id|json_script:"categorias-por-id" }}
+{{ locais_por_id|json_script:"locais-por-id" }}
+{% csrf_token %}
+
+<script>
+let facialOn = false;
+
+const cats = JSON.parse(document.getElementById('categorias-por-id').textContent);
+const locs = JSON.parse(document.getElementById('locais-por-id').textContent);
+
+function toggleFacial() {
+  facialOn = !facialOn;
+  document.getElementById('facialTrack').classList.toggle('on', facialOn);
+}
+
+function onFieldChange() {
+  const catId  = document.getElementById('categoria_id').value;
+  const locId  = document.getElementById('local_id').value;
+  const data   = document.getElementById('data').value;
+  const hora   = document.getElementById('hora').value;
+  const obs    = document.getElementById('observacao').value;
+
+  document.getElementById('charCount').textContent = obs.length;
+
+  const anyFilled = catId || locId || data || hora;
+  const card = document.getElementById('summaryCard');
+  card.classList.toggle('show', !!anyFilled);
+
+  if (catId)  document.getElementById('prev-categoria').textContent = cats[catId] || '—';
+  if (locId)  document.getElementById('prev-local').textContent = locs[locId] || '—';
+  if (data)   document.getElementById('prev-data').textContent = formatDate(data);
+  if (hora)   document.getElementById('prev-hora').textContent = hora;
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  const [y, m, day] = d.split('-');
+  return `${day}/${m}/${y}`;
+}
+
+function validate() {
+  let ok = true;
+  const fields = ['categoria', 'local', 'data', 'hora'];
+  const ids    = ['categoria_id', 'local_id', 'data', 'hora'];
+  fields.forEach((f, i) => {
+    const el  = document.getElementById(ids[i]);
+    const err = document.getElementById('err-' + f);
+    if (!el.value) {
+      el.classList.add('error');
+      err.classList.add('show');
+      ok = false;
+    } else {
+      el.classList.remove('error');
+      err.classList.remove('show');
+    }
+  });
+  return ok;
+}
+
+async function submitForm() {
+  if (!validate()) {
+    showToast('Preencha os campos obrigatórios', true);
+    return;
+  }
+  const btn = document.getElementById('submitBtn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  const dadosEvento = new URLSearchParams({
+    categoria_id: document.getElementById('categoria_id').value,
+    local_id: document.getElementById('local_id').value,
+    data: document.getElementById('data').value,
+    hora: document.getElementById('hora').value,
+  });
+
+  try {
+    const resposta = await fetch(window.location.href, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      body: dadosEvento,
+    });
+    const contentType = resposta.headers.get('content-type') || '';
+    const resultado = contentType.includes('application/json') ? await resposta.json() : {};
+
+    if (!resposta.ok || !resultado.ok) {
+      throw new Error(resultado.error || 'Não foi possível cadastrar o evento.');
+    }
+
+    showToast(resultado.message || 'Evento cadastrado com sucesso!', false);
+    setTimeout(() => {
+      window.location.href = resultado.redirect_url;
+    }, 900);
+  } catch (erro) {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+    showToast(erro.message, true);
+  }
+}
+
+function resetForm() {
+  ['categoria_id','local_id','data','hora','observacao'].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = '';
+    el.classList.remove('error','success');
+  });
+  ['categoria','local','data','hora'].forEach(f => {
+    const err = document.getElementById('err-' + f);
+    if (err) err.classList.remove('show');
+  });
+  document.getElementById('charCount').textContent = '0';
+  document.getElementById('summaryCard').classList.remove('show');
+  facialOn = false;
+  document.getElementById('facialTrack').classList.remove('on');
+}
+
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  const icon = t.querySelector('.toast-icon');
+  t.querySelector('#toastMsg').textContent = msg;
+  icon.style.background = isError ? '#dc2626' : '#EF9F27';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// preenche data mínima = hoje
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('data').min = today;
+</script>
+{% endblock %}

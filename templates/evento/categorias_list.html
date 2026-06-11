@@ -1,0 +1,59 @@
+{% extends "menu.html" %}
+{% block title %}Categorias{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between mb-3">
+            <h3>Categorias de Evento</h3>
+            <a href="{% url 'evento:categoria_create' %}" class="btn btn-primary">Nova Categoria</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover bg-white shadow-sm">
+                <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Status</th>
+                    <th>Criado em</th>
+                    <th>Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for categoria in categorias %}
+                    <tr>
+                        <td>{{ categoria.nome }}</td>
+                        <td>
+                            {% if categoria.is_ativo %}
+                                <span class="badge bg-success">Ativa</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inativa</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ categoria.criado_em|date:"d/m/Y H:i" }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'evento:categoria_update' categoria.id %}"
+                               class="btn btn-sm btn-warning">Editar</a>
+
+                            <form method="post"
+                                  action="{% url 'evento:categoria_delete' categoria.id %}"
+                                  class="d-inline"
+                                  onsubmit="return confirm('Excluir esta categoria?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    Excluir
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center">
+                            Nenhuma categoria cadastrada.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

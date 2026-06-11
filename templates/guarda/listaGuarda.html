@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Guardas
+{% endblock %}
+
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+  href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+  rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/listaGuarda.css' %}">
+{% endblock %}
+
+{% block topbar_action %}
+<a href="{% url 'guarda:cadastro_guarda' %}" style="text-decoration: none;" class="add-btn">
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+    <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+  </svg>
+
+  Novo guarda
+</a>
+{% endblock %}
+
+{% block body %}
+<!-- HERO -->
+<div class="hero-strip">
+  <div class="hero-label">Efetivo</div>
+  <div class="hero-row">
+    <div class="hero-title">Lista de guardas</div>
+    <div>
+      <div class="hero-count" id="heroCount">—</div>
+      <div class="hero-count-label">membros</div>
+    </div>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-area">
+  <div class="search-wrap">
+    <svg class="search-icon" width="15" height="15" viewBox="0 0 15 15" fill="none">
+      <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.4" />
+      <path d="M10.5 10.5L13 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+    </svg>
+    <input class="search-input" id="searchInput" type="text" placeholder="Buscar por nome ou matrícula…"
+      oninput="filterGuards()" autocomplete="off">
+  </div>
+</div>
+
+<!-- CHIPS -->
+<div class="filter-row" id="filterRow">
+  <button class="chip active" onclick="setFilter('nazare', this)">N.S. Nazaré</button>
+  <button class="chip" onclick="setFilter('andre', this)">Santo André</button>
+  <button class="chip" onclick="setFilter('ativo', this)">Ativos</button>
+  <button class="chip" onclick="setFilter('inativo', this)">Inativos</button>
+  <button class="chip" onclick="setFilter('licenca', this)">Licença</button>
+  <button class="chip" onclick="setFilter('todos', this)">Todos</button>
+</div>
+
+<!-- SORT BAR -->
+<div class="sort-bar">
+  <span class="count-label">Mostrando <strong id="countLabel">—</strong> guardas</span>
+  <select class="sort-select" onchange="sortGuards(this.value)">
+    <option value="nome">Nome A–Z</option>
+    <option value="matricula">Matrícula</option>
+    <option value="status">Status</option>
+  </select>
+</div>
+
+<!-- LIST -->
+<div class="guard-list" id="guardList">
+  <div class="skel-card" id="sk1">
+    <div class="skeleton skel-av"></div>
+    <div class="skel-lines">
+      <div class="skeleton skel-line" style="width:58%"></div>
+      <div class="skeleton skel-line" style="width:38%"></div>
+    </div>
+  </div>
+  <div class="skel-card" id="sk2">
+    <div class="skeleton skel-av"></div>
+    <div class="skel-lines">
+      <div class="skeleton skel-line" style="width:66%"></div>
+      <div class="skeleton skel-line" style="width:42%"></div>
+    </div>
+  </div>
+  <div class="skel-card" id="sk3">
+    <div class="skeleton skel-av"></div>
+    <div class="skel-lines">
+      <div class="skeleton skel-line" style="width:50%"></div>
+      <div class="skeleton skel-line" style="width:34%"></div>
+    </div>
+  </div>
+</div>
+
+<!-- EMPTY -->
+<div class="empty-state" id="emptyState">
+  <div class="empty-icon">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <circle cx="11" cy="8" r="3.5" stroke="#9ca3af" stroke-width="1.4" />
+      <path d="M4 18c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="#9ca3af" stroke-width="1.4" stroke-linecap="round" />
+    </svg>
+  </div>
+  <p class="empty-title">Nenhum guarda encontrado</p>
+  <p class="empty-sub">Tente outro termo ou filtro</p>
+</div>
+
+{{ guardas_data|json_script:"guardas-data" }}
+
+<script>
+  const avatarColors = ['av-gray'];
+
+  const statusCfg = {
+    ativo: { cls: 'st-ativo', label: 'Ativo' },
+    inativo: { cls: 'st-inativo', label: 'Inativo' },
+    licenca: { cls: 'st-licenca', label: 'Licença' },
+  };
+
+  const data = JSON.parse(document.getElementById('guardas-data').textContent);
+
+  let activeFilter = 'todos';
+  let activeSort = 'nome';
+
+  function initials(nome) {
+    return nome.trim().split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  }
+
+  function renderCard(g, idx) {
+    const av = avatarColors[g.id % avatarColors.length];
+    const st = statusCfg[g.status];
+    return `
+  <a class="guard-card" href="#" onclick="alert('Ir para /guardas/${g.id}')" style="animation-delay:${idx * 30}ms">
+    <div class="avatar ${av}">${initials(g.nome)}</div>
+    <div class="guard-info">
+      <div class="guard-name">${g.nome}</div>
+      <div class="guard-meta">
+        <span class="guard-matricula">${g.matricula}</span>
+        <span class="sep">·</span>
+        <span>${g.ministerio}</span>
+      </div>
+    </div>
+    <span class="status-badge ${st.cls}">
+      <span class="status-dot"></span>
+      ${st.label}
+    </span>
+    <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </a>`;
+  }
+
+  function getFiltered() {
+    const q = document.getElementById('searchInput').value.toLowerCase().trim();
+    return data
+      .filter(g => {
+        if (activeFilter === 'ativo') return g.status === 'ativo';
+        if (activeFilter === 'inativo') return g.status === 'inativo';
+        if (activeFilter === 'licenca') return g.status === 'licenca';
+        if (activeFilter === 'nazare') return g.ministerio.includes('Nazaré');
+        if (activeFilter === 'andre') return g.ministerio.includes('André');
+        return true;
+      })
+      .filter(g => !q || g.nome.toLowerCase().includes(q) || g.matricula.includes(q))
+      .sort((a, b) => {
+        if (activeSort === 'nome') return a.nome.localeCompare(b.nome);
+        if (activeSort === 'matricula') return a.matricula.localeCompare(b.matricula);
+        if (activeSort === 'status') return a.status.localeCompare(b.status);
+        return 0;
+      });
+  }
+
+  function render() {
+    const list = document.getElementById('guardList');
+    const empty = document.getElementById('emptyState');
+    const count = document.getElementById('countLabel');
+    const hero = document.getElementById('heroCount');
+    const items = getFiltered();
+
+    count.textContent = items.length;
+    hero.textContent = items.length;
+
+    if (!items.length) {
+      list.innerHTML = '';
+      empty.classList.add('show');
+    } else {
+      empty.classList.remove('show');
+      list.innerHTML = items.map((g, i) => renderCard(g, i)).join('');
+    }
+  }
+
+  function filterGuards() { render(); }
+
+  function setFilter(f, el) {
+    activeFilter = f;
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    render();
+  }
+
+  function sortGuards(v) {
+    activeSort = v;
+    render();
+  }
+
+  setTimeout(() => {
+    ['sk1', 'sk2', 'sk3'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    });
+    render();
+  }, 550);
+</script>
+
+{% endblock %}

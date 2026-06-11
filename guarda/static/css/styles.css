@@ -1,0 +1,73 @@
+/* ── BOTTOM NAV ── */
+
+:root {
+    --amber: #EF9F27;
+    --amber-light: #FEF3DC;
+    --amber-mid: #FDEAB7;
+    --blue: #185FA5;
+    --blue-light: #E8F1FB;
+    --blue-mid: #C2D9F5;
+    --dark: #111827;
+    --gray: #6b7280;
+    --gray-light: #9ca3af;
+    --bg: #f3f4f6;
+    --white: #ffffff;
+    --border: #e5e7eb;
+    --border2: #d1d5db;
+    --green: #059669;
+    --green-bg: #d1fae5;
+    --red: #dc2626;
+    --red-bg: #fee2e2;
+    --yellow: #d97706;
+    --yellow-bg: #fef3c7;
+}
+
+.a{
+    text-decoration: none;
+}
+
+.bottomnav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 62px;
+    background: var(--white);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 8px;
+    z-index: 40;
+}
+
+.nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 6px;
+    cursor: pointer;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: var(--gray-light);
+    font-family: 'Sora', sans-serif;
+    transition: background .15s;
+    text-decoration: none;
+}
+
+.nav-item:hover {
+    background: var(--bg);
+}
+
+.nav-item.active {
+    color: var(--blue);
+}
+
+.nav-label {
+    font-size: 10px;
+    font-weight: 500;
+}

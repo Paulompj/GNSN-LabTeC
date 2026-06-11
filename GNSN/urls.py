@@ -26,9 +26,15 @@ urlpatterns = [
     path("gnsn/", include("app.urls")),
     path("gnsn/admin/", admin.site.urls),
     path("gnsn/guarda/", include("guarda.urls")),
-    path("gnsn/camisa/", include("camisa.urls")),
-    path("gnsn/mirim/", include("mirim.urls")),
-    path("gnsn/patrimonio/", include("patrimonio.urls")),
+    # TODO: reabilitar após corrigir imports quebrados do refactor de models
+    # camisa/forms.py usa campos antigos (tamcamisa/arquivo/data); patrimonio importa Categoria (agora CategoriaMaterial)
+    # path("gnsn/camisa/", include("camisa.urls")),
+    # path("gnsn/patrimonio/", include("patrimonio.urls")),
+    path("gnsn/evento/", include("evento.urls")),
+    path("gnsn/cirio/", include("cirio.urls")),
+    path("gnsn/pessoa/", include("pessoa.urls")),
+    path("gnsn/saude/", include("saude.urls")),
+    path("gnsn/usuario/", include("usuario.urls")),
 ]
 
 if settings.DEBUG:

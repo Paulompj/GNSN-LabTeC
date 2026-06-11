@@ -13,13 +13,13 @@ cd GNSN-LabTeC
 winget install --id Python.Python.3.10 -e
 
 # se ja estiver instalada
-python3 -m venv venv
+python -m venv venv
 
 # 3. Ativa o ambiente virtual
 .\venv\Scripts\Activate
 
 # 4. Atualiza o pip
-python3 -m pip install --upgrade pip
+python -m pip install --upgrade pip
 
 # 5. Remove dependências problemáticas (C++/Desktop) e salva em um novo arquivo
 Get-Content requirements.txt | Where-Object { $_ -notmatch 'PySimpleGUI|dlib|face-recognition|faiss|opencv|MiniSom' -and $_.Trim() -ne '' } | Set-Content requirements_filtered.txt
@@ -44,17 +44,18 @@ def face_locations(*args, **kwargs): return []
 "@
 Set-Content -Path ".\venv\Lib\site-packages\face_recognition\__init__.py" -Value $faceRecStub
 
-# 10. Cria as migrations dos aplicativos locais (guarda, camisa, app, mirim e patrimonio)
-python3 manage.py makemigrations guarda camisa app mirim patrimonio
+# 10. Cria as migrations dos aplicativos locais
+# Ordem segue as dependências entre apps (pessoa -> usuario/saude/guarda -> evento/cirio/patrimonio/camisa)
+python manage.py makemigrations pessoa usuario saude guarda evento cirio patrimonio camisa app
 
-# 11. Aplica as migrations para criar o banco de dados SQLite
-python3 manage.py migrate
+# 11. Aplica as migrations para criar o banco de dados SQLite (banco padrão)
+python manage.py migrate
 
 # 12. Cria Super User antes de iniciar
-python3 manage.py createsuperuser
+python manage.py createsuperuser
 
 # 13. Inicia o servidor local
-python3 manage.py runserver
+python manage.py runserver
 ```
 
 ## Após rodar o servidor:

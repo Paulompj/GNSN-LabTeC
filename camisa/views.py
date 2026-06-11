@@ -111,7 +111,7 @@ def findcamisa(request):
         else:
             request.session["guarda_id"] = guarda.idguarda
             request.session["camisa_id"] = camisa.id
-            return redirect("app:takecamisa")
+            return redirect("camisa:takecamisa")
 
     return render(
         request,
@@ -150,7 +150,7 @@ def takecamisa(request):
     guarda_id = request.session.pop("guarda_id", None)
     camisa_id = request.session.pop("camisa_id", None)
     if not guarda_id or not camisa_id:
-        return redirect("app:findcamisa")  # se não houver dados
+        return redirect("camisa:findcamisa")  # se não houver dados
     # buscar objetos no banco
     guarda = Guarda.objects.get(idguarda=guarda_id)
     print(camisa_id)
@@ -182,7 +182,7 @@ def entregar_camisa(request):
                 messages.error(
                     request, "Informe o nome do recebedor ou marque 'É o próprio'."
                 )
-                return redirect("app:takecamisa")
+                return redirect("camisa:takecamisa")
 
             # Exigir procuração se não for o próprio
             # if not procuracao:
@@ -205,9 +205,9 @@ def entregar_camisa(request):
             request,
             f"A camisa do guarda {guarda.nome} foi entregue com sucesso para {recebedor}!",
         )
-        return redirect("app:takecamisa")
+        return redirect("camisa:takecamisa")
 
-    return redirect("app:takecamisa")
+    return redirect("camisa:takecamisa")
 
 
 @group_required("super", "Direção")
@@ -290,7 +290,7 @@ def changecamisa(request, idcamisa):
                 request,
                 "Nenhuma alteração detectada (tamanho, situação e equipe iguais aos atuais).",
             )
-            return redirect("app:changecamisa", idcamisa=idcamisa)
+            return redirect("camisa:changecamisa", idcamisa=idcamisa)
 
         usuario = request.user if request.user.is_authenticated else None
 
@@ -320,7 +320,7 @@ def changecamisa(request, idcamisa):
             request,
             f"Tamanho, situação e equipe da camisa do guarda {camisa.guarda.nome} atualizados com sucesso!",
         )
-        return redirect("app:readcamisa")
+        return redirect("camisa:readcamisa")
 
     return render(
         request,
@@ -356,11 +356,11 @@ def readcamisa(request):
     # =========================
     sort_map = {
         "matricula": "guarda__matricula",
-        "nome": "guarda__nome",
+        "nome": "guarda__pessoa__nome",
         "ano": "ano",
         "equipe": "equipe",
         "data": "data",
-        "entregador": "entregador__nome",
+        "entregador": "entregador__pessoa__nome",
         "tamanho": "tamcamisa",
     }
 
@@ -379,7 +379,7 @@ def readcamisa(request):
     # Filtro: busca geral
     # =========================
     if query:
-        filtros = Q(guarda__nome__icontains=query) | Q(
+        filtros = Q(guarda__pessoa__nome__icontains=query) | Q(
             guarda__matricula__icontains=query
         )
 
@@ -408,7 +408,7 @@ def readcamisa(request):
         camisas = camisas.filter(recebido=False, situacao=True)
 
     if entregador_nome:
-        camisas = camisas.filter(entregador__nome=entregador_nome)
+        camisas = camisas.filter(entregador__pessoa__nome=entregador_nome)
 
     # =========================
     # Ordenação
@@ -445,9 +445,9 @@ def readcamisa(request):
 
     entregadores_disponiveis = (
         Camisa.objects.filter(recebido=True)
-        .values_list("entregador__nome", flat=True)
+        .values_list("entregador__pessoa__nome", flat=True)
         .distinct()
-        .order_by("entregador__nome")
+        .order_by("entregador__pessoa__nome")
     )
 
     # =========================
@@ -499,7 +499,7 @@ def deletar_camisas_por_ano(request):
                 messages.error(request, "Ano inválido.")
         else:
             messages.error(request, "Informe um ano.")
-        return redirect("app:deletar_camisas_por_ano")
+        return redirect("camisa:deletar_camisas_por_ano")
 
     return render(request, "camisa/deletar_por_ano.html", {"anos": anos})
 
@@ -527,7 +527,7 @@ def camisa_entregue(request):
     # Filtro de busca
     if query:
         camisas_qs = camisas_qs.filter(
-            Q(guarda__nome__icontains=query) | Q(guarda__matricula__icontains=query)
+            Q(guarda__pessoa__nome__icontains=query) | Q(guarda__matricula__icontains=query)
         )
 
     # Filtro por ano
@@ -540,10 +540,10 @@ def camisa_entregue(request):
 
     # Filtrar apenas casos em que o recebedor não é o próprio
     if terceiro_only:
-        camisas_qs = camisas_qs.exclude(recebedor=F("guarda__nome"))
+        camisas_qs = camisas_qs.exclude(recebedor=F("guarda__pessoa__nome"))
 
     # Ordenação padrão (opcional)
-    camisas_qs = camisas_qs.order_by("-ano", "guarda__nome")
+    camisas_qs = camisas_qs.order_by("-ano", "guarda__pessoa__nome")
 
     # Paginação
     paginator = Paginator(camisas_qs, per_page)
@@ -588,7 +588,7 @@ def createcamisa(request, guarda_id):
 
             camisa.save()
             messages.success(request, "Camisa cadastrada com sucesso.")
-            return redirect("app:readcamisa")
+            return redirect("camisa:readcamisa")
 
         else:
             # 🔴 Tratamento de erro de validação do form
@@ -617,13 +617,13 @@ def importacamisas(request):
 
         if not ano or len(ano) != 4 or not ano.isdigit():
             messages.error(request, "Digite um ano válido com 4 dígitos (ex: 2025).")
-            return redirect("app:importacamisas")
+            return redirect("camisa:importacamisas")
 
         ano_int = int(ano)  # transforma "025" em 2025, "024" em 2024...
 
         if not arquivo:
             messages.error(request, "Selecione um arquivo XLSX para importar.")
-            return redirect("app:importacamisas")
+            return redirect("camisa:importacamisas")
 
         try:
             wb = openpyxl.load_workbook(arquivo)
@@ -655,16 +655,29 @@ def importacamisas(request):
                 if not mat:
                     continue
 
+                from guarda.models import Guarda, Pessoa
+                
                 # Atualiza ou cria guarda
-                guarda, created = Guarda.objects.update_or_create(
-                    matricula=mat,
-                    defaults={
-                        "nome": nome if nome else "NOME NÃO INFORMADO",
-                        "turma": turma,
-                        "nascimento": None,
-                        "foto": foto if foto else None,
-                    },
-                )
+                guarda = Guarda.objects.filter(matricula=mat).first()
+                if guarda:
+                    guarda.pessoa.nome = nome if nome else "NOME NÃO INFORMADO"
+                    if foto:
+                        guarda.pessoa.foto = foto
+                    guarda.pessoa.save()
+                    created = False
+                else:
+                    pessoa = Pessoa.objects.create(
+                        nome=nome if nome else "NOME NÃO INFORMADO", 
+                        foto=foto if foto else None
+                    )
+                    guarda = Guarda.objects.create(
+                        matricula=mat, 
+                        pessoa=pessoa, 
+                        tipo="Mirim", 
+                        status="Ativo"
+                    )
+                    created = True
+                    
                 if created:
                     count_guarda += 1
 
@@ -695,11 +708,11 @@ def importacamisas(request):
                 request,
                 f"Importação concluída: {count_guarda} guardas criados/atualizados, {count_camisa} camisas inseridas.",
             )
-            return redirect("app:importacamisas")
+            return redirect("camisa:importacamisas")
 
         except Exception as e:
             messages.error(request, f"Erro ao processar o arquivo: {str(e)}")
-            return redirect("app:importacamisas")
+            return redirect("camisa:importacamisas")
 
     return render(request, "camisa/importacamisas.html")
 

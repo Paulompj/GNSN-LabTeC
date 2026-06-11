@@ -1,0 +1,304 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>GNSN - Registrar Frequência</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F2F4F7;
+        }
+
+        /* Estilizações customizadas mantidas para garantir a identidade visual do header */
+        .custom-header {
+            background-color: #2D5A9E;
+            color: white;
+            padding-top: 2.5rem;
+            padding-bottom: 5rem;
+            border-bottom-left-radius: 2.5rem;
+            border-bottom-right-radius: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-bg-logo {
+            position: absolute;
+            inset: 0;
+            opacity: 0.15;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .header-bg-logo img {
+            width: 20rem;
+            transform: scale(1.5);
+        }
+
+        .avatar-container {
+            width: 6rem;
+            height: 6rem;
+            border-radius: 50%;
+            border: 4px solid #FFA500;
+            overflow: hidden;
+            background-color: #dee2e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #6c757d;
+            position: relative;
+        }
+
+        .custom-badge {
+            background-color: #FFA500;
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: 50rem;
+            font-size: 0.625rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .custom-card {
+            border-radius: 2rem;
+            border: none;
+            padding: 2rem;
+            background-color: white;
+        }
+
+        .custom-indicator {
+            width: 0.375rem;
+            height: 1.5rem;
+            background-color: #2D5A9E;
+            border-radius: 50rem;
+        }
+
+        .form-control-custom,
+        .form-select-custom {
+            padding: 1rem;
+            background-color: #F8F9FA;
+            border: 1px solid #f1f3f5;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .form-control-custom:focus,
+        .form-select-custom:focus {
+            background-color: #F8F9FA;
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        .btn-custom {
+            background-color: #2D5A9E;
+            color: white;
+            padding: 1rem;
+            border-radius: 1rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            border: none;
+            width: 100%;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .btn-custom:active {
+            transform: scale(0.98);
+        }
+
+        .info-card {
+            background-color: white;
+            padding: 1.25rem;
+            border-radius: 1.5rem;
+            border: 1px solid #f1f3f5;
+        }
+
+        .icon-box {
+            width: 3rem;
+            height: 3rem;
+            background-color: #2D5A9E;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="custom-header text-center shadow-sm">
+        <div class="header-bg-logo">
+            <img src="{% static 'img/brasao_guarda.png' %}" alt="Brasão">
+        </div>
+
+        <div class="position-relative z-3 d-flex flex-column align-items-center">
+            <div class="avatar-container mb-3 shadow-sm">
+                <img id="header-foto" src="" alt="Foto do Mirim" class="w-100 h-100 object-fit-cover d-none">
+                <span id="header-silhueta">👤</span>
+            </div>
+            <!-- O header é projetado para mostrar os detalhes do mirim selecionado, incluindo foto, nome, matrícula e graduação. Ele começa com um estado padrão e é atualizado dinamicamente quando o usuário seleciona um mirim na busca, garantindo uma experiência visualmente rica e informativa durante o processo de registro de frequência. -->
+            <h2 id="header-nome" class="fw-bold h4 mb-1 text-white">Escolha um Mirim</h2>
+            <p id="header-matricula" class="text-uppercase fw-semibold small text-white-50 mb-2">Mat. ---- · Guarda
+                Mirim</p>
+
+            <div class="d-flex justify-content-center">
+                <div id="header-badge" class="custom-badge d-flex align-items-center gap-1 shadow-sm">
+                    <span>⭐</span> <span id="header-graduacao">Aspirante</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container position-relative z-3" style="margin-top: -2.5rem;">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-6 d-flex flex-column gap-3" style="max-width: 420px;">
+
+                <div class="custom-card shadow-sm">
+                    <div class="d-flex align-items-center gap-2 mb-4">
+                        <div class="custom-indicator"></div>
+                        <h3 class="text-uppercase fw-bold small mb-0"
+                            style="color: #2D5A9E; font-size: 0.875rem; letter-spacing: 0.05em;">Registrar Presença</h3>
+                    </div>
+
+                    <form method="POST" action="{% url 'guarda:frequencia' %}">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label text-uppercase fw-bold text-muted small ms-1"
+                                style="font-size: 11px;">Selecionar Mirim</label>
+                            <div class="position-relative">
+                                <input type="hidden" name="mirim" id="mirim-id-hidden">
+
+                                <input type="text" id="input-mirim-busca" list="lista-mirins" autocomplete="off"
+                                    placeholder="Digite o nome ou matrícula..."
+                                    class="form-control form-control-custom">
+                                <datalist id="lista-mirins">
+                                    {% for mirim in mirins %}
+                                    <option value="{{ mirim.matricula }} - {{ mirim.nome }}" data-id="{{ mirim.id }}"
+                                        data-nome="{{ mirim.nome }}"
+                                        data-foto="{% if mirim.foto %}{{ mirim.foto.url }}{% endif %}"
+                                        data-matricula="{{ mirim.matricula }}"
+                                        data-graduacao="{{ mirim.graduacao|default:'Guarda Mirim' }}"
+                                        data-faltas-cirio="{{ mirim.faltas_para_cirio|default:'--' }}">
+                                    </option>
+                                    {% endfor %}
+                                </datalist>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label text-uppercase fw-bold text-muted small ms-1"
+                                style="font-size: 11px;">Evento / Missão</label>
+                            <select name="evento" required class="form-select form-select-custom">
+                                <option value="">Selecione a missão...</option>
+                                {% for evento in eventos %}
+                                <option value="{{ evento.id }}">{{ evento.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn-custom shadow-lg">
+                            Confirmar Frequência
+                        </button>
+                    </form>
+                </div>
+                <!-- COlocado para facilitar a visualização, mas ao usuário, o card de jornada só pode aparecer após selecionar um mirim válido, mostrando quantas presenças faltam para o Círio. -->
+                <div id="card-jornada" class="info-card d-flex align-items-center gap-3 shadow-sm">
+                    <div class="icon-box text-white">🏆</div>
+                    <div>
+                        <p class="fw-bold text-dark mb-0 h5" style="font-size: 1.1rem;">Jornada do Círio</p>
+                        <p id="texto-jornada" class="text-uppercase text-muted fw-bold small mb-0"
+                            style="font-size: 10px; letter-spacing: -0.02em;">
+                            Faltam 8 presenças para o Círio</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-5 mb-4 text-center">
+        <p class="text-uppercase text-muted fw-bold" style="font-size: 10px; letter-spacing: 0.1em;">GNSN · Gestão 2026
+        </p>
+    </footer>
+
+    <script>
+        const inputBusca = document.getElementById('input-mirim-busca');
+        const hiddenInput = document.getElementById('mirim-id-hidden');
+        const imgEl = document.getElementById('header-foto');
+        const silhuetaEl = document.getElementById('header-silhueta');
+        // Quando o usuário digitar ou selecionar um mirim, atualiza os detalhes no header e o valor do input hidden para submissão do formulário
+        inputBusca.addEventListener('input', function () {
+            const val = this.value;
+            const options = document.querySelectorAll('#lista-mirins option');
+            let itemEncontrado = null;
+            // Itera sobre as opções do datalist para encontrar um item que corresponda ao valor digitado, permitindo que o sistema reconheça tanto o nome quanto a matrícula do mirim para atualizar as informações exibidas.
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value === val) {
+                    itemEncontrado = options[i];
+                    break;
+                }
+            }
+            // Se um item correspondente for encontrado, preenche os detalhes; caso contrário, reseta para o estado inicial
+            if (itemEncontrado) {
+                const idReal = itemEncontrado.getAttribute('data-id');
+                const nomeReal = itemEncontrado.getAttribute('data-nome');
+                const foto = itemEncontrado.getAttribute('data-foto');
+                const matricula = itemEncontrado.getAttribute('data-matricula');
+                const graduacao = itemEncontrado.getAttribute('data-graduacao');
+                const faltasCirio = itemEncontrado.getAttribute('data-faltas-cirio');
+
+                hiddenInput.value = idReal;
+                // Atualiza o header com as informações do mirim selecionado, incluindo nome, matrícula, graduação e foto. Também exibe o card de jornada mostrando quantas presenças faltam para o Círio, criando uma experiência interativa e informativa para o usuário durante o processo de registro de frequência.
+                document.getElementById('header-nome').innerText = nomeReal;
+                document.getElementById('header-matricula').innerText = `Mat. ${matricula} · Guarda Mirim`;
+
+                document.getElementById('header-graduacao').innerText = graduacao;
+                document.getElementById('header-badge').classList.remove('d-none');
+
+                document.getElementById('texto-jornada').innerText = `Faltam ${faltasCirio} presenças para o Círio`;
+                document.getElementById('card-jornada').classList.remove('d-none');
+                // Exibe a foto do mirim se disponível, caso contrário, mostra a silhueta padrão
+                if (foto && foto.trim() !== '') {
+                    imgEl.src = foto;
+                    imgEl.classList.remove('d-none');
+                    silhuetaEl.classList.add('d-none');
+                } else {
+                    imgEl.classList.add('d-none');
+                    silhuetaEl.classList.remove('d-none');
+                }
+            } else {
+                hiddenInput.value = "";
+                document.getElementById('header-nome').innerText = "Escolha um Mirim";
+                document.getElementById('header-matricula').innerText = "Mat. ---- · Guarda Mirim";
+                document.getElementById('header-graduacao').innerText = "Aspirante";
+                document.getElementById('texto-jornada').innerText = "Faltam -- presenças para o Círio";
+                imgEl.classList.add('d-none');
+                silhuetaEl.classList.remove('d-none');
+            }
+        });
+        // Antes de enviar o formulário, verifica se um mirim válido foi selecionado para evitar envios com dados inconsistentes
+        document.querySelector('form').addEventListener('submit', function (e) {
+            if (!hiddenInput.value) {
+                e.preventDefault();
+                alert('Por favor, selecione um Mirim válido listado nas opções.');
+                inputBusca.focus();
+            }
+        });
+    </script>
+</body>
+
+</html>

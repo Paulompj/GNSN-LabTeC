@@ -1,0 +1,52 @@
+{% extends "menu.html" %}
+{% block title %}Eventos{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between mb-3">
+            <h3>Eventos</h3>
+            <a href="{% url 'evento:evento_create' %}" class="btn btn-primary">Novo Evento</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped bg-white shadow-sm">
+                <thead>
+                <tr>
+                    <th>Categoria</th>
+                    <th>Local</th>
+                    <th>Data</th>
+                    <th>Hora</th>
+                    <th>Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for e in eventos %}
+                    <tr>
+                        <td>{{ e.categoria }}</td>
+                        <td>{{ e.local }}</td>
+                        <td>{{ e.data }}</td>
+                        <td>{{ e.hora }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'evento:checkin_evento' e.id %}"class="btn btn-sm btn-success">Lançar Frequência</a>
+                            <a href="{% url 'evento:evento_update' e.id %}"
+                               class="btn btn-sm btn-warning">Editar</a>
+
+                            <button class="btn btn-sm btn-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal"
+                                    data-model="evento"
+                                    data-pk="{{ e.id }}">
+                                Excluir
+                            </button>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center">Nenhum evento cadastrado.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
