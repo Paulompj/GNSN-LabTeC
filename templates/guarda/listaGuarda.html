@@ -45,7 +45,7 @@ Guardas
       <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.4" />
       <path d="M10.5 10.5L13 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
     </svg>
-    <input class="search-input" id="searchInput" type="text" placeholder="Buscar por nome ou matrícula…"
+    <input class="search-input" id="searchInput" type="text" placeholder="Buscar por nome ou matrícula"
       oninput="filterGuards()" autocomplete="off">
   </div>
 </div>
@@ -95,6 +95,11 @@ Guardas
   </div>
 </div>
 
+<!-- Botão de paginação-->
+<button class="load-more-btn" id="loadMoreGuards" style="display:none;">
+  Carregar mais guardas
+</button>
+
 <!-- EMPTY -->
 <div class="empty-state" id="emptyState">
   <div class="empty-icon">
@@ -111,6 +116,7 @@ Guardas
 
 <script>
   const avatarColors = ['av-gray'];
+  const PAGE_SIZE = 20;
 
   const statusCfg = {
     ativo: { cls: 'st-ativo', label: 'Ativo' },
@@ -120,8 +126,9 @@ Guardas
 
   const data = JSON.parse(document.getElementById('guardas-data').textContent);
 
-  let activeFilter = 'todos';
+  let activeFilter = 'nazare';
   let activeSort = 'nome';
+  let guardsShown = PAGE_SIZE;
 
   function initials(nome) {
     return nome.trim().split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
@@ -178,7 +185,7 @@ Guardas
     const hero = document.getElementById('heroCount');
     const items = getFiltered();
 
-    count.textContent = items.length;
+    count.textContent = Math.min(guardsShown, items.length);
     hero.textContent = items.length;
 
     if (!items.length) {
@@ -186,14 +193,21 @@ Guardas
       empty.classList.add('show');
     } else {
       empty.classList.remove('show');
-      list.innerHTML = items.map((g, i) => renderCard(g, i)).join('');
+      list.innerHTML = items.slice(0, guardsShown).map((g, i) => renderCard(g, i)).join('');
     }
+
+    const loadBtn = document.getElementById('loadMoreGuards');
+    loadBtn.style.display = items.length > guardsShown ? 'block' : 'none';
   }
 
-  function filterGuards() { render(); }
+  function filterGuards() {
+    guardsShown = PAGE_SIZE;
+    render();
+  }
 
   function setFilter(f, el) {
     activeFilter = f;
+    guardsShown = PAGE_SIZE;
     document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
     el.classList.add('active');
     render();
@@ -203,6 +217,11 @@ Guardas
     activeSort = v;
     render();
   }
+
+  document.getElementById('loadMoreGuards').addEventListener('click', () => {
+    guardsShown += PAGE_SIZE;
+    render();
+  });
 
   setTimeout(() => {
     ['sk1', 'sk2', 'sk3'].forEach(id => {

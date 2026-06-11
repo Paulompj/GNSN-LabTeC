@@ -118,19 +118,31 @@ WSGI_APPLICATION = "GNSN.wsgi.application"
 #     }
 # }
 
-tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": tmpPostgres.path.replace("/", ""),
-        "USER": tmpPostgres.username,
-        "PASSWORD": tmpPostgres.password,
-        "HOST": tmpPostgres.hostname,
-        "PORT": 5432,
-        "OPTIONS": dict(parse_qsl(tmpPostgres.query)),
+if DATABASE_URL:
+    tmpPostgres = urlparse(DATABASE_URL)
+    db_path = tmpPostgres.path.lstrip("/") if isinstance(tmpPostgres.path, str) else tmpPostgres.path.decode("utf-8").lstrip("/")
+    db_query = tmpPostgres.query.decode("utf-8") if isinstance(tmpPostgres.query, bytes) else tmpPostgres.query
+
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": db_path,
+            "USER": tmpPostgres.username,
+            "PASSWORD": tmpPostgres.password,
+            "HOST": tmpPostgres.hostname,
+            "PORT": tmpPostgres.port or 5432,
+            "OPTIONS": dict(parse_qsl(db_query)),
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 LOGIN_URL = "/gnsn/login/"
 
