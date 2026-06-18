@@ -2,12 +2,16 @@ import json
 import random
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError, transaction
 from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.dateparse import parse_date, parse_time
+from django.utils.text import slugify
 
 from evento.models import CategoriaEvento, Evento, Frequencia, Local
 from pessoa.models import Endereco, Pessoa
@@ -18,6 +22,7 @@ from .models import Guarda, Sacramento
 
 META_PRESENCAS_CIRIO = 25
 CATEGORIAS_PRESENCA_CIRIO = ("Missa", "Missas")
+CATEGORIAS_ADORACAO = ("Adoração", "Adorações")
 SENHA_TEMPORARIA_GUARDA = "Guarda2025@"
 TIPOS_GUARDA_CADASTRO = {
     "aspirante": "Mirim",
@@ -57,16 +62,145 @@ def mirim_home(request):
     return render(request, "index.html")
 
 
+def _filtro_categoria_evento(campo, categorias):
+    filtro = Q()
+    for categoria in categorias:
+        filtro |= Q(**{f"{campo}__iexact": categoria})
+    return filtro
+
+
+def _icone_categoria_dashboard(slug):
+    icones = {
+        "missa": "ti-building-church",
+        "missas": "ti-building-church",
+        "ensaio": "ti-music",
+        "reuniao": "ti-users",
+        "reuniao-de-formacao": "ti-users",
+        "cirio": "ti-map-2",
+    }
+    return icones.get(slug, "ti-tag")
+
+
+def _status_evento_dashboard(evento, presencas_eventos_ids, data_atual, hora_atual):
+    if evento.pk in presencas_eventos_ids:
+        return {
+            "rotulo": "Presente",
+            "classe": "pres-sim",
+            "dot": "dot-blue",
+        }
+
+    is_futuro = evento.data > data_atual or (
+        evento.data == data_atual and evento.hora > hora_atual
+    )
+    if is_futuro:
+        return {
+            "rotulo": "Agendado",
+            "classe": "pres-fut",
+            "dot": "dot-amber",
+        }
+
+    return {
+        "rotulo": "Ausente",
+        "classe": "pres-nao",
+        "dot": "dot-gray",
+    }
+
+
+def _dashboard_context(guarda):
+    filtro_missas = _filtro_categoria_evento(
+        "evento__categoria__nome",
+        CATEGORIAS_PRESENCA_CIRIO,
+    )
+    filtro_adoracoes = _filtro_categoria_evento(
+        "evento__categoria__nome",
+        CATEGORIAS_ADORACAO,
+    )
+
+    frequencias = Frequencia.objects.filter(guarda=guarda)
+    total_presencas = frequencias.count()
+    total_missas = frequencias.filter(filtro_missas).count()
+    total_adoracoes = frequencias.filter(filtro_adoracoes).count()
+    faltas_cirio = max(META_PRESENCAS_CIRIO - total_missas, 0)
+    percentual_cirio = min(
+        round((total_missas / META_PRESENCAS_CIRIO) * 100),
+        100,
+    )
+
+    presencas_eventos_ids = set(frequencias.values_list("evento_id", flat=True))
+    data_atual = timezone.localdate()
+    hora_atual = timezone.localtime().time()
+    eventos = Evento.objects.select_related("categoria", "local").order_by(
+        "-data", "-hora"
+    )[:20]
+
+    eventos_dashboard = []
+    categorias_por_slug = {}
+    for evento in eventos:
+        categoria_nome = evento.categoria.nome
+        categoria_slug = slugify(categoria_nome) or "outro"
+        status = _status_evento_dashboard(
+            evento,
+            presencas_eventos_ids,
+            data_atual,
+            hora_atual,
+        )
+        eventos_dashboard.append(
+            {
+                "categoria": categoria_nome,
+                "categoria_slug": categoria_slug,
+                "nome": categoria_nome,
+                "local": evento.local.nome,
+                "data": evento.data,
+                "hora": evento.hora,
+                "busca": f"{categoria_nome} {evento.local.nome}".lower(),
+                "status": status,
+            }
+        )
+        categorias_por_slug.setdefault(
+            categoria_slug,
+            {
+                "slug": categoria_slug,
+                "nome": categoria_nome,
+                "icone": _icone_categoria_dashboard(categoria_slug),
+            },
+        )
+
+    return {
+        "guarda": guarda,
+        "ano_cirio": data_atual.year,
+        "meta_presencas_cirio": META_PRESENCAS_CIRIO,
+        "total_presencas": total_presencas,
+        "total_missas": total_missas,
+        "total_adoracoes": total_adoracoes,
+        "faltas_cirio": faltas_cirio,
+        "percentual_cirio": percentual_cirio,
+        "eventos_dashboard": eventos_dashboard,
+        "categorias_eventos": categorias_por_slug.values(),
+        "guarda_qr_data": {
+            "nome": guarda.nome,
+            "matricula": guarda.matricula,
+            "tipo": guarda.tipo or "Guarda",
+            "status": "Ativo" if guarda.is_ativo else "Inativo",
+        },
+    }
+
+
+@login_required
 def dashboard(request):
-    return render(request, "guarda/dashboard.html")
+    try:
+        guarda = request.user.pessoa.guarda
+    except ObjectDoesNotExist:
+        messages.error(request, "Usuário sem guarda vinculado.")
+        return redirect("app:home")
+
+    return render(request, "guarda/dashboard.html", _dashboard_context(guarda))
 
 
 def _frequencia_context():
-    filtro_categorias_cirio = Q()
-    for categoria in CATEGORIAS_PRESENCA_CIRIO:
-        filtro_categorias_cirio |= Q(
-            frequencias__evento__categoria__nome__iexact=categoria
-        )
+    filtro_categorias_cirio = _filtro_categoria_evento(
+        "frequencias__evento__categoria__nome",
+        CATEGORIAS_PRESENCA_CIRIO,
+    )
 
     mirins = list(
         Guarda.objects.select_related("pessoa")
