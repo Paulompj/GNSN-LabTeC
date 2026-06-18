@@ -12,11 +12,13 @@ from django.utils.dateparse import parse_date, parse_time
 from evento.models import CategoriaEvento, Evento, Frequencia, Local
 from pessoa.models import Endereco, Pessoa
 from saude.models import FichaSaude
+from usuario.models import Usuario
 from .models import Guarda, Sacramento
 
 
 META_PRESENCAS_CIRIO = 25
 CATEGORIAS_PRESENCA_CIRIO = ("Missa", "Missas")
+SENHA_TEMPORARIA_GUARDA = "Guarda2025@"
 TIPOS_GUARDA_CADASTRO = {
     "aspirante": "Mirim",
     "juvenil": "Mirim",
@@ -309,6 +311,7 @@ def _normalizar_matricula(matricula):
 
 def _gerar_matricula_disponivel():
     usadas = set(Guarda.objects.values_list("matricula", flat=True))
+    usadas.update(Usuario.objects.values_list("usuario", flat=True))
     disponiveis = [
         f"{numero:04d}"
         for numero in range(1, 10000)
@@ -322,7 +325,10 @@ def _gerar_matricula_disponivel():
 def _resolver_matricula(raw_matricula):
     matricula = _normalizar_matricula(raw_matricula)
     if matricula:
-        if Guarda.objects.filter(matricula=matricula).exists():
+        if (
+            Guarda.objects.filter(matricula=matricula).exists()
+            or Usuario.objects.filter(usuario=matricula).exists()
+        ):
             raise ValueError("Matrícula já cadastrada.")
         return matricula
     return _gerar_matricula_disponivel()
@@ -479,6 +485,15 @@ def cadastroGuarda(request):
                     ),
                     data_ingresso=data_ingresso,
                     observacao=_clean_optional(guarda_payload.get("observacao")),
+                )
+
+                Usuario.objects.create_user(
+                    usuario=guarda.matricula,
+                    password=SENHA_TEMPORARIA_GUARDA,
+                    pessoa=pessoa,
+                    trocar_senha=True,
+                    is_ativo=True,
+                    is_funcionario=False,
                 )
 
                 Sacramento.objects.create(
