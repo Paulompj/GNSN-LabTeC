@@ -883,27 +883,27 @@
     console.log('POST /pessoas + /guardas', payload);
 
     // ── integração real ─────────────────────────────────────────
-    // fetch("{% url 'guarda:cadastro_guarda' %}", {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
-    //   body: JSON.stringify(payload),
-    // })
-    // .then(r => r.ok ? r.json() : Promise.reject())
-    // .then(data => {
-    //   showToast('Guarda cadastrado com sucesso!', false);
-    //   setTimeout(() => window.location.href = `/guardas/${data.guarda_id}/`, 1600);
-    // })
-    // .catch(() => {
-    //   showToast('Erro ao salvar — tente novamente', true);
-    //   btn.classList.remove('loading'); btn.disabled = false;
-    // });
+    fetch("{% url 'guarda:cadastro_guarda' %}", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+      body: JSON.stringify(payload),
+    })
+    .then(async r => {
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok || !data.ok) {
+        throw new Error(data.error || 'Erro ao salvar — tente novamente');
+      }
+      return data;
+    })
+    .then(data => {
+      showToast(`Guarda cadastrado com sucesso! Matrícula ${data.matricula}`, false);
+      setTimeout(() => window.location.href = data.redirect_url, 1600);
+    })
+    .catch(error => {
+      showToast(error.message || 'Erro ao salvar — tente novamente', true);
+      btn.classList.remove('loading'); btn.disabled = false;
+    });
     // ───────────────────────────────────────────────────────────
-
-    setTimeout(() => {
-      btn.classList.remove('loading');
-      btn.disabled = false;
-      showToast('Guarda cadastrado com sucesso!', false);
-    }, 1200);
   }
 
   /* ── MASKS ── */

@@ -1,5 +1,8 @@
+import json
+import random
+
 from django.contrib import messages
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
@@ -7,11 +10,40 @@ from django.urls import reverse
 from django.utils.dateparse import parse_date, parse_time
 
 from evento.models import CategoriaEvento, Evento, Frequencia, Local
-from .models import Guarda
+from pessoa.models import Endereco, Pessoa
+from saude.models import FichaSaude
+from .models import Guarda, Sacramento
 
 
 META_PRESENCAS_CIRIO = 25
 CATEGORIAS_PRESENCA_CIRIO = ("Missa", "Missas")
+TIPOS_GUARDA_CADASTRO = {
+    "aspirante": "Mirim",
+    "juvenil": "Mirim",
+    "efetivo": "Efetivo",
+    "honorario": "Honorário",
+}
+CONDICOES_SAUDE_CADASTRO = (
+    "autismo",
+    "tdah",
+    "alzheimer",
+    "demencia",
+    "parkinson",
+    "diabetes",
+    "hipertensao",
+    "problema_cardiaco",
+    "problema_renal",
+    "osteoporose",
+    "artrite",
+    "usa_cadeira_rodas",
+    "usa_andador",
+    "usa_bengala",
+    "deficiencia_visual",
+    "deficiencia_auditiva",
+    "usa_protese",
+    "depressao",
+    "ansiedade",
+)
 
 
 # Create your views here.
@@ -227,7 +259,255 @@ def admin(request):
     return render(request, "evento/admin.html")
 
 
+def _cadastro_guarda_error(mensagem, status=400):
+    return JsonResponse({"ok": False, "error": mensagem}, status=status)
+
+
+def _clean_optional(valor):
+    if valor is None:
+        return None
+    valor = str(valor).strip()
+    return valor or None
+
+
+def _clean_required(valor):
+    return _clean_optional(valor) or ""
+
+
+def _parse_optional_date(valor, campo):
+    valor = _clean_optional(valor)
+    if not valor:
+        return None
+    parsed = parse_date(valor)
+    if parsed is None:
+        raise ValueError(f"{campo} inválida.")
+    return parsed
+
+
+def _dict_payload(valor):
+    return valor if isinstance(valor, dict) else {}
+
+
+def _tem_algum_valor(dados):
+    return any(_clean_optional(valor) for valor in dados.values())
+
+
+def _map_tipo_guarda(tipo):
+    tipo = _clean_required(tipo).lower()
+    return TIPOS_GUARDA_CADASTRO.get(tipo)
+
+
+def _normalizar_matricula(matricula):
+    matricula = _clean_optional(matricula)
+    if not matricula:
+        return None
+    matricula = "".join(caractere for caractere in matricula if caractere.isdigit())
+    if len(matricula) != 4:
+        raise ValueError("A matrícula deve ter exatamente 4 dígitos.")
+    return matricula
+
+
+def _gerar_matricula_disponivel():
+    usadas = set(Guarda.objects.values_list("matricula", flat=True))
+    disponiveis = [
+        f"{numero:04d}"
+        for numero in range(1, 10000)
+        if f"{numero:04d}" not in usadas
+    ]
+    if not disponiveis:
+        return None
+    return random.choice(disponiveis)
+
+
+def _resolver_matricula(raw_matricula):
+    matricula = _normalizar_matricula(raw_matricula)
+    if matricula:
+        if Guarda.objects.filter(matricula=matricula).exists():
+            raise ValueError("Matrícula já cadastrada.")
+        return matricula
+    return _gerar_matricula_disponivel()
+
+
+def _validar_duplicidades_pessoa(cpf, email, rg):
+    if Pessoa.objects.filter(cpf=cpf).exists():
+        return "CPF já cadastrado."
+    if Pessoa.objects.filter(email__iexact=email).exists():
+        return "E-mail já cadastrado."
+    if rg and Pessoa.objects.filter(rg=rg).exists():
+        return "RG já cadastrado."
+    return None
+
+
 def cadastroGuarda(request):
+    if request.method == "POST":
+        try:
+            payload = json.loads(request.body.decode("utf-8") or "{}")
+        except json.JSONDecodeError:
+            return _cadastro_guarda_error("Envie dados em JSON válido.")
+
+        if not isinstance(payload, dict):
+            return _cadastro_guarda_error("Payload inválido.")
+
+        endereco_payload = _dict_payload(payload.get("endereco"))
+        ficha_payload = _dict_payload(payload.get("ficha_saude"))
+        guarda_payload = _dict_payload(payload.get("guarda"))
+        sacramento_payload = _dict_payload(payload.get("sacramento"))
+
+        nome = _clean_required(payload.get("nome"))
+        cpf = _clean_required(payload.get("cpf"))
+        email = _clean_required(payload.get("email")).lower()
+        rg = _clean_optional(payload.get("rg"))
+        ministerio = _clean_required(guarda_payload.get("ministerio"))
+        tipo = _map_tipo_guarda(guarda_payload.get("tipo"))
+
+        try:
+            turma = int(guarda_payload.get("turma"))
+        except (TypeError, ValueError):
+            turma = None
+
+        if not nome:
+            return _cadastro_guarda_error("Informe o nome.")
+        if not cpf:
+            return _cadastro_guarda_error("Informe o CPF.")
+        if not email:
+            return _cadastro_guarda_error("Informe o e-mail.")
+        if not turma or turma <= 0:
+            return _cadastro_guarda_error("Informe a turma.")
+        if tipo is None:
+            return _cadastro_guarda_error("Tipo de guarda inválido.")
+        if not ministerio:
+            return _cadastro_guarda_error("Informe o ministério.")
+
+        erro_duplicidade = _validar_duplicidades_pessoa(cpf, email, rg)
+        if erro_duplicidade:
+            return _cadastro_guarda_error(erro_duplicidade, status=409)
+
+        try:
+            matricula = _resolver_matricula(guarda_payload.get("matricula"))
+            data_nascimento = _parse_optional_date(
+                payload.get("data_nascimento"),
+                "Data de nascimento",
+            )
+            data_ingresso = _parse_optional_date(
+                guarda_payload.get("data_ingresso"),
+                "Data de ingresso",
+            )
+            data_batismo = _parse_optional_date(
+                sacramento_payload.get("data_batismo"),
+                "Data de batismo",
+            )
+            data_primeira_eucaristia = _parse_optional_date(
+                sacramento_payload.get("data_primeira_eucaristia"),
+                "Data da primeira eucaristia",
+            )
+            data_crisma = _parse_optional_date(
+                sacramento_payload.get("data_crisma"),
+                "Data de crisma",
+            )
+        except ValueError as exc:
+            status = 409 if "já cadastrada" in str(exc) else 400
+            return _cadastro_guarda_error(str(exc), status=status)
+
+        if matricula is None:
+            return _cadastro_guarda_error(
+                "Não há matrículas disponíveis.",
+                status=409,
+            )
+
+        try:
+            with transaction.atomic():
+                pessoa = Pessoa.objects.create(
+                    nome=nome,
+                    cpf=cpf,
+                    rg=rg,
+                    email=email,
+                    telefone=_clean_optional(payload.get("telefone")),
+                    data_nascimento=data_nascimento,
+                    genero=_clean_optional(payload.get("genero")),
+                    estado_civil=_clean_optional(payload.get("estado_civil")),
+                )
+
+                if _tem_algum_valor(endereco_payload):
+                    Endereco.objects.create(
+                        pessoa=pessoa,
+                        cep=_clean_optional(endereco_payload.get("cep")),
+                        uf=_clean_optional(endereco_payload.get("uf")),
+                        logradouro=_clean_optional(endereco_payload.get("logradouro")),
+                        numero=_clean_optional(endereco_payload.get("numero")),
+                        complemento=_clean_optional(endereco_payload.get("complemento")),
+                        bairro=_clean_optional(endereco_payload.get("bairro")),
+                        cidade=_clean_optional(endereco_payload.get("cidade")),
+                    )
+
+                ficha_dados = {
+                    campo: bool(ficha_payload.get(campo))
+                    for campo in CONDICOES_SAUDE_CADASTRO
+                }
+                ficha_dados.update(
+                    {
+                        "tipo_sanguineo": _clean_optional(
+                            ficha_payload.get("tipo_sanguineo")
+                        ),
+                        "alergia": _clean_optional(ficha_payload.get("alergia")),
+                        "intolerancia_alimentar": _clean_optional(
+                            ficha_payload.get("intolerancia_alimentar")
+                        ),
+                        "uso_medicamento_controlado": _clean_optional(
+                            ficha_payload.get("uso_medicamento_controlado")
+                        ),
+                        "plano_saude": _clean_optional(ficha_payload.get("plano_saude")),
+                        "contato_emergencia_nome": _clean_optional(
+                            ficha_payload.get("contato_emergencia_nome")
+                        ),
+                        "contato_emergencia_telefone": _clean_optional(
+                            ficha_payload.get("contato_emergencia_telefone")
+                        ),
+                        "observacao": _clean_optional(ficha_payload.get("observacao")),
+                    }
+                )
+                FichaSaude.objects.create(pessoa=pessoa, **ficha_dados)
+
+                guarda = Guarda.objects.create(
+                    pessoa=pessoa,
+                    matricula=matricula,
+                    turma=turma,
+                    tipo=tipo,
+                    ministerio=ministerio,
+                    paroquia=_clean_optional(guarda_payload.get("paroquia")),
+                    tamanho_camisa=_clean_optional(
+                        guarda_payload.get("tamanho_camisa")
+                    ),
+                    data_ingresso=data_ingresso,
+                    observacao=_clean_optional(guarda_payload.get("observacao")),
+                )
+
+                Sacramento.objects.create(
+                    guarda=guarda,
+                    batismo=bool(sacramento_payload.get("batismo")),
+                    primeira_eucaristia=bool(
+                        sacramento_payload.get("primeira_eucaristia")
+                    ),
+                    crisma=bool(sacramento_payload.get("crisma")),
+                    ordem=bool(sacramento_payload.get("ordem")),
+                    data_batismo=data_batismo,
+                    data_primeira_eucaristia=data_primeira_eucaristia,
+                    data_crisma=data_crisma,
+                )
+        except IntegrityError:
+            return _cadastro_guarda_error(
+                "Já existe cadastro com CPF, e-mail, RG ou matrícula informados.",
+                status=409,
+            )
+
+        return JsonResponse(
+            {
+                "ok": True,
+                "guarda_id": guarda.pk,
+                "matricula": guarda.matricula,
+                "redirect_url": reverse("guarda:guardas"),
+            }
+        )
+
     return render(request, "guarda/cadastroGuarda.html")
 
 
