@@ -35,3 +35,4 @@ typing_extensions==4.14.1
 urllib3==2.5.0
 zipp==3.23.0
 opencv-python==4.12.0.88
+psycopg2-binary==2.9.9

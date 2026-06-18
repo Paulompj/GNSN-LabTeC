@@ -116,7 +116,6 @@ body {
   text-align: center;
 
   padding: 1.25rem 1rem 2.5rem;
-  margin-bottom: 1.5rem;
 
   background:
     linear-gradient(rgba(15, 60, 110, .72),
@@ -296,12 +295,21 @@ body {
 }
 
 .progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background-image: url('../img/corda.png');
+  background-position: center;
+  background-size: auto 130%;
+  background-repeat: repeat-x;
+}
+/*
+.progress-fill {
   background: linear-gradient(90deg,
       #db0b0b 0%,
       var(--accent) 60%,
       #36d512 100%);
 }
-
+*/
 .xp-fill {
   background: var(--accent);
 }
@@ -783,13 +791,9 @@ body {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  .body {
-    padding: 0 1.5rem;
-  }
-
   .hero {
-    padding: 1.5rem 1.5rem 3rem;
-    margin-bottom: 2rem;
+    padding: 1.5rem 1.5rem 1rem;
+
   }
 
   .hero-avatar {
