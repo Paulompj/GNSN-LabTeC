@@ -1,12 +1,17 @@
+from django.contrib import messages
 from django.db import IntegrityError
 from django.db.models import Count, Q
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.dateparse import parse_date, parse_time
 
-from evento.models import CategoriaEvento, Evento, Local
+from evento.models import CategoriaEvento, Evento, Frequencia, Local
 from .models import Guarda
+
+
+META_PRESENCAS_CIRIO = 25
+CATEGORIAS_PRESENCA_CIRIO = ("Missa", "Missas")
 
 
 # Create your views here.
@@ -22,8 +27,77 @@ def dashboard(request):
     return render(request, "guarda/dashboard.html")
 
 
+def _frequencia_context():
+    filtro_categorias_cirio = Q()
+    for categoria in CATEGORIAS_PRESENCA_CIRIO:
+        filtro_categorias_cirio |= Q(
+            frequencias__evento__categoria__nome__iexact=categoria
+        )
+
+    mirins = list(
+        Guarda.objects.select_related("pessoa")
+        .filter(tipo__iexact="Mirim", is_ativo=True)
+        .annotate(
+            total_presencas_cirio=Count(
+                "frequencias",
+                filter=filtro_categorias_cirio,
+                distinct=True,
+            )
+        )
+        .order_by("pessoa__nome")
+    )
+    for mirim in mirins:
+        mirim.faltas_para_cirio = max(
+            META_PRESENCAS_CIRIO - mirim.total_presencas_cirio,
+            0,
+        )
+
+    eventos = Evento.objects.select_related("categoria", "local").order_by(
+        "-data", "-hora"
+    )
+    return {
+        "mirins": mirins,
+        "eventos": eventos,
+        "meta_presencas_cirio": META_PRESENCAS_CIRIO,
+    }
+
+
 def frequencia(request):
-    return render(request, "guarda/registrar_frequencia.html")
+    if request.method == "POST":
+        guarda_pk = request.POST.get("mirim")
+        evento_pk = request.POST.get("evento")
+
+        if not guarda_pk or not evento_pk:
+            messages.error(request, "Selecione um mirim e um evento.")
+            return redirect("guarda:frequencia")
+
+        try:
+            guarda = Guarda.objects.get(
+                pk=guarda_pk, tipo__iexact="Mirim", is_ativo=True
+            )
+            evento = Evento.objects.get(pk=evento_pk)
+        except (Guarda.DoesNotExist, Evento.DoesNotExist, ValueError):
+            messages.error(request, "Mirim ou evento inválido.")
+            return redirect("guarda:frequencia")
+
+        _, criado = Frequencia.objects.get_or_create(
+            guarda=guarda,
+            evento=evento,
+            defaults={"reconhecimento_facial": False},
+        )
+
+        if criado:
+            messages.success(request, "Presença registrada com sucesso.")
+        else:
+            messages.info(request, "Essa presença já estava registrada.")
+
+        return redirect("guarda:frequencia")
+
+    return render(
+        request,
+        "guarda/registrar_frequencia.html",
+        _frequencia_context(),
+    )
 
 
 def _status_guarda(guarda):
