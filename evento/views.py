@@ -3,13 +3,13 @@ from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from app.decorators import group_required
+# from app.decorators import group_required
 
 from .forms import CategoriaEventoForm, LocalForm
 from .models import CategoriaEvento, Local
 
 
-@group_required("super")
+# @group_required("super")
 def categoria_list(request):
     categorias = CategoriaEvento.objects.all().order_by("nome")
     return render(
@@ -19,7 +19,7 @@ def categoria_list(request):
     )
 
 
-@group_required("super")
+# @group_required("super")
 def categoria_create(request):
     form = CategoriaEventoForm(request.POST or None)
 
@@ -31,7 +31,7 @@ def categoria_create(request):
     return render(request, "evento/categorias_form.html", {"form": form})
 
 
-@group_required("super")
+# @group_required("super")
 def categoria_update(request, pk):
     categoria = get_object_or_404(CategoriaEvento, pk=pk)
     form = CategoriaEventoForm(request.POST or None, instance=categoria)
@@ -44,7 +44,7 @@ def categoria_update(request, pk):
     return render(request, "evento/categorias_form.html", {"form": form})
 
 
-@group_required("super")
+# @group_required("super")
 @require_POST
 def categoria_delete(request, pk):
     categoria = get_object_or_404(CategoriaEvento, pk=pk)
@@ -61,7 +61,7 @@ def categoria_delete(request, pk):
     return redirect("evento:categoria_list")
 
 
-@group_required("super")
+# @group_required("super")
 def local_list(request):
     locais = Local.objects.all().order_by("nome")
     return render(
@@ -71,7 +71,7 @@ def local_list(request):
     )
 
 
-@group_required("super")
+# @group_required("super")
 def local_create(request):
     form = LocalForm(request.POST or None)
 
@@ -83,7 +83,7 @@ def local_create(request):
     return render(request, "evento/locais_form.html", {"form": form})
 
 
-@group_required("super")
+# @group_required("super")
 def local_update(request, pk):
     local_evento = get_object_or_404(Local, pk=pk)
     form = LocalForm(request.POST or None, instance=local_evento)
@@ -96,7 +96,7 @@ def local_update(request, pk):
     return render(request, "evento/locais_form.html", {"form": form})
 
 
-@group_required("super")
+# @group_required("super")
 @require_POST
 def local_delete(request, pk):
     local_evento = get_object_or_404(Local, pk=pk)

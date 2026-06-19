@@ -20,7 +20,7 @@ Perfil Mirim
 {% block body %}
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
-<!-- MODAL CARTEIRINHA Incompleto -->
+<!-- MODAL CARTEIRINHA -->
 <div class="modal" id="modalCarteira">
 
   <div class="modal-content">
@@ -28,15 +28,15 @@ Perfil Mirim
     <div class="card-top">
 
       <div class="card-photo">
-        <img src="{% static 'img/lucas_andre1.png' %}" alt="Foto do guarda">
+        <img src="{% static 'img/perfil.png' %}" alt="Foto do guarda">
       </div>
 
       <div class="guard-name">
-        Lucas Andre Oliveira Pinheiro
+        {{ guarda.nome }}
       </div>
 
       <div class="guard-sub">
-        Matrícula 3517 · Guarda Mirim
+        Matrícula {{ guarda.matricula }} · {{ guarda.tipo|default:"Guarda" }}
       </div>
 
     </div>
@@ -46,7 +46,7 @@ Perfil Mirim
       <div id="qrcode"></div>
 
       <div class="card-footer-info">
-        Apresente este QR Code para validar presença nos eventos.
+        Use este QR Code como identificação do guarda.
       </div>
 
       <button class="close" type="button" onclick="fecharCarteira()">
@@ -65,33 +65,33 @@ Perfil Mirim
   <!-- Hero -->
   <div class="hero">
     <div class="hero-avatar">
-      <img src="{% static 'img/lucas_andre1.png' %}" alt="Foto do guarda">
+      <img src="{% static 'img/perfil.png' %}" alt="Foto do guarda">
     </div>
-    <p class="hero-name">Lucas Andre Oliveira Pinheiro</p>
-    <p class="hero-sub">Matrícula. 3517 &middot; Guarda Mirim</p>
+    <p class="hero-name">{{ guarda.nome }}</p>
+    <p class="hero-sub">Matrícula. {{ guarda.matricula }} &middot; {{ guarda.tipo|default:"Guarda" }}</p>
 
 
   </div>
 
   <div class="body">
 
-    <!-- Jornada para o Círio 2026 -->
+    <!-- Jornada para o Círio -->
     <div class="card-base cirio-card">
       <div class="cirio-header">
         <i class="ti ti-map-2 cirio-icon" aria-hidden="true"></i>
         <div>
-          <div class="cirio-title">Jornada para o Círio 2026</div>
-          <p class="cirio-sub">Complete 25 presenças em missas para participar!</p>
+          <div class="cirio-title">Jornada para o Círio {{ ano_cirio }}</div>
+          <p class="cirio-sub">Complete {{ meta_presencas_cirio }} presenças em missas para participar!</p>
         </div>
       </div>
 
       <div class="progress-header">
-        <span class="progress-count">17 de 25 presenças</span>
-        <span class="progress-pct">68%</span>
+        <span class="progress-count">{{ total_missas }} de {{ meta_presencas_cirio }} presenças</span>
+        <span class="progress-pct">{{ percentual_cirio }}%</span>
       </div>
 
       <div class="progress-track">
-        <div class="progress-fill" style="width:68%;"></div>
+        <div class="progress-fill" style="width:{{ percentual_cirio }}%;"></div>
       </div>
 
       <!-- Legenda da barra -->
@@ -101,7 +101,11 @@ Perfil Mirim
       </div>
 
       <p class="cirio-footer">
-        Faltam <strong>8 presenças</strong> para o Círio 2026!
+        {% if faltas_cirio %}
+        Faltam <strong>{{ faltas_cirio }} presenças</strong> para o Círio!
+        {% else %}
+        Meta de <strong>{{ meta_presencas_cirio }} presenças</strong> alcançada.
+        {% endif %}
       </p>
     </div>
 
@@ -112,7 +116,7 @@ Perfil Mirim
           <i class="ti ti-calendar-check stat-icon" style="color:#85B7EB;" aria-hidden="true"></i>
         </div>
         <div class="stat-text">
-          <div class="stat-value azul">22</div>
+          <div class="stat-value azul">{{ total_presencas }}</div>
           <div class="stat-label" style="color: #6b7280;">Presenças totais</div>
         </div>
       </div>
@@ -129,7 +133,7 @@ Perfil Mirim
           </svg>
         </div>
         <div class="stat-text">
-          <div class="stat-value azul">17</div>
+          <div class="stat-value azul">{{ total_missas }}</div>
           <div class="stat-label" style="color: #6b7280;">Missas</div>
         </div>
       </div>
@@ -146,7 +150,7 @@ Perfil Mirim
           </svg>
         </div>
         <div class="stat-text">
-          <div class="stat-value azul">5</div>
+          <div class="stat-value azul">{{ total_adoracoes }}</div>
           <div class="stat-label" style="color: #6b7280;">Adorações</div>
         </div>
       </div>
@@ -219,93 +223,28 @@ Perfil Mirim
         <button class="filter-tag all active" data-cat="all">
           <i class="ti ti-layout-list" style="font-size:12px;"></i> Todos
         </button>
-        <button class="filter-tag missa" data-cat="missa">
-          <i class="ti ti-building-church" style="font-size:12px;"></i> Missa
+        {% for categoria in categorias_eventos %}
+        <button class="filter-tag" data-cat="{{ categoria.slug }}">
+          <i class="ti {{ categoria.icone }}" style="font-size:12px;"></i> {{ categoria.nome }}
         </button>
-        <button class="filter-tag ensaio" data-cat="ensaio">
-          <i class="ti ti-music" style="font-size:12px;"></i> Ensaio
-        </button>
-        <button class="filter-tag reuniao" data-cat="reuniao">
-          <i class="ti ti-users" style="font-size:12px;"></i> Reunião
-        </button>
-        <button class="filter-tag cirio" data-cat="cirio">
-          <i class="ti ti-map-2" style="font-size:12px;"></i> Círio
-        </button>
+        {% endfor %}
       </div>
     </div>
 
     <div class="card-base" style="padding: 0.5rem 1.25rem;">
       <div class="events-list" id="eventsList">
 
-        <div class="event-row" data-cat="missa" data-name="missa solene">
-          <div class="event-dot dot-amber"></div>
+        {% for evento in eventos_dashboard %}
+        <div class="event-row" data-cat="{{ evento.categoria_slug }}" data-name="{{ evento.busca }}">
+          <div class="event-dot {{ evento.status.dot }}"></div>
           <div class="event-info">
-            <div class="event-name">Missa solene</div>
-            <div class="event-date">12 Abr &middot; 09:00 &middot; Basílica de Nazaré</div>
+            <div class="event-name">{{ evento.nome }}</div>
+            <div class="event-date">{{ evento.data|date:"d M" }} &middot; {{ evento.hora|time:"H:i" }} &middot; {{ evento.local }}</div>
           </div>
-          <span class="event-cat cat-missa">Missa</span>
-          <span class="event-pres pres-fut">Agendado</span>
+          <span class="event-cat">{{ evento.categoria }}</span>
+          <span class="event-pres {{ evento.status.classe }}">{{ evento.status.rotulo }}</span>
         </div>
-
-        <div class="event-row" data-cat="ensaio" data-name="ensaio geral">
-          <div class="event-dot dot-blue"></div>
-          <div class="event-info">
-            <div class="event-name">Ensaio geral</div>
-            <div class="event-date">09 Abr &middot; 19:00 &middot; Sede</div>
-          </div>
-          <span class="event-cat cat-ensaio">Ensaio</span>
-          <span class="event-pres pres-sim">Presente</span>
-        </div>
-
-        <div class="event-row" data-cat="reuniao" data-name="reunião de formação">
-          <div class="event-dot dot-blue"></div>
-          <div class="event-info">
-            <div class="event-name">Reunião de formação</div>
-            <div class="event-date">07 Abr &middot; 18:00 &middot; Sede</div>
-          </div>
-          <span class="event-cat cat-reuniao">Reunião</span>
-          <span class="event-pres pres-sim">Presente</span>
-        </div>
-
-        <div class="event-row" data-cat="ensaio" data-name="ensaio formação mirim">
-          <div class="event-dot dot-blue"></div>
-          <div class="event-info">
-            <div class="event-name">Ensaio formação mirim</div>
-            <div class="event-date">03 Abr &middot; 17:00 &middot; Sede</div>
-          </div>
-          <span class="event-cat cat-ensaio">Ensaio</span>
-          <span class="event-pres pres-sim">Presente</span>
-        </div>
-
-        <div class="event-row" data-cat="missa" data-name="missa dominical">
-          <div class="event-dot dot-gray"></div>
-          <div class="event-info">
-            <div class="event-name">Missa dominical</div>
-            <div class="event-date">30 Mar &middot; 09:00 &middot; Basílica de Nazaré</div>
-          </div>
-          <span class="event-cat cat-missa">Missa</span>
-          <span class="event-pres pres-nao">Ausente</span>
-        </div>
-
-        <div class="event-row" data-cat="reuniao" data-name="reunião de coordenação">
-          <div class="event-dot dot-blue"></div>
-          <div class="event-info">
-            <div class="event-name">Reunião de coordenação</div>
-            <div class="event-date">28 Mar &middot; 18:00 &middot; Sede</div>
-          </div>
-          <span class="event-cat cat-reuniao">Reunião</span>
-          <span class="event-pres pres-sim">Presente</span>
-        </div>
-
-        <div class="event-row" data-cat="cirio" data-name="ensaio do círio">
-          <div class="event-dot dot-blue"></div>
-          <div class="event-info">
-            <div class="event-name">Ensaio do Círio</div>
-            <div class="event-date">20 Mar &middot; 07:00 &middot; Av. Nazaré</div>
-          </div>
-          <span class="event-cat cat-cirio">Círio</span>
-          <span class="event-pres pres-sim">Presente</span>
-        </div>
+        {% endfor %}
 
       </div>
       <p class="no-results" id="noResults">
@@ -314,8 +253,10 @@ Perfil Mirim
       </p>
     </div>
 
-  </div>
 </div>
+</div>
+
+{{ guarda_qr_data|json_script:"guardaQrData" }}
 
 <script>
   const searchInput = document.getElementById('searchInput');
@@ -366,6 +307,9 @@ Perfil Mirim
     applyFilters();
     searchInput.focus();
   });
+
+  applyFilters();
+
   /* GERAR CARTEIRA */
   function gerarCarteira() {
 
@@ -377,13 +321,7 @@ Perfil Mirim
     /* trava scroll da página */
     document.body.style.overflow = "hidden";
 
-    const dadosGuarda = {
-      nome: "Lucas Andre Oliveira Pinheiro",
-      matricula: "3517",
-      tipo: "Guarda Mirim",
-      observação: "Aspirante",
-      status: "Ativo"
-    };
+    const dadosGuarda = JSON.parse(document.getElementById("guardaQrData").textContent);
 
     const qr = document.getElementById("qrcode");
 

@@ -33,3 +33,7 @@ media/
 
 # Environment variables
 .env
+
+# Bruno (Postman Vegano)
+.bruno/
+bruno/
