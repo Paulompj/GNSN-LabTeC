@@ -46,6 +46,12 @@ Cadastrar evento
         <option value="{{ categoria.pk }}">{{ categoria.nome }}</option>
       {% endfor %}
     </select>
+    <button type="button" class="btn-add-inline" onclick="abrirModalNovo('categoria')">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+        <path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Nova categoria
+    </button>
     <div class="field-error" id="err-categoria">Selecione uma categoria</div>
   </div>
 
@@ -62,6 +68,12 @@ Cadastrar evento
         {% endfor %}
       </select>
     </div>
+    <button type="button" class="btn-add-inline" onclick="abrirModalNovo('local')">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+        <path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Novo local
+    </button>
     <div class="field-error" id="err-local">Selecione um local</div>
   </div>
 
@@ -195,6 +207,33 @@ Cadastrar evento
   <span id="toastMsg">Evento cadastrado com sucesso!</span>
 </div>
 
+<!-- MODAL NOVA CATEGORIA / LOCAL -->
+<div class="modal-overlay" id="modalNovoItem">
+  <div class="modal-box">
+    <div class="modal-box-title" id="modalNovoTitulo">Nova categoria</div>
+
+    <div class="field" style="margin-top: 12px;">
+      <div class="field-label"><span>Nome<span class="req">*</span></span></div>
+      <input class="input" type="text" id="novoItemNome" placeholder="Digite o nome…" maxlength="100">
+      <div class="field-error" id="err-novoItem">Informe um nome válido</div>
+    </div>
+
+    <!-- Campo extra exibido apenas para "local" -->
+    <div class="field" id="campoEnderecoLocal" style="display:none;">
+      <div class="field-label"><span>Endereço</span><small>opcional</small></div>
+      <input class="input" type="text" id="novoItemEndereco" placeholder="Endereço do local…">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" type="button" onclick="fecharModalNovo()">Cancelar</button>
+      <button class="btn-primary" type="button" id="btnSalvarNovoItem" onclick="salvarNovoItem()">
+        <span class="btn-text">Salvar</span>
+        <div class="spinner"></div>
+      </button>
+    </div>
+  </div>
+</div>
+
 {{ categorias_por_id|json_script:"categorias-por-id" }}
 {{ locais_por_id|json_script:"locais-por-id" }}
 {% csrf_token %}
@@ -321,6 +360,108 @@ function showToast(msg, isError) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
 }
+
+/* ===== MODAL NOVA CATEGORIA / NOVO LOCAL ===== */
+let tipoNovoItem = null;
+
+function abrirModalNovo(tipo) {
+  tipoNovoItem = tipo;
+  const modal = document.getElementById('modalNovoItem');
+  const titulo = document.getElementById('modalNovoTitulo');
+  const campoEndereco = document.getElementById('campoEnderecoLocal');
+  const input = document.getElementById('novoItemNome');
+
+  titulo.textContent = tipo === 'categoria' ? 'Nova categoria' : 'Novo local';
+  campoEndereco.style.display = tipo === 'local' ? 'block' : 'none';
+
+  input.value = '';
+  document.getElementById('novoItemEndereco').value = '';
+  document.getElementById('err-novoItem').classList.remove('show');
+  input.classList.remove('error');
+
+  modal.classList.add('show');
+  setTimeout(() => input.focus(), 50);
+}
+
+function fecharModalNovo() {
+  document.getElementById('modalNovoItem').classList.remove('show');
+}
+
+async function salvarNovoItem() {
+  const input = document.getElementById('novoItemNome');
+  const nome = input.value.trim();
+  const err = document.getElementById('err-novoItem');
+
+  if (!nome) {
+    input.classList.add('error');
+    err.classList.add('show');
+    return;
+  }
+  input.classList.remove('error');
+  err.classList.remove('show');
+
+  const btn = document.getElementById('btnSalvarNovoItem');
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  const url = tipoNovoItem === 'categoria'
+    ? "{% url 'evento:categoria_create' %}"
+    : "{% url 'evento:local_create' %}";
+
+  const body = new URLSearchParams({ nome });
+  if (tipoNovoItem === 'local') {
+    body.append('endereco', document.getElementById('novoItemEndereco').value.trim());
+  }
+
+  try {
+    const resposta = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      body,
+    });
+    const contentType = resposta.headers.get('content-type') || '';
+    const resultado = contentType.includes('application/json') ? await resposta.json() : {};
+
+    if (!resposta.ok || !resultado || !resultado.ok) {
+      throw new Error((resultado && resultado.error) || 'Não foi possível salvar.');
+    }
+
+    // Adiciona a nova opção no select correspondente e seleciona
+    const selectId = tipoNovoItem === 'categoria' ? 'categoria_id' : 'local_id';
+    const select = document.getElementById(selectId);
+    const option = document.createElement('option');
+    option.value = resultado.id;
+    option.textContent = resultado.nome;
+    select.appendChild(option);
+    select.value = resultado.id;
+
+    // Atualiza o dicionário local usado na prévia
+    if (tipoNovoItem === 'categoria') {
+      cats[resultado.id] = resultado.nome;
+    } else {
+      locs[resultado.id] = resultado.nome;
+    }
+
+    onFieldChange();
+    fecharModalNovo();
+    showToast(tipoNovoItem === 'categoria' ? 'Categoria criada!' : 'Local criado!', false);
+  } catch (erro) {
+    err.textContent = erro.message;
+    err.classList.add('show');
+    input.classList.add('error');
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+// Fecha modal ao clicar fora
+document.getElementById('modalNovoItem').addEventListener('click', function(event) {
+  if (event.target === this) fecharModalNovo();
+});
 
 // preenche data mínima = hoje
 const today = new Date().toISOString().split('T')[0];
