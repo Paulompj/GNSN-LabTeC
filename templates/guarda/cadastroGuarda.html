@@ -9,7 +9,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link
+  href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+  rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/cadastroEvento.css' %}">
 <style>
   /* ── STEPPER ── */
@@ -19,6 +21,7 @@
     padding: 16px 16px 0;
     gap: 0;
   }
+
   .step {
     display: flex;
     flex-direction: column;
@@ -27,6 +30,7 @@
     flex: 1;
     position: relative;
   }
+
   /* linha entre steps */
   .step:not(:last-child)::after {
     content: '';
@@ -39,32 +43,42 @@
     transition: background .3s;
     z-index: 0;
   }
-  .step.done:not(:last-child)::after  { background: var(--blue); }
+
+  .step.done:not(:last-child)::after {
+    background: var(--blue);
+  }
 
   .step-circle {
-    width: 26px; height: 26px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     border: 2px solid var(--border2);
     background: var(--white);
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; font-weight: 500;
+    font-size: 11px;
+    font-weight: 500;
     color: var(--gray-light);
     transition: all .25s;
     z-index: 1;
     position: relative;
     flex-shrink: 0;
   }
+
   .step.active .step-circle {
     border-color: var(--blue);
     background: var(--blue);
     color: var(--white);
   }
+
   .step.done .step-circle {
     border-color: var(--blue);
     background: var(--blue-light);
     color: var(--blue);
   }
+
   .step-label {
     font-size: 9px;
     font-weight: 500;
@@ -74,12 +88,23 @@
     text-align: center;
     line-height: 1.2;
   }
-  .step.active .step-label { color: var(--blue); }
-  .step.done   .step-label { color: var(--gray); }
+
+  .step.active .step-label {
+    color: var(--blue);
+  }
+
+  .step.done .step-label {
+    color: var(--gray);
+  }
 
   /* ── FORM PAGES ── */
-  .form-page { display: none; }
-  .form-page.active { display: block; }
+  .form-page {
+    display: none;
+  }
+
+  .form-page.active {
+    display: block;
+  }
 
   /* ── SAÚDE GRID (checkboxes) ── */
   .saude-grid {
@@ -87,6 +112,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 8px;
   }
+
   .check-row {
     display: flex;
     align-items: center;
@@ -102,26 +128,41 @@
     color: var(--dark);
     user-select: none;
   }
-  .check-row:hover { border-color: var(--blue); }
+
+  .check-row:hover {
+    border-color: var(--blue);
+  }
+
   .check-row.checked {
     border-color: var(--blue);
     background: var(--blue-light);
     color: var(--blue);
   }
+
   .check-box {
-    width: 16px; height: 16px;
+    width: 16px;
+    height: 16px;
     border-radius: 4px;
     border: 1.5px solid var(--border2);
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
     transition: all .15s;
   }
+
   .check-row.checked .check-box {
     background: var(--blue);
     border-color: var(--blue);
   }
-  .check-box svg { display: none; }
-  .check-row.checked .check-box svg { display: block; }
+
+  .check-box svg {
+    display: none;
+  }
+
+  .check-row.checked .check-box svg {
+    display: block;
+  }
 
   /* ── SACRAMENTO GRID ── */
   .sacr-grid {
@@ -130,6 +171,7 @@
     gap: 8px;
     margin-bottom: 14px;
   }
+
   .sacr-card {
     background: var(--white);
     border: 1.5px solid var(--border);
@@ -139,21 +181,44 @@
     transition: border-color .15s, background .15s;
     text-align: center;
   }
-  .sacr-card:hover { border-color: var(--blue); }
+
+  .sacr-card:hover {
+    border-color: var(--blue);
+  }
+
   .sacr-card.checked {
     border-color: var(--blue);
     background: var(--blue-light);
   }
-  .sacr-icon { font-size: 20px; margin-bottom: 4px; }
+
+  .sacr-icon {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+
   .sacr-name {
-    font-size: 12px; font-weight: 600; color: var(--dark);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--dark);
     margin-bottom: 2px;
   }
-  .sacr-card.checked .sacr-name { color: var(--blue); }
-  .sacr-date-wrap { margin-top: 8px; display: none; }
-  .sacr-card.checked .sacr-date-wrap { display: block; }
+
+  .sacr-card.checked .sacr-name {
+    color: var(--blue);
+  }
+
+  .sacr-date-wrap {
+    margin-top: 8px;
+    display: none;
+  }
+
+  .sacr-card.checked .sacr-date-wrap {
+    display: block;
+  }
+
   .sacr-date {
-    width: 100%; height: 34px;
+    width: 100%;
+    height: 34px;
     border: 1.5px solid var(--border2);
     border-radius: 7px;
     background: var(--white);
@@ -166,7 +231,10 @@
     -webkit-appearance: none;
     appearance: none;
   }
-  .sacr-date:focus { border-color: var(--blue); }
+
+  .sacr-date:focus {
+    border-color: var(--blue);
+  }
 
   /* ── NAV BOTÕES ── */
   .step-actions {
@@ -175,46 +243,85 @@
     gap: 10px;
     margin-bottom: 50px;
   }
+
   .btn-next {
-    flex: 1; height: 48px;
-    background: var(--blue); color: var(--white);
-    border: none; border-radius: 12px;
+    flex: 1;
+    height: 48px;
+    background: var(--blue);
+    color: var(--white);
+    border: none;
+    border-radius: 12px;
     font-family: 'Sora', sans-serif;
-    font-size: 14px; font-weight: 600;
+    font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     transition: opacity .15s, transform .1s;
   }
-  .btn-next:hover  { opacity: .88; }
-  .btn-next:active { transform: scale(.98); }
-  .btn-next:disabled { opacity: .4; cursor: not-allowed; }
+
+  .btn-next:hover {
+    opacity: .88;
+  }
+
+  .btn-next:active {
+    transform: scale(.98);
+  }
+
+  .btn-next:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+  }
 
   .btn-back-step {
-    height: 48px; padding: 0 18px;
+    height: 48px;
+    padding: 0 18px;
     background: transparent;
     border: 1.5px solid var(--border2);
     border-radius: 12px;
     font-family: 'Sora', sans-serif;
-    font-size: 14px; font-weight: 500;
-    color: var(--gray); cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray);
+    cursor: pointer;
     transition: background .15s;
     display: none;
   }
-  .btn-back-step.show { display: block; }
-  .btn-back-step:hover { background: var(--bg); }
+
+  .btn-back-step.show {
+    display: block;
+  }
+
+  .btn-back-step:hover {
+    background: var(--bg);
+  }
 
   /* spinner */
-  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
   .spinner {
-    width: 16px; height: 16px;
-    border: 2px solid rgba(255,255,255,.3);
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, .3);
     border-top-color: #fff;
     border-radius: 50%;
     animation: spin .7s linear infinite;
     display: none;
   }
-  .btn-next.loading .spinner   { display: block; }
-  .btn-next.loading .btn-txt   { display: none; }
+
+  .btn-next.loading .spinner {
+    display: block;
+  }
+
+  .btn-next.loading .btn-txt {
+    display: none;
+  }
 </style>
 {% endblock %}
 
@@ -259,8 +366,9 @@
 
     <div class="section-label">
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-        <circle cx="6.5" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3"/>
-        <path d="M2 11c0-2.485 2.015-4.5 4.5-4.5S11 8.515 11 11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        <circle cx="6.5" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3" />
+        <path d="M2 11c0-2.485 2.015-4.5 4.5-4.5S11 8.515 11 11" stroke="currentColor" stroke-width="1.3"
+          stroke-linecap="round" />
       </svg>
       Dados pessoais
       <div class="section-line"></div>
@@ -270,6 +378,12 @@
       <div class="field-label"><span>Nome completo<span class="req">*</span></span></div>
       <input class="input" id="nome" type="text" placeholder="Ex: Maria da Paz Oliveira">
       <div class="field-error" id="err-nome">Informe o nome completo</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span>Matrícula<span class="req">*</span></span></div>
+      <input class="input" id="matricula" type="text" placeholder="0001" maxlength="4" oninput="maskMatricula(this)">
+      <div class="field-error" id="err-matricula">Informe uma matrícula entre 0001 e 9999</div>
     </div>
 
     <div class="dt-row">
@@ -289,8 +403,8 @@
       <div class="input-wrap">
         <span class="input-icon">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <rect x="1" y="3" width="11" height="8" rx="2" stroke="currentColor" stroke-width="1.3"/>
-            <path d="M1 5l5.5 3.5L12 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <rect x="1" y="3" width="11" height="8" rx="2" stroke="currentColor" stroke-width="1.3" />
+            <path d="M1 5l5.5 3.5L12 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
           </svg>
         </span>
         <input class="input" id="email" type="email" placeholder="exemplo@email.com">
@@ -303,11 +417,12 @@
       <div class="input-wrap">
         <span class="input-icon">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <rect x="3" y="1" width="7" height="11" rx="2" stroke="currentColor" stroke-width="1.3"/>
-            <circle cx="6.5" cy="9.5" r=".8" fill="currentColor"/>
+            <rect x="3" y="1" width="7" height="11" rx="2" stroke="currentColor" stroke-width="1.3" />
+            <circle cx="6.5" cy="9.5" r=".8" fill="currentColor" />
           </svg>
         </span>
-        <input class="input" id="telefone" type="tel" placeholder="(91) 99999-0000" maxlength="15" oninput="maskTel(this)">
+        <input class="input" id="telefone" type="tel" placeholder="(91) 99999-0000" maxlength="15"
+          oninput="maskTel(this)">
       </div>
     </div>
 
@@ -350,8 +465,9 @@
 
     <div class="section-label">
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-        <path d="M6.5 1C4.567 1 3 2.567 3 4.5c0 2.625 3.5 7 3.5 7S10 7.125 10 4.5C10 2.567 8.433 1 6.5 1z" stroke="currentColor" stroke-width="1.3"/>
-        <circle cx="6.5" cy="4.5" r="1.2" stroke="currentColor" stroke-width="1.2"/>
+        <path d="M6.5 1C4.567 1 3 2.567 3 4.5c0 2.625 3.5 7 3.5 7S10 7.125 10 4.5C10 2.567 8.433 1 6.5 1z"
+          stroke="currentColor" stroke-width="1.3" />
+        <circle cx="6.5" cy="4.5" r="1.2" stroke="currentColor" stroke-width="1.2" />
       </svg>
       Endereço
       <div class="section-line"></div>
@@ -366,10 +482,14 @@
         <div class="field-label"><span>UF</span><small>opcional</small></div>
         <select class="select" id="uf">
           <option value="">UF</option>
-          <option value="PA">PA</option><option value="AM">AM</option>
-          <option value="SP">SP</option><option value="RJ">RJ</option>
-          <option value="MG">MG</option><option value="BA">BA</option>
-          <option value="CE">CE</option><option value="MA">MA</option>
+          <option value="PA">PA</option>
+          <option value="AM">AM</option>
+          <option value="SP">SP</option>
+          <option value="RJ">RJ</option>
+          <option value="MG">MG</option>
+          <option value="BA">BA</option>
+          <option value="CE">CE</option>
+          <option value="MA">MA</option>
         </select>
       </div>
     </div>
@@ -412,8 +532,8 @@
 
     <div class="section-label">
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-        <rect x="1" y="1" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.3"/>
-        <path d="M6.5 3.5v6M3.5 6.5h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        <rect x="1" y="1" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.3" />
+        <path d="M6.5 3.5v6M3.5 6.5h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
       </svg>
       Condições de saúde
       <div class="section-line"></div>
@@ -425,7 +545,7 @@
       <div class="check-row" onclick="toggleCheck(this, '{{ cond.key }}')" data-key="{{ cond.key }}">
         <div class="check-box">
           <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-            <path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </div>
         {{ cond.label }}
@@ -436,7 +556,7 @@
       <div class="check-row" onclick="toggleCheck(this, '{{ key }}')" data-key="{{ key }}">
         <div class="check-box">
           <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-            <path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M1 4l3 3 5-6" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </div>
         {{ label }}
@@ -447,9 +567,9 @@
 
     <div class="section-label" style="margin-top:20px">
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-        <path d="M2 2h9l-1 7H3L2 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
-        <circle cx="4.5" cy="11" r=".8" fill="currentColor"/>
-        <circle cx="8.5" cy="11" r=".8" fill="currentColor"/>
+        <path d="M2 2h9l-1 7H3L2 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
+        <circle cx="4.5" cy="11" r=".8" fill="currentColor" />
+        <circle cx="8.5" cy="11" r=".8" fill="currentColor" />
       </svg>
       Informações adicionais
       <div class="section-line"></div>
@@ -460,12 +580,16 @@
       <select class="select" id="tipo_sanguineo">
         <option value="">Selecione…</option>
         {% for tipo in tipos_sanguineos %}
-          <option value="{{ tipo }}">{{ tipo }}</option>
+        <option value="{{ tipo }}">{{ tipo }}</option>
         {% empty %}
-          <option value="A+">A+</option><option value="A-">A-</option>
-          <option value="B+">B+</option><option value="B-">B-</option>
-          <option value="AB+">AB+</option><option value="AB-">AB-</option>
-          <option value="O+">O+</option><option value="O-">O-</option>
+        <option value="A+">A+</option>
+        <option value="A-">A-</option>
+        <option value="B+">B+</option>
+        <option value="B-">B-</option>
+        <option value="AB+">AB+</option>
+        <option value="AB-">AB-</option>
+        <option value="O+">O+</option>
+        <option value="O-">O-</option>
         {% endfor %}
       </select>
     </div>
@@ -492,7 +616,8 @@
 
     <div class="section-label" style="margin-top:20px">
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-        <path d="M6.5 1C4.567 1 3 2.567 3 4.5c0 2.625 3.5 7 3.5 7S10 7.125 10 4.5C10 2.567 8.433 1 6.5 1z" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M6.5 1C4.567 1 3 2.567 3 4.5c0 2.625 3.5 7 3.5 7S10 7.125 10 4.5C10 2.567 8.433 1 6.5 1z"
+          stroke="currentColor" stroke-width="1.3" />
       </svg>
       Contato de emergência
       <div class="section-line"></div>
@@ -504,7 +629,8 @@
     </div>
     <div class="field">
       <div class="field-label"><span>Telefone</span><small>opcional</small></div>
-      <input class="input" id="contato_emergencia_telefone" type="tel" placeholder="(91) 99999-0000" maxlength="15" oninput="maskTel(this)">
+      <input class="input" id="contato_emergencia_telefone" type="tel" placeholder="(91) 99999-0000" maxlength="15"
+        oninput="maskTel(this)">
     </div>
 
     <div class="field">
@@ -523,7 +649,8 @@
 
     <div class="section-label">
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-        <path d="M6.5 1l1.5 3 3.5.5-2.5 2.5.5 3.5L6.5 9 3.5 10.5 4 7 1.5 4.5 5 4z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+        <path d="M6.5 1l1.5 3 3.5.5-2.5 2.5.5 3.5L6.5 9 3.5 10.5 4 7 1.5 4.5 5 4z" stroke="currentColor"
+          stroke-width="1.2" stroke-linejoin="round" />
       </svg>
       Dados da guarda
       <div class="section-line"></div>
@@ -553,11 +680,14 @@
       <select class="select" id="ministerio">
         <option value="">Selecione…</option>
         {% for m in ministerios %}
-          <option value="{{ m.value }}">{{ m.label }}</option>
+        <option value="{{ m.value }}">{{ m.label }}</option>
         {% empty %}
-          <option value="nazare">Nossa Senhora de Nazaré</option>
-          <option value="joao_batista">São João Batista</option>
-          <option value="santo_andre">Santo André</option>
+        <option value="samz">SAMZ</option>
+        <option value="ns_gracas">N.S. das Graças</option>
+        <option value="santa_bernadette">Santa Bernadette</option>
+        <option value="sagrada_familia">Sagrada Família</option>
+        <option value="sao_bras">São Brás</option>
+        <option value="basilica_ns_nazare">Basílica N.S. de Nazaré</option>
         {% endfor %}
       </select>
       <div class="field-error" id="err-ministerio">Selecione o ministério</div>
@@ -603,7 +733,7 @@
 
     <div class="section-label">
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-        <path d="M6.5 1v11M3 4h7M2 7h9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M6.5 1v11M3 4h7M2 7h9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
       </svg>
       Sacramentos recebidos
       <div class="section-line"></div>
@@ -622,7 +752,8 @@
         <div class="sacr-icon">🍞</div>
         <div class="sacr-name">1ª Eucaristia</div>
         <div class="sacr-date-wrap">
-          <input class="sacr-date" type="date" id="data_primeira_eucaristia" onclick="event.stopPropagation()" placeholder="Data">
+          <input class="sacr-date" type="date" id="data_primeira_eucaristia" onclick="event.stopPropagation()"
+            placeholder="Data">
         </div>
       </div>
       <div class="sacr-card" onclick="toggleSacr(this, 'crisma')" data-key="crisma">
@@ -640,13 +771,21 @@
         </div>
       </div>
     </div>
+    <div class="sacr-card" onclick="toggleSacr(this, 'casamento')" data-key="casamento">
+      <div class="sacr-icon">💍</div>
+      <div class="sacr-name">Casamento</div>
+      <div class="sacr-date-wrap">
+        <input class="sacr-date" type="date" id="data_casamento" onclick="event.stopPropagation()" placeholder="Data">
+      </div>
+    </div>
 
     <!-- PREVIEW FINAL -->
     <div class="summary-card show" id="summaryCard">
       <div class="summary-title">
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="display:inline;margin-right:4px;vertical-align:middle">
-          <circle cx="5" cy="5" r="4" stroke="#EF9F27" stroke-width="1.2"/>
-          <path d="M5 3v2.5l1.5 1" stroke="#EF9F27" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
+          style="display:inline;margin-right:4px;vertical-align:middle">
+          <circle cx="5" cy="5" r="4" stroke="#EF9F27" stroke-width="1.2" />
+          <path d="M5 3v2.5l1.5 1" stroke="#EF9F27" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
         Resumo do cadastro
       </div>
@@ -660,8 +799,16 @@
           <div class="summary-val mono" id="prev-cpf">—</div>
         </div>
         <div class="summary-item">
+          <div class="summary-key">E-mail</div>
+          <div class="summary-val" id="prev-email">—</div>
+        </div>
+        <div class="summary-item">
           <div class="summary-key">Ministério</div>
           <div class="summary-val" id="prev-ministerio">—</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-key">Matrícula</div>
+          <div class="summary-val" id="prev-matricula">—</div>
         </div>
         <div class="summary-item">
           <div class="summary-key">Turma / Tipo</div>
@@ -686,7 +833,7 @@
 <div class="toast" id="toast">
   <div class="toast-icon">
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-      <path d="M2.5 7l3.5 3.5 5.5-6" stroke="#111827" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M2.5 7l3.5 3.5 5.5-6" stroke="#111827" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
     </svg>
   </div>
   <span id="toastMsg">Guarda cadastrado com sucesso!</span>
@@ -696,15 +843,15 @@
   /* ── ESTADO ── */
   let currentStep = 1;
   const TOTAL_STEPS = 5;
-  const saudeChecked  = new Set();
-  const sacrChecked   = new Set();
+  const saudeChecked = new Set();
+  const sacrChecked = new Set();
 
   /* ── STEPPER ── */
   function updateStepper() {
     for (let i = 1; i <= TOTAL_STEPS; i++) {
       const el = document.getElementById('st-' + i);
       el.classList.remove('active', 'done');
-      if (i < currentStep)  el.classList.add('done');
+      if (i < currentStep) el.classList.add('done');
       if (i === currentStep) el.classList.add('active');
     }
     // mostra/esconde botão voltar
@@ -733,27 +880,36 @@
     });
 
     const setErr = (...ids) => ids.forEach(id => {
-      const el  = document.getElementById(id);
+      const el = document.getElementById(id);
       const err = document.getElementById('err-' + id);
-      if (el)  el.classList.add('error');
+      if (el) el.classList.add('error');
       if (err) err.classList.add('show');
       ok = false;
     });
 
     if (n === 1) {
-      clearErr('nome', 'cpf', 'email');
-      const nome  = document.getElementById('nome').value.trim();
-      const cpf   = document.getElementById('cpf').value.trim();
+      clearErr('nome', 'cpf', 'email', 'matricula');
+      const nome = document.getElementById('nome').value.trim();
+      const cpf = document.getElementById('cpf').value.trim();
       const email = document.getElementById('email').value.trim();
-      if (!nome)                          setErr('nome');
-      if (!cpf || cpf.length < 14)        setErr('cpf');
+      const matricula = document.getElementById('matricula').value.trim();
+
+      if (!nome) setErr('nome');
+      if (!cpf || cpf.length < 14) setErr('cpf');
       if (!email || !email.includes('@')) setErr('email');
+      if (!matricula) setErr('matricula');
+
+      // obrigatório, entre 0001 e 9999, exatamente 4 dígitos
+      const matNum = parseInt(matricula, 10);
+      if (!matricula || matricula.length !== 4 || matNum < 1 || matNum > 9999) {
+        setErr('matricula');
+      }
     }
 
     if (n === 4) {
       clearErr('turma', 'tipo', 'ministerio');
-      if (!document.getElementById('turma').value)      setErr('turma');
-      if (!document.getElementById('tipo').value)       setErr('tipo');
+      if (!document.getElementById('turma').value) setErr('turma');
+      if (!document.getElementById('tipo').value) setErr('tipo');
       if (!document.getElementById('ministerio').value) setErr('ministerio');
     }
 
@@ -792,14 +948,20 @@
     document.getElementById('prev-nome').textContent =
       document.getElementById('nome').value || '—';
     document.getElementById('prev-cpf').textContent =
-      document.getElementById('cpf').value  || '—';
+      document.getElementById('cpf').value || '—';
     const minEl = document.getElementById('ministerio');
     document.getElementById('prev-ministerio').textContent =
       minEl.options[minEl.selectedIndex]?.text || '—';
     const turma = document.getElementById('turma').value;
-    const tipo  = document.getElementById('tipo').value;
+    const tipo = document.getElementById('tipo').value;
     document.getElementById('prev-turma').textContent =
       turma && tipo ? `Turma ${turma} · ${tipo}` : '—';
+    document.getElementById('prev-matricula').textContent =
+      document.getElementById('matricula').value || '—';
+    document.getElementById('prev-email').textContent =
+      document.getElementById('email').value || '—';
+    document.getElementById('prev-tipo').textContent =
+      document.getElementById('tipo').value || '—';
   }
 
   /* ── CHECKBOXES SAÚDE ── */
@@ -828,53 +990,54 @@
 
     // monta sacramentos
     const sacramento = {};
-    ['batismo','primeira_eucaristia','crisma','ordem'].forEach(s => {
-      sacramento[s]           = sacrChecked.has(s) ? 1 : 0;
-      const dateEl            = document.getElementById('data_' + s);
+    ['batismo', 'primeira_eucaristia', 'crisma', 'ordem', 'casamento'].forEach(s => {
+      sacramento[s] = sacrChecked.has(s) ? 1 : 0;
+      const dateEl = document.getElementById('data_' + s);
       if (dateEl && dateEl.value) sacramento['data_' + s] = dateEl.value;
     });
 
     const payload = {
       // step 1
-      nome:              document.getElementById('nome').value,
-      cpf:               document.getElementById('cpf').value,
-      rg:                document.getElementById('rg').value || null,
-      email:             document.getElementById('email').value,
-      telefone:          document.getElementById('telefone').value || null,
-      data_nascimento:   document.getElementById('data_nascimento').value || null,
-      genero:            document.getElementById('genero').value || null,
-      estado_civil:      document.getElementById('estado_civil').value || null,
+      nome: document.getElementById('nome').value,
+      cpf: document.getElementById('cpf').value,
+      rg: document.getElementById('rg').value || null,
+      matricula: document.getElementById('matricula').value,
+      email: document.getElementById('email').value,
+      telefone: document.getElementById('telefone').value || null,
+      data_nascimento: document.getElementById('data_nascimento').value || null,
+      genero: document.getElementById('genero').value || null,
+      estado_civil: document.getElementById('estado_civil').value || null,
       // step 2
       endereco: {
-        cep:         document.getElementById('cep').value         || null,
-        uf:          document.getElementById('uf').value          || null,
-        logradouro:  document.getElementById('logradouro').value  || null,
-        numero:      document.getElementById('numero').value      || null,
+        cep: document.getElementById('cep').value || null,
+        uf: document.getElementById('uf').value || null,
+        logradouro: document.getElementById('logradouro').value || null,
+        numero: document.getElementById('numero').value || null,
         complemento: document.getElementById('complemento').value || null,
-        bairro:      document.getElementById('bairro').value      || null,
-        cidade:      document.getElementById('cidade').value      || null,
+        bairro: document.getElementById('bairro').value || null,
+        cidade: document.getElementById('cidade').value || null,
       },
       // step 3
       ficha_saude: {
         ...saude,
-        tipo_sanguineo:              document.getElementById('tipo_sanguineo').value              || null,
-        alergia:                     document.getElementById('alergia').value                     || null,
-        intolerancia_alimentar:      document.getElementById('intolerancia_alimentar').value      || null,
-        uso_medicamento_controlado:  document.getElementById('uso_medicamento_controlado').value  || null,
-        plano_saude:                 document.getElementById('plano_saude').value                 || null,
-        contato_emergencia_nome:     document.getElementById('contato_emergencia_nome').value     || null,
+        tipo_sanguineo: document.getElementById('tipo_sanguineo').value || null,
+        alergia: document.getElementById('alergia').value || null,
+        intolerancia_alimentar: document.getElementById('intolerancia_alimentar').value || null,
+        uso_medicamento_controlado: document.getElementById('uso_medicamento_controlado').value || null,
+        plano_saude: document.getElementById('plano_saude').value || null,
+        contato_emergencia_nome: document.getElementById('contato_emergencia_nome').value || null,
         contato_emergencia_telefone: document.getElementById('contato_emergencia_telefone').value || null,
-        observacao:                  document.getElementById('obs_saude').value                   || null,
+        observacao: document.getElementById('obs_saude').value || null,
       },
       // step 4
       guarda: {
-        turma:         parseInt(document.getElementById('turma').value),
-        tipo:          document.getElementById('tipo').value,
-        ministerio:    document.getElementById('ministerio').value,
-        paroquia:      document.getElementById('paroquia').value      || null,
-        tamanho_camisa:document.getElementById('tamanho_camisa').value|| null,
+        turma: parseInt(document.getElementById('turma').value),
+        tipo: document.getElementById('tipo').value,
+        ministerio: document.getElementById('ministerio').value,
+        paroquia: document.getElementById('paroquia').value || null,
+        tamanho_camisa: document.getElementById('tamanho_camisa').value || null,
         data_ingresso: document.getElementById('data_ingresso').value || null,
-        observacao:    document.getElementById('obs_guarda').value    || null,
+        observacao: document.getElementById('obs_guarda').value || null,
       },
       // step 5
       sacramento,
@@ -883,26 +1046,30 @@
     console.log('POST /pessoas + /guardas', payload);
 
     // ── integração real ─────────────────────────────────────────
-    // fetch("{% url 'guarda:cadastro_guarda' %}", {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
-    //   body: JSON.stringify(payload),
-    // })
-    // .then(r => r.ok ? r.json() : Promise.reject())
-    // .then(data => {
-    //   showToast('Guarda cadastrado com sucesso!', false);
-    //   setTimeout(() => window.location.href = `/guardas/${data.guarda_id}/`, 1600);
-    // })
-    // .catch(() => {
-    //   showToast('Erro ao salvar — tente novamente', true);
-    //   btn.classList.remove('loading'); btn.disabled = false;
-    // });
+    fetch("{% url 'guarda:cadastro_guarda' %}", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+      body: JSON.stringify(payload),
+    })
+      .then(data => {
+        showToast('Guarda cadastrado com sucesso!', false);
+        setTimeout(() => {
+          window.location.href = "{% url 'guarda:guardas' %}";
+        }, 1200);
+    })
+      .catch(() => {
+        showToast('Erro ao salvar — tente novamente', true);
+        btn.classList.remove('loading'); btn.disabled = false;
+      });
     // ───────────────────────────────────────────────────────────
 
     setTimeout(() => {
       btn.classList.remove('loading');
       btn.disabled = false;
       showToast('Guarda cadastrado com sucesso!', false);
+      setTimeout(() => {
+        window.location.href = "{% url 'guarda:guardas' %}";
+      }, 1200);
     }, 1200);
   }
 
@@ -910,14 +1077,14 @@
   function maskCPF(el) {
     let v = el.value.replace(/\D/g, '').slice(0, 11);
     v = v.replace(/(\d{3})(\d)/, '$1.$2')
-         .replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
-         .replace(/\.(\d{3})(\d)/, '.$1-$2');
+      .replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+      .replace(/\.(\d{3})(\d)/, '.$1-$2');
     el.value = v;
   }
   function maskTel(el) {
     let v = el.value.replace(/\D/g, '').slice(0, 11);
     v = v.replace(/(\d{2})(\d)/, '($1) $2')
-         .replace(/(\d{5})(\d)/, '$1-$2');
+      .replace(/(\d{5})(\d)/, '$1-$2');
     el.value = v;
   }
   function maskCEP(el) {
@@ -925,10 +1092,15 @@
     v = v.replace(/(\d{5})(\d)/, '$1-$2');
     el.value = v;
   }
+  function maskMatricula(el) {
+    // mantém só dígitos, limita a 4 caracteres
+    let v = el.value.replace(/\D/g, '').slice(0, 4);
+    el.value = v;
+  }
 
   /* ── TOAST ── */
   function showToast(msg, isError = false) {
-    const t    = document.getElementById('toast');
+    const t = document.getElementById('toast');
     const icon = t.querySelector('.toast-icon');
     document.getElementById('toastMsg').textContent = msg;
     icon.style.background = isError ? '#dc2626' : '#EF9F27';
