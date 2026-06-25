@@ -15,6 +15,18 @@ Cadastrar evento
 {% endblock %}
 
 {% block body %}
+
+<!-- MENSAGENS DO DJANGO (feedback de redirect após criar categoria/local) -->
+{% if messages %}
+  <script>
+    window._djangoMessages = [
+      {% for msg in messages %}
+        { text: "{{ msg|escapejs }}", isError: "{{ msg.tags }}" === "error" }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ];
+  </script>
+{% endif %}
+
 <!-- HERO STRIP -->
 <div class="hero-strip" style="background-color: #0c3967;">
   <div class="hero-label">Novo registro</div>
@@ -43,7 +55,9 @@ Cadastrar evento
     <select class="select" id="categoria_id" onchange="onFieldChange()">
       <option value="">Selecione a categoria…</option>
       {% for categoria in categorias %}
-        <option value="{{ categoria.pk }}">{{ categoria.nome }}</option>
+        {% if categoria.is_ativo %}
+          <option value="{{ categoria.pk }}">{{ categoria.nome }}</option>
+        {% endif %}
       {% endfor %}
     </select>
     <div class="field-error" id="err-categoria">Selecione uma categoria</div>
@@ -58,7 +72,9 @@ Cadastrar evento
       <select class="select" id="local_id" onchange="onFieldChange()">
         <option value="">Selecione o local…</option>
         {% for local in locais %}
-          <option value="{{ local.pk }}">{{ local.nome }}</option>
+          {% if local.is_ativo %}
+            <option value="{{ local.pk }}">{{ local.nome }}</option>
+          {% endif %}
         {% endfor %}
       </select>
     </div>
@@ -195,23 +211,91 @@ Cadastrar evento
   <span id="toastMsg">Evento cadastrado com sucesso!</span>
 </div>
 
+<<<<<<< Updated upstream
+=======
+<!-- =====================================================
+     MODAL NOVA CATEGORIA / LOCAL
+     Funciona como um mini-formulário independente que
+     submete para as views existentes (categoria_create /
+     local_create) e volta para cá via ?nova=categoria
+     ou ?nova=local, sem precisar de resposta JSON.
+     ===================================================== -->
+<div class="modal-overlay" id="modalNovoItem">
+  <div class="modal-box">
+    <div class="modal-box-title" id="modalNovoTitulo">Nova categoria</div>
+
+    {# Formulário real que submete para a view correta #}
+    <form id="formNovoItem" method="post" action="">
+      {% csrf_token %}
+
+      <!-- Nome -->
+      <div class="field" style="margin-top: 12px;">
+        <div class="field-label"><span>Nome<span class="req">*</span></span></div>
+        <input class="input" type="text" name="nome" id="novoItemNome"
+               placeholder="Digite o nome…" maxlength="100" required>
+        <div class="field-error" id="err-novoItem">Informe um nome válido</div>
+      </div>
+
+      <!-- Endereço (apenas para local) -->
+      <div class="field" id="campoEnderecoLocal" style="display:none;">
+        <div class="field-label"><span>Endereço</span><small>opcional</small></div>
+        <input class="input" type="text" name="endereco" id="novoItemEndereco"
+               placeholder="Endereço do local…">
+      </div>
+
+      <!-- is_ativo -->
+      <div class="field" style="margin-top: 8px;">
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:var(--text-secondary, #6b7280);">
+          <input type="checkbox" name="is_ativo" id="novoItemIsAtivo"
+                 checked
+                 style="width:15px; height:15px; accent-color:#0c3967; cursor:pointer;">
+          <span id="labelIsAtivo">Categoria ativa</span>
+        </label>
+      </div>
+
+      <!-- Campo oculto: diz à view para onde redirecionar após salvar -->
+      <input type="hidden" name="next" id="hiddenNext" value="">
+
+      <div class="modal-actions">
+        <button class="btn-secondary" type="button" onclick="fecharModalNovo()">Cancelar</button>
+        <button class="btn-primary" type="submit" id="btnSalvarNovoItem">
+          <span class="btn-text">Salvar</span>
+          <div class="spinner"></div>
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+>>>>>>> Stashed changes
 {{ categorias_por_id|json_script:"categorias-por-id" }}
 {{ locais_por_id|json_script:"locais-por-id" }}
-{% csrf_token %}
 
 <script>
-let facialOn = false;
-
+/* ── Dados do servidor ── */
 const cats = JSON.parse(document.getElementById('categorias-por-id').textContent);
-const locs = JSON.parse(document.getElementById('locais-por-id').textContent);
+const locs  = JSON.parse(document.getElementById('locais-por-id').textContent);
 
+/* ── Exibe toasts vindos das messages do Django (após redirect do modal) ── */
+(function () {
+  const msgs = window._djangoMessages || [];
+  msgs.forEach(function (m) {
+    // pequeno delay para garantir que o CSS do toast já carregou
+    setTimeout(function () { showToast(m.text, m.isError); }, 200);
+  });
+})();
+
+/* ── Toggle facial ── */
+let facialOn = false;
 function toggleFacial() {
   facialOn = !facialOn;
   document.getElementById('facialTrack').classList.toggle('on', facialOn);
 }
 
+/* ── Atualiza prévia em tempo real ── */
 function onFieldChange() {
-  const catId  = document.getElementById('categoria_id').value;
+  const catId = document.getElementById('categoria_id').value;
   const locId  = document.getElementById('local_id').value;
   const data   = document.getElementById('data').value;
   const hora   = document.getElementById('hora').value;
@@ -220,11 +304,10 @@ function onFieldChange() {
   document.getElementById('charCount').textContent = obs.length;
 
   const anyFilled = catId || locId || data || hora;
-  const card = document.getElementById('summaryCard');
-  card.classList.toggle('show', !!anyFilled);
+  document.getElementById('summaryCard').classList.toggle('show', !!anyFilled);
 
-  if (catId)  document.getElementById('prev-categoria').textContent = cats[catId] || '—';
-  if (locId)  document.getElementById('prev-local').textContent = locs[locId] || '—';
+  if (catId) document.getElementById('prev-categoria').textContent = cats[catId] || '—';
+  if (locId)  document.getElementById('prev-local').textContent = locs[locId]  || '—';
   if (data)   document.getElementById('prev-data').textContent = formatDate(data);
   if (hora)   document.getElementById('prev-hora').textContent = hora;
 }
@@ -235,13 +318,18 @@ function formatDate(d) {
   return `${day}/${m}/${y}`;
 }
 
+/* ── Validação do evento ── */
 function validate() {
   let ok = true;
-  const fields = ['categoria', 'local', 'data', 'hora'];
-  const ids    = ['categoria_id', 'local_id', 'data', 'hora'];
-  fields.forEach((f, i) => {
-    const el  = document.getElementById(ids[i]);
-    const err = document.getElementById('err-' + f);
+  const pairs = [
+    ['categoria_id', 'err-categoria'],
+    ['local_id',     'err-local'],
+    ['data',         'err-data'],
+    ['hora',         'err-hora'],
+  ];
+  pairs.forEach(([inputId, errId]) => {
+    const el  = document.getElementById(inputId);
+    const err = document.getElementById(errId);
     if (!el.value) {
       el.classList.add('error');
       err.classList.add('show');
@@ -254,6 +342,7 @@ function validate() {
   return ok;
 }
 
+/* ── Submissão do evento (fetch JSON — não muda) ── */
 async function submitForm() {
   if (!validate()) {
     showToast('Preencha os campos obrigatórios', true);
@@ -265,31 +354,29 @@ async function submitForm() {
 
   const dadosEvento = new URLSearchParams({
     categoria_id: document.getElementById('categoria_id').value,
-    local_id: document.getElementById('local_id').value,
-    data: document.getElementById('data').value,
-    hora: document.getElementById('hora').value,
+    local_id:     document.getElementById('local_id').value,
+    data:         document.getElementById('data').value,
+    hora:         document.getElementById('hora').value,
   });
 
   try {
     const resposta = await fetch(window.location.href, {
       method: 'POST',
       headers: {
-        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        'X-CSRFToken':    document.querySelector('[name=csrfmiddlewaretoken]').value,
         'X-Requested-With': 'XMLHttpRequest',
       },
       body: dadosEvento,
     });
-    const contentType = resposta.headers.get('content-type') || '';
-    const resultado = contentType.includes('application/json') ? await resposta.json() : {};
+    const ct      = resposta.headers.get('content-type') || '';
+    const result  = ct.includes('application/json') ? await resposta.json() : {};
 
-    if (!resposta.ok || !resultado.ok) {
-      throw new Error(resultado.error || 'Não foi possível cadastrar o evento.');
+    if (!resposta.ok || !result.ok) {
+      throw new Error(result.error || 'Não foi possível cadastrar o evento.');
     }
 
-    showToast(resultado.message || 'Evento cadastrado com sucesso!', false);
-    setTimeout(() => {
-      window.location.href = resultado.redirect_url;
-    }, 900);
+    showToast(result.message || 'Evento cadastrado com sucesso!', false);
+    setTimeout(() => { window.location.href = result.redirect_url; }, 900);
   } catch (erro) {
     btn.classList.remove('loading');
     btn.disabled = false;
@@ -297,11 +384,12 @@ async function submitForm() {
   }
 }
 
+/* ── Limpar formulário ── */
 function resetForm() {
   ['categoria_id','local_id','data','hora','observacao'].forEach(id => {
     const el = document.getElementById(id);
     el.value = '';
-    el.classList.remove('error','success');
+    el.classList.remove('error', 'success');
   });
   ['categoria','local','data','hora'].forEach(f => {
     const err = document.getElementById('err-' + f);
@@ -313,8 +401,9 @@ function resetForm() {
   document.getElementById('facialTrack').classList.remove('on');
 }
 
+/* ── Toast ── */
 function showToast(msg, isError) {
-  const t = document.getElementById('toast');
+  const t    = document.getElementById('toast');
   const icon = t.querySelector('.toast-icon');
   t.querySelector('#toastMsg').textContent = msg;
   icon.style.background = isError ? '#dc2626' : '#EF9F27';
@@ -322,8 +411,88 @@ function showToast(msg, isError) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
+<<<<<<< Updated upstream
 // preenche data mínima = hoje
 const today = new Date().toISOString().split('T')[0];
 document.getElementById('data').min = today;
+=======
+/* ── Modal nova categoria / local ──
+   Em vez de fetch+JSON, usa um <form> real.
+   A action aponta para a view correta; o campo
+   hidden "next" diz à view para redirecionar de
+   volta aqui com ?nova=<tipo> para exibir o toast.
+   ─────────────────────────────────────────────── */
+let tipoNovoItem = null;
+
+// URL atual sem query string (para usar no "next")
+const paginaAtual = window.location.pathname;
+
+function abrirModalNovo(tipo) {
+  tipoNovoItem = tipo;
+
+  const isCategoria = tipo === 'categoria';
+
+  // Título
+  document.getElementById('modalNovoTitulo').textContent =
+    isCategoria ? 'Nova categoria' : 'Novo local';
+
+  // Label do checkbox
+  document.getElementById('labelIsAtivo').textContent =
+    isCategoria ? 'Categoria ativa' : 'Local ativo';
+
+  // Endereço só para local
+  document.getElementById('campoEnderecoLocal').style.display =
+    isCategoria ? 'none' : 'block';
+
+  // Action do form → view correspondente
+  document.getElementById('formNovoItem').action = isCategoria
+    ? "{% url 'evento:categoria_create' %}"
+    : "{% url 'evento:local_create' %}";
+
+  // Campo "next": após salvar, a view redireciona para cá com ?nova=<tipo>
+  document.getElementById('hiddenNext').value = paginaAtual + '?nova=' + tipo;
+
+  // Limpa campos
+  document.getElementById('novoItemNome').value     = '';
+  document.getElementById('novoItemEndereco').value = '';
+  document.getElementById('novoItemIsAtivo').checked = true;
+  document.getElementById('err-novoItem').classList.remove('show');
+  document.getElementById('novoItemNome').classList.remove('error');
+
+  document.getElementById('modalNovoItem').classList.add('show');
+  setTimeout(() => document.getElementById('novoItemNome').focus(), 50);
+}
+
+function fecharModalNovo() {
+  document.getElementById('modalNovoItem').classList.remove('show');
+}
+
+// Fecha ao clicar fora
+document.getElementById('modalNovoItem').addEventListener('click', function (e) {
+  if (e.target === this) fecharModalNovo();
+});
+
+/* ── Toast automático quando voltou de um redirect do modal ──
+   A view redireciona para ?nova=categoria ou ?nova=local
+   após salvar. Lemos o parâmetro e exibimos o toast.        */
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  const nova   = params.get('nova');
+  if (nova === 'categoria') {
+    setTimeout(() => showToast('Categoria criada com sucesso!', false), 300);
+  } else if (nova === 'local') {
+    setTimeout(() => showToast('Local criado com sucesso!', false), 300);
+  }
+  // Limpa o ?nova= da URL sem recarregar a página
+  if (nova) {
+    const url = new URL(window.location);
+    url.searchParams.delete('nova');
+    history.replaceState({}, '', url);
+  }
+})();
+
+/* ── Data mínima = hoje ── */
+document.getElementById('data').min = new Date().toISOString().split('T')[0];
+>>>>>>> Stashed changes
 </script>
 {% endblock %}

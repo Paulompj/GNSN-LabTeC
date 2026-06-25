@@ -2,6 +2,8 @@
 {% load static %}
 {% block title %}Login{% endblock %}
 
+{% block head %}{% endblock %}
+
 {% block body %}
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card shadow-lg p-4 border-0" style="width: 100%; max-width: 420px; border-radius: 16px;">
@@ -75,6 +77,7 @@
             </div>
         </div>
     </div>
+    {% block footer %}{% endblock %}
     <style>
         /* Cores dos módulos existentes */
         .bg-guarda { background-color: #1a174d; }
