@@ -60,6 +60,12 @@ Cadastrar evento
         {% endif %}
       {% endfor %}
     </select>
+    <button type="button" class="btn-add-inline" onclick="abrirModalNovo('categoria')">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+        <path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Nova categoria
+    </button>
     <div class="field-error" id="err-categoria">Selecione uma categoria</div>
   </div>
 
@@ -78,6 +84,12 @@ Cadastrar evento
         {% endfor %}
       </select>
     </div>
+    <button type="button" class="btn-add-inline" onclick="abrirModalNovo('local')">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+        <path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Novo local
+    </button>
     <div class="field-error" id="err-local">Selecione um local</div>
   </div>
 
@@ -211,8 +223,6 @@ Cadastrar evento
   <span id="toastMsg">Evento cadastrado com sucesso!</span>
 </div>
 
-<<<<<<< Updated upstream
-=======
 <!-- =====================================================
      MODAL NOVA CATEGORIA / LOCAL
      Funciona como um mini-formulário independente que
@@ -268,7 +278,6 @@ Cadastrar evento
   </div>
 </div>
 
->>>>>>> Stashed changes
 {{ categorias_por_id|json_script:"categorias-por-id" }}
 {{ locais_por_id|json_script:"locais-por-id" }}
 
@@ -411,11 +420,6 @@ function showToast(msg, isError) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-<<<<<<< Updated upstream
-// preenche data mínima = hoje
-const today = new Date().toISOString().split('T')[0];
-document.getElementById('data').min = today;
-=======
 /* ── Modal nova categoria / local ──
    Em vez de fetch+JSON, usa um <form> real.
    A action aponta para a view correta; o campo
@@ -493,6 +497,5 @@ document.getElementById('modalNovoItem').addEventListener('click', function (e) 
 
 /* ── Data mínima = hoje ── */
 document.getElementById('data').min = new Date().toISOString().split('T')[0];
->>>>>>> Stashed changes
 </script>
 {% endblock %}
